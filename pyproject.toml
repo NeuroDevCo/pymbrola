@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pymbrola"
+dynamic = ["version"]
+description = 'A Python front-end for the MBROLA speech synthesizer'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "gongcastro", email = "gongarciacastro@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/gongcastro/pymbrola#readme"
+Issues = "https://github.com/gongcastro/pymbrola/issues"
+Source = "https://github.com/gongcastro/pymbrola"
+
+[tool.hatch.version]
+path = "src/pymbrola/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/pymbrola tests}"
+
+[tool.coverage.run]
+source_pkgs = ["pymbrola", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/pymbrola/__about__.py",
+]
+
+[tool.coverage.paths]
+pymbrola = ["src/pymbrola", "*/pymbrola/src/pymbrola"]
+tests = ["tests", "*/pymbrola/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
