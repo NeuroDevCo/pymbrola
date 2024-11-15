@@ -1,7 +1,7 @@
 # pymbrola
 
-[![PyPI - Version](https://img.shields.io/pypi/v/pymbrola.svg)](https://pypi.org/project/pymbrola)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pymbrola.svg)](https://pypi.org/project/pymbrola)
+[![PyPI - Version](https://img.shields.io/pypi/v/mbrola.svg)](https://pypi.org/project/mbrola)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mbrola.svg)](https://pypi.org/project/mbrola)
 
 -----
 
