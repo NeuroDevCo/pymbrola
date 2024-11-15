@@ -153,7 +153,7 @@ def mbrola_cmd():
 @functools.cache
 def is_wsl(version: str = platform.uname().release) -> int:
     """
-    Returns `True` if Python is running in WSL, otherwise `False`
+    Returns ```True`` if Python is running in WSL, otherwise ```False``
     """
     return version.endswith("microsoft-standard-WSL2")
 
@@ -161,7 +161,7 @@ def is_wsl(version: str = platform.uname().release) -> int:
 @functools.cache
 def wsl_available() -> int:
     """
-    Returns `True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise `False`
+    Returns ```True`` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ```False``
     """
     if os.name != "nt" or not shutil.which("wsl"):
         return False
