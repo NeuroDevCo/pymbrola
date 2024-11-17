@@ -29,7 +29,13 @@ class MBROLA:
         If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
         onset_silence (int, optional): duration in milliseconds of the silence interval to be inserted at onset. Defaults to 1.
         offset_silence (int, optional): duration in milliseconds of the silence interval to be inserted at offset. Defaults to 1.
-
+    Examples:
+        >>> house = mb.MBROLA(
+                word = "house",
+                phonemes = ["h", "a", "U", "s"],
+                durations = "100",
+                pitch = 200
+            )
     Raises:
         ValueError: ``word`` must be a string
         ValueError: ``phon`` must be a list of strings

@@ -32,25 +32,25 @@ Issues = "https://github.com/gongcastro/pymbrola/issues"
 Source = "https://github.com/gongcastro/pymbrola"
 
 [tool.hatch.version]
-path = "src/mbrola/__about__.py"
+path = "mbrola/__about__.py"
 
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/mbrola tests}"
+check = "mypy --install-types --non-interactive {args:mbrola tests}"
 
 [tool.coverage.run]
 source_pkgs = ["mbrola", "tests"]
 branch = true
 parallel = true
 omit = [
-  "src/mbrola/__about__.py",
+  "mbrola/__about__.py",
 ]
 
 [tool.coverage.paths]
-pymbrola = ["src/mbrola", "*/pymbrola/src/mbrola"]
+pymbrola = ["mbrola", "*/pymbrola/mbrola"]
 tests = ["tests", "*/pymbrola/tests"]
 
 [tool.coverage.report]
