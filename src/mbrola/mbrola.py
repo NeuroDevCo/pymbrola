@@ -58,15 +58,13 @@ class MBROLA:
         phon: list[str],
         durations: list[int] | int = 100,
         pitch: list[int] | int = 200,
-        onset_silence: int = 1,
-        offset_silence: int = 1,
+        outer_silences: int = (1, 1),
     ):
         self.word = word
         self.phon = phon
         self.durations = durations
         self.pitch = pitch
-        self.onset_silence = onset_silence
-        self.offset_silence = offset_silence
+        self.outer_silences = outer_silences
 
         nphon = len(self.phon)
 
@@ -141,11 +139,11 @@ def make_pho(self) -> list[str]:
     Returns:
         list[str]: Lines in the PHO file.
     """
-    pho = [f"; {self.word}", f"_ {self.onset_silence}"]
+    pho = [f"; {self.word}", f"_ {self.outer_silences[0]}"]
     for ph, d, p in zip(self.phon, self.durations, self.pitch):
         p_seq = " ".join(p)
         pho.append(" ".join([ph, d, p_seq]))
-    pho.append(f"_ {self.offset_silence}")
+    pho.append(f"_ {self.outer_silences[1]}")
     return pho
 
 
