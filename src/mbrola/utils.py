@@ -1,3 +1,7 @@
+"""
+Util functions for the MBROLA class.
+"""
+
 import os
 import platform
 import shutil
@@ -5,7 +9,27 @@ import functools
 import subprocess as sp
 
 
+class PlatformException(Exception):
+    """Raise error platform is not Linux or Windows Subsystem for Linux.
+
+    Args:
+        Exception (Exception): A super class Exception.
+    """
+
+    def __init__(self):
+        self.message = f"MBROLA only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\Please, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."  # pylint: disable=line-too-long
+        super().__init__(self.message)
+
+
 def validate_mbrola_args(self) -> None:
+    """Validate MBROLA arguments.
+
+    Raises:
+        ValueError: ``phon`` and ``durations`` must have the same length.
+        ValueError: ``phon`` and ``pitch`` must have the same length.
+        ValueError: ``onset_silence`` must be a positive integer.
+        ValueError: ``offset_silence`` must be a positive integer.
+    """
     nphon = len(self.phon)
     if isinstance(self.durations, list) and len(self.durations) != nphon:
         raise ValueError("`phon` and `durations` must have the same length")
@@ -16,41 +40,36 @@ def validate_mbrola_args(self) -> None:
         raise ValueError("`onset_silence` must be a positive integer")
     if self.offset_silence <= 0:
         raise ValueError("`offset_silence` must be a positive integer")
-    return None
 
 
 @functools.cache
 def mbrola_cmd():
     """
     Get MBROLA command for system command line.
-    """
+    """  # pylint: disable=line-too-long
     try:
         if is_wsl() or os.name == "posix":
             return "mbrola"
-        if os.name == "nt":
-            if wsl_available():
-                return "wsl mbrola"
-            else:
-                raise Exception(
-                    f"MBROLA only available on {platform.system()} using the Windows Subsystem for Linux (WSL). Please, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."
-                )
-    except:
-        raise Exception(f"MBROLA not available for {platform.system()}")
+        if os.name == "nt" and wsl_available():
+            return "wsl mbrola"
+        raise PlatformException
+    except PlatformException:
+        return None
 
 
 @functools.cache
 def is_wsl(version: str = platform.uname().release) -> int:
     """
     Returns ```True`` if Python is running in WSL, otherwise ```False``
-    """
+    """  # pylint: disable=line-too-long
     return version.endswith("microsoft-standard-WSL2")
 
 
 @functools.cache
 def wsl_available() -> int:
     """
-    Returns ```True`` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ```False``
-    """
+    Returns ``True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
+    """  # pylint: disable=line-too-long
     if os.name != "nt" or not shutil.which("wsl"):
         return False
     try:

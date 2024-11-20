@@ -1,6 +1,13 @@
+"""
+A Python front-end to MBROLA.
+
+References:
+    Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
+"""  # pylint: disable=line-too-long
+
 import os
 import subprocess as sp
-import src.mbrola.utils as utils
+from src.mbrola import utils
 
 
 class MBROLA:
@@ -43,7 +50,7 @@ class MBROLA:
         ValueError: ``phon`` and ``pitch`` must have the same length
         ValueError: ``onset_silence`` must be an integer
         ValueError: ``offset_silence`` must be an integer
-    """
+    """  # pylint: disable=line-too-long
 
     def __init__(
         self,
@@ -82,9 +89,14 @@ class MBROLA:
     def __repr__(self):
         return str("\n".join(self.pho))
 
-    def export_pho(self, file: str):
+    def export_pho(self, file: str) -> None:
+        """Save PHO file.
+
+        Args:
+            file (str): Path of the output PHO file.
+        """
         try:
-            with open(f"{file}", "w+") as f:
+            with open(f"{file}", "w+", encoding="utf-8") as f:
                 f.write("\n".join(self.pho))
         except FileNotFoundError:
             print(f"{file} is not a valid path")
@@ -96,15 +108,24 @@ class MBROLA:
         f0_ratio: float = 1.0,
         dur_ratio: float = 1.0,
         remove_pho: bool = True,
-    ):
-        with open("tmp.pho", mode="w") as f:
+    ) -> None:
+        """Generate MBROLA sound WAV file.
+
+        Args:
+            file (str): Path to the output WAV file.
+            voice (str, optional): MBROLA voice to use. Defaults to "it4". Note phoneme symbols may be specific to voices.
+            f0_ratio (float, optional): Constant to multiply the fundamental frequency of the whole sound by. Defaults to 1.0 (same fundamental frequency).
+            dur_ratio (float, optional): Constant to multiply the duration of the whole sound by. Defaults to 1.0 (same duration).
+            remove_pho (bool, optional): Should the intermediate PHO file be deleted after the sound is created? Defaults to True.
+        """
+        with open("tmp.pho", mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
         cmd = f"{utils.mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} tmp.pho {file}"
 
         try:
             sp.check_output(cmd)
-        except sp.CalledProcessError as e:
+        except sp.CalledProcessError:
             print(f"Error when making sound for {file}")
         f.close()
         if remove_pho:
@@ -113,6 +134,13 @@ class MBROLA:
 
 
 def make_pho(self) -> list[str]:
+    """Generate PHO file.
+
+    A PHO (.pho) file contains the phonological information of the speech sound in a format that MBROLA can read. See more examples in the MBROLA documentation (https://github.com/numediart/MBROLA).
+
+    Returns:
+        list[str]: Lines in the PHO file.
+    """
     pho = [f"; {self.word}", f"_ {self.onset_silence}"]
     for ph, d, p in zip(self.phon, self.durations, self.pitch):
         p_seq = " ".join(p)
@@ -122,6 +150,4 @@ def make_pho(self) -> list[str]:
 
 
 if __name__ == "__main__":
-    house = MBROLA(
-        word="house", phonemes=["h", "a", "U", "s"], durations="100", pitch=200
-    )
+    house = MBROLA(word="house", phon=["h", "a", "U", "s"], durations="100", pitch=200)
