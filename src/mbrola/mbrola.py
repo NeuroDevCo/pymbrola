@@ -59,7 +59,7 @@ class MBROLA:
         durations: list[int] | int = 100,
         pitch: list[int] | int = 200,
         outer_silences: int = (1, 1),
-    ):
+    ):  # pylint: disable=too-many-arguments
         self.word = word
         self.phon = phon
         self.durations = durations
@@ -106,7 +106,7 @@ class MBROLA:
         f0_ratio: float = 1.0,
         dur_ratio: float = 1.0,
         remove_pho: bool = True,
-    ) -> None:
+    ):  # pylint: disable=too-many-arguments
         """Generate MBROLA sound WAV file.
 
         Args:
@@ -128,7 +128,6 @@ class MBROLA:
         f.close()
         if remove_pho:
             os.remove("tmp.pho")
-        return None
 
 
 def make_pho(self) -> list[str]:
