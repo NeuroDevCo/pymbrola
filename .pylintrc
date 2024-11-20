@@ -1,4 +1,8 @@
 [MESSAGES CONTROL]
 disable=
-    too-many-arguments
-    too-many-positional-arguments
+    -too-many-arguments
+    -too-many-positional-arguments
+
+[DESIGN]
+max-positional-arguments=10
+max-arguments=10
