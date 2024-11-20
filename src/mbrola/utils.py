@@ -17,7 +17,7 @@ class PlatformException(Exception):
     """
 
     def __init__(self):
-        self.message = f"MBROLA only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\Please, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."  # pylint: disable=line-too-long
+        self.message = f"MBROLA only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."  # pylint: disable=line-too-long
         super().__init__(self.message)
 
 
