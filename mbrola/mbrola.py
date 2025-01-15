@@ -7,7 +7,7 @@ References:
 
 import os
 import subprocess as sp
-from src.mbrola import utils
+from mbrola import utils
 
 
 class MBROLA:
