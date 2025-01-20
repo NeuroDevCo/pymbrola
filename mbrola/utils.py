@@ -27,8 +27,8 @@ def validate_mbrola_args(self) -> None:
     Raises:
         ValueError: ``phon`` and ``durations`` must have the same length.
         ValueError: ``phon`` and ``pitch`` must have the same length.
-        ValueError: ``onset_silence`` must be a positive integer.
-        ValueError: ``offset_silence`` must be a positive integer.
+        ValueError: ``outer_silences`` must be a tuple of length 2.
+        ValueError: ``outer_silences`` must be a positive integer.
     """
     nphon = len(self.phon)
     if isinstance(self.durations, list) and len(self.durations) != nphon:
@@ -36,10 +36,12 @@ def validate_mbrola_args(self) -> None:
     if isinstance(self.pitch, list):
         if len(self.pitch) != nphon:
             raise ValueError("`phon` and `pitch` must have the same length")
-    if self.onset_silence <= 0:
-        raise ValueError("`onset_silence` must be a positive integer")
-    if self.offset_silence <= 0:
-        raise ValueError("`offset_silence` must be a positive integer")
+    if len(self.outer_silences) != 2:
+        raise ValueError("`outer_silences` must be a tuple of length 2")
+    if self.outer_silences[0] <= 0:
+        raise ValueError("`outer_silences` must be a tuple of positive integers")
+    if self.outer_silences[1] <= 0:
+        raise ValueError("`outer_silences` must be a tuple positive integers")
 
 
 @functools.cache

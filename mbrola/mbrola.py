@@ -22,8 +22,7 @@ class MBROLA:
         If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (list[int] | int, optional): pitch in Hertz (Hz). Defaults to 200.
         If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
-        onset_silence (int, optional): duration in milliseconds of the silence interval to be inserted at onset. Defaults to 1.
-        offset_silence (int, optional): duration in milliseconds of the silence interval to be inserted at offset. Defaults to 1.
+        outer_silences (tuple, optional): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
 
     Attributes:
         word (str): label for the mbrola sound.
@@ -32,8 +31,7 @@ class MBROLA:
         If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (list[int] | int, optional): pitch in Hertz (Hz). Defaults to 200.
         If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
-        onset_silence (int, optional): duration in milliseconds of the silence interval to be inserted at onset. Defaults to 1.
-        offset_silence (int, optional): duration in milliseconds of the silence interval to be inserted at offset. Defaults to 1.
+        outer_silences (int, optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
     Examples:
         >>> house = mb.MBROLA(
                 word = "house",
@@ -48,8 +46,7 @@ class MBROLA:
         ValueError: ``phon`` and ``durations`` must have the same length
         ValueError: ``pitch`` must be a list of integers or an integer
         ValueError: ``phon`` and ``pitch`` must have the same length
-        ValueError: ``onset_silence`` must be an integer
-        ValueError: ``offset_silence`` must be an integer
+        ValueError: ``outer_silences`` must be a tuple of positive integers of length 2
     """  # pylint: disable=line-too-long
 
     def __init__(
