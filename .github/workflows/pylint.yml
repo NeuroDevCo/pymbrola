@@ -25,4 +25,4 @@ jobs:
           python-version-file: ".python-version"
       - name: Analysing the code with pylint
         run: |
-          pylint $(git ls-files '*.py')
+          uv run pylint $(git ls-files '*.py')
