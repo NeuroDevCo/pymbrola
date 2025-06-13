@@ -10,11 +10,11 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
+          cache-dependency-glob: "./uv.lock"
       - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
-          python-version-file: "/.python-version"
+          python-version-file: "./.python-version"
       - name: Analysing the code with pylint
         run: |
           uv run pylint $(git ls-files '*.py')
