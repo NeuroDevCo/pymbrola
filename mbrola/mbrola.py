@@ -6,11 +6,12 @@ References:
 """  # pylint: disable=line-too-long
 
 import os
-from pathlib import Path, PurePosixPath
+from pathlib import PurePosixPath, Path
 import re
+from collections.abc import Sequence
 import platform
 import shutil
-import functools
+from functools import singledispatch, cache, partial
 import subprocess as sp
 
 
@@ -26,14 +27,12 @@ def validate_word(
 
     Raises:
         TypeError: if `word` is not a str.
-        ValueError: if length if `word` exceeds 255 characters.
+        ValueError: if length if `word` exceeds 255 characters. This avoids accidentally very long inputs that could lead to memory issues.
         ValueError: if `word` contains at least one invalid character (['[', '<', '>', ':', '"', '/', '\\', '\\', '|', '?', '*', ']']).
 
     Returns:
         str: validated word.
     """  # pylint: disable=line-too-long
-    if not isinstance(word, str):
-        raise TypeError(f"`word` must be a str, but a {type(word)} was provided")
     if len(word) > max_chars:
         raise ValueError(f"`word` exceeds maximum characters ({max_chars})")
     if re.search(invalid_chars, word):
@@ -43,29 +42,15 @@ def validate_word(
     return word
 
 
-def validate_phon(phon: str | list[str]) -> list[str]:
-    """Validate argument `phon`.
-
-    Args:
-        phon (str or list[str]): string or list of phonemes.
-
-    Raises:
-        TypeError: if `phon` is not a str or list.
-
-    Returns:
-        list[str]: validated list of phonemes
-    """  # pylint: disable=line-too-long
-    if isinstance(phon, (str, list)):
-        return list(map(str, phon))
-    raise TypeError(f"`phon` must be a list, but {type(phon)} was provided")
-
-
-def validate_durations(phon: list[str], durations: int | list[int]) -> list[int]:
+@singledispatch
+def validate_durations(
+    durations: int | Sequence[int], phon: Sequence[str]
+) -> list[int]:
     """Validate argument `durations`.
 
     Args:
-        phon (str or list[str]): string or list of phonemes.
-        durations (list[int] | int, optional): phoneme duration in milliseconds. Defaults to 100.
+        durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100.
+        phon (Sequence[str]): string or list of phonemes.
 
     Raises:
         ValueError: if length of durations is different than length of phon.
@@ -74,23 +59,30 @@ def validate_durations(phon: list[str], durations: int | list[int]) -> list[int]
     Returns:
         list[int]: Phoneme durations.
     """  # pylint: disable=line-too-long
-    if isinstance(durations, int):
-        return [durations] * len(phon)
-    if isinstance(durations, list):
-        if len(durations) != len(phon):
-            raise ValueError(f"`{durations}` must be the same length as {phon}")
-        return list(map(int, durations))
     raise TypeError(
         f"`durations` must be int or list, but {type(durations)} was provided"
     )
 
 
-def validate_pitch(phon: list[str], pitch: int | list) -> list:
+@validate_durations.register
+def _(durations: int, phon: str | Sequence[str]) -> list[int]:
+    return [durations] * len(phon)
+
+
+@validate_durations.register
+def _(durations: Sequence, phon: str | Sequence[str]) -> list[int]:
+    if len(durations) != len(phon):
+        raise ValueError(f"`{durations}` must be the same length as {phon}")
+    return list(map(int, durations))
+
+
+@singledispatch
+def validate_pitch(pitch: int | Sequence, phon: Sequence[str]) -> list:
     """Validate argument `pitch`.
 
     Args:
-        phon (str or list[str]): string or list of phonemes.
-        pitch (list[int] | int, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
+        pitch (int | Sequence, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
+        phon (str | Sequence[str]): string or list of phonemes.
 
     Raises:
         TypeError: if pitch is not int or list.
@@ -100,29 +92,35 @@ def validate_pitch(phon: list[str], pitch: int | list) -> list:
     Returns:
         list: validated pitch.
     """
-    if isinstance(pitch, int):
-        return [[pitch, pitch]] * len(phon)
-    if isinstance(pitch, list):
-        if len(pitch) != len(phon):
-            raise ValueError("`pitch` must be of same length as `phon`")
-        for i, p in enumerate(pitch):
-            if not isinstance(p, (int, list)):
-                raise TypeError(
-                    f"All elements in `pitch` must be int or list, but element {i} ({p}) is {type(p)}"
-                )
-            if isinstance(p, list) and not all(isinstance(pi, int) for pi in p):
-                raise TypeError(
-                    f"List elements inside `pitch` must contain only int, but element {i} ({p}) contains an non-int."
-                )
-        return [[p, p] if isinstance(p, int) else p for p in pitch]
-    raise TypeError(f"`pitch` must be int or list, but {type(pitch)} was provided")
+    raise TypeError(f"`pitch` must be int or Sequence, but {type(pitch)} was provided")
 
 
-def validate_outer_silences(outer_silences: tuple):
+@validate_pitch.register
+def _(pitch: int, phon: Sequence[str]) -> list:
+    return [[pitch, pitch]] * len(phon)
+
+
+@validate_pitch.register
+def _(pitch: Sequence, phon: Sequence[str]) -> list:
+    if len(pitch) != len(phon):
+        raise ValueError("`pitch` must be of same length as `phon`")
+    for i, p in enumerate(pitch):
+        if not isinstance(p, (int, list)):
+            raise TypeError(
+                f"All elements in `pitch` must be int or list, but element {i} ({p}) is {type(p)}"
+            )
+        if isinstance(p, list) and not all(isinstance(pi, int) for pi in p):
+            raise TypeError(
+                f"List elements inside `pitch` must contain only int, but element {i} ({p}) contains an non-int."
+            )
+    return [[p, p] if isinstance(p, int) else p for p in pitch]
+
+
+def validate_outer_silences(outer_silences: Sequence[int]):
     """Validate argument `outer_silences`.
 
     Args:
-        outer_silences (tuple[int, int]): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
+        outer_silences (Sequence[int]): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
 
     Raises:
         TypeError: if outer_silences is not a tuple of int of length 2.
@@ -130,6 +128,7 @@ def validate_outer_silences(outer_silences: tuple):
     Returns:
         tuple[int, int]: validated outer_silences.
     """
+
     if (
         not isinstance(outer_silences, tuple)
         or len(outer_silences) != 2
@@ -146,14 +145,14 @@ class MBROLA:
 
     Args:
         word (str): label for the mbrola sound.
-        phon (list[str]): list of phonemes.
-        durations (list[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
+        phon (list[str] | tuple[int]): list of phonemes.
+        durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (list[int] | int, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
         outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
     Attributes:
         word (str): label for the mbrola sound.
-        phon (list[str]): list of phonemes.
+        phon (Sequence[str]): list of phonemes.
         durations (list[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (list[int] | int, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
         outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
@@ -169,15 +168,15 @@ class MBROLA:
     def __init__(
         self,
         word: str,
-        phon: list[str],
-        durations: list[int] | int = 100,
-        pitch: list[int] | int = 200,
-        outer_silences: tuple[int, int] = (1, 1),
+        phon: str | Sequence[str],
+        durations: int | Sequence[int] = 100,
+        pitch: int | Sequence[int] = 200,
+        outer_silences: Sequence[int] = (1, 1),
     ):
         self.word = validate_word(word)
-        self.phon = validate_phon(phon)
-        self.durations = validate_durations(phon, durations)
-        self.pitch = validate_pitch(self.phon, pitch)
+        self.phon = list(map(str, phon))
+        self.durations = validate_durations(durations, phon)
+        self.pitch = validate_pitch(pitch, self.phon)
         self.outer_silences = validate_outer_silences(outer_silences)
         self.pho = make_pho(self)
 
@@ -194,7 +193,6 @@ class MBROLA:
         return self.pho == other.pho
 
     def __add__(self, other, sep="_"):
-
         self.word = self.word + sep + other.word
         self.phon = self.phon + other.phon
         self.pho = self.pho + other
@@ -275,21 +273,7 @@ class PlatformException(Exception):
         super().__init__(self.message)
 
 
-def cmd(x: str, timeout: int = 300, encoding: str = "UTF-8", **kwargs):
-    """Run command using subprocess.
-
-    Args:
-        x (str): command to run.
-        timeout (int, optional): timeout upper limit in seconds. Defaults to 15.
-        encoding (str, optional): output encoding. Defaults to "UTF-8".
-
-    Returns:
-        any: whatever output the subprocess generates.
-    """
-    return sp.check_output(x, timeout=timeout, encoding=encoding, **kwargs)
-
-
-@functools.cache
+@cache
 def mbrola_cmd():
     """
     Get MBROLA command for system command line.
@@ -304,23 +288,26 @@ def mbrola_cmd():
         return None
 
 
-@functools.cache
-def is_wsl(version: str = platform.uname().release) -> int:
-    """
-    Returns ```True`` if Python is running in WSL, otherwise ```False``
+@cache
+def is_wsl(version: str = platform.uname().release) -> bool:
+    """Evaluate if function is running on Windows Subsystem for Linux (WSL).
+
+    Returns:
+        bool: returns ``True`` if Python is running in WSL, otherwise ``False``.
     """  # pylint: disable=line-too-long
     return version.endswith("microsoft-standard-WSL2")
 
 
-@functools.cache
+@cache
 def wsl_available() -> int:
     """
     Returns ``True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
     """  # pylint: disable=line-too-long
     if os.name != "nt" or not shutil.which("wsl"):
         return False
+    cmd = partial(sp.check_output, timeout=300, encoding="UTF-8", text=True)
     try:
-        return is_wsl(cmd(["wsl", "uname", "-r"], text=True, timeout=200).strip())
+        return is_wsl(cmd(["wsl", "uname", "-r"]).strip())
     except sp.SubprocessError:
         return False
 

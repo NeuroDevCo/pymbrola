@@ -37,6 +37,12 @@ def test_mbrola_attr_type():
     assert callable(cafe.make_sound)
 
 
+def test_mbrola_dunders():
+    """Test that string is correct."""
+    assert f"MBROLA object for word" in str(cafe)
+    assert f"MBROLA object for word" in repr(cafe)
+
+
 def test_mbrola_pho():
     """Test mbrola.pho attribute."""
     assert len(cafe.pho) == len(cafe.phon) + 3
