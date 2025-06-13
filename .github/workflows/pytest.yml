@@ -15,7 +15,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.12"]
-        os: ["windows-latest", "macos-latest"]
+        os: ["windows-latest", "macos-latest", "ubuntu-latest"]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -31,6 +31,6 @@ jobs:
           pip install -r requirements.txt
       - name: Test with pytest
         run: |
-          pytest
+          uv run pytest --cov=mbrola --cov-report=term-missing
         env:
           API_TEST_KEY: ${{ secrets.API_TEST_KEY }}
