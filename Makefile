@@ -7,6 +7,9 @@ publish:
 install:
 	python -m pip install -e .
 
+test:
+	python -m pytest
+	
 main:
 	hatch run .\src\mbrola\mbrola.py
 
