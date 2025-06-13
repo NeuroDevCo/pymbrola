@@ -39,8 +39,8 @@ def test_mbrola_attr_type():
 
 def test_mbrola_dunders():
     """Test that string is correct."""
-    assert f"MBROLA object for word" in str(cafe)
-    assert f"MBROLA object for word" in repr(cafe)
+    assert "MBROLA object for word" in str(cafe)
+    assert "MBROLA object for word" in repr(cafe)
 
 
 def test_mbrola_pho():
