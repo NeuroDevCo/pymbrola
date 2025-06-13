@@ -2,25 +2,12 @@ FROM ubuntu:22.04
 
 WORKDIR /project
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    software-properties-common
-RUN add-apt-repository universe
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    python3 \
-    python3-pip \
-    make \
-    gcc \
-    mbrola
+COPY ./mbrola/install.py /project/.
 
-# Install Python dependencies
-RUN pip install numpy pandas matplotlib mbrola
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install MBROLA
-RUN git clone https://github.com/numediart/MBROLA-voices.git ~/MBROLA-voices &&\
-    cp -r ~/MBROLA-voices/data/. /usr/share/mbrola/
-RUN git clone https://github.com/numediart/MBROLA.git ~/MBROLA &&\
-    cd ~/MBROLA && \
-    make 
+RUN apt-get update
+
+RUN apt-get install -y git build-essential python3-full python3-rich
+RUN git config --global core.compression 0
+RUN python3 /project/install.py
