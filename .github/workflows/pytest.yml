@@ -24,11 +24,6 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest
-          pip install -r requirements.txt
       - name: Test with pytest
         run: |
           uv run pytest --cov=mbrola --cov-report=term-missing
