@@ -25,7 +25,7 @@ jobs:
 
       - name: Installing MBROLA
         run: |
-          sudo /bin/bash bin/install.sh
+          sudo /bin/bash src/mbrola/install.sh
 
       - name: Testing with Pytest
         run: |
