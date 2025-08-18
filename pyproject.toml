@@ -29,6 +29,17 @@ Documentation = "https://github.com/gongcastro/pymbrola#readme"
 Issues = "https://github.com/gongcastro/pymbrola/issues"
 Source = "https://github.com/gongcastro/pymbrola"
 
+[build-system]
+requires = ["setuptools>=78.1.0", "wheel>=0.45.1"]
+build-backend = "setuptools.build_meta"
+
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/"
+publish-url = "https://pypi.org/"
+explicit = true
+
 [tool.hatch.version]
 path = "mbrola/__about__.py"
 
@@ -53,6 +64,7 @@ omit = [
   "mbrola/__about__.py",
 ]
 
+
 [tool.hatch.build.targets.sdist]
 exclude = [
   "/.benchmarks",
@@ -67,8 +79,6 @@ exclude = [
   "/tests",
   "/uv.lock",
   "/voices",
-
-
 ]
 
 [tool.pytest.ini_options]
@@ -87,6 +97,7 @@ exclude_lines = [
 
 [dependency-groups]
 dev = [
+    "hatch>=1.14.1",
     "pytest>=8.3.5",
     "pytest-cov>=5.0.0",
     "ruff>=0.12.9",
