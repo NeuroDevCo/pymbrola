@@ -23,7 +23,7 @@ A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech 
 ## Requirements
 
 - Python 3.8+
-- [MBROLA binary](https://github.com/numediart/MBROLA) installed and available in your system path, or via WSL for Windows users.
+- [MBROLA binary](https://github.com/numediart/MBROLA) installed and available in your system path, or via WSL for Windows users. To install MBROLA in your UBUNTU or WSL instance, run the [mbrola/install.sh] script. A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience.
 - MBROLA voices (e.g., `it4`) must be installed at `/usr/share/mbrola/<voice>/<voice>`.
 
 ## Installation
@@ -71,3 +71,4 @@ The module uses the MBROLA command line tool under the hood. Ensure MBROLA is in
 ## License
 
 `pymbrola` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+
