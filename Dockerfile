@@ -1,13 +1,8 @@
-FROM ubuntu:22.04
-
+FROM python:3.12
 WORKDIR /project
-
-COPY ./mbrola/install.py /project/.
-
 ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update
-
-RUN apt-get install -y git build-essential python3-full python3-rich
+COPY bin/install.sh /install.sh 
+RUN apt-get update && apt-get install -y git build-essential gcc
 RUN git config --global core.compression 0
-RUN python3 /project/install.py
+RUN /install.sh
+COPY mbrola/mbrola.py /project/
