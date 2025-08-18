@@ -6,7 +6,7 @@ References:
 """  # pylint: disable=line-too-long
 
 import os
-from pathlib import PurePosixPath, Path
+from pathlib import Path
 import re
 from collections.abc import Sequence
 import platform
@@ -203,15 +203,12 @@ class MBROLA:
         Args:
             file (str): Path of the output PHO file.
         """
-        try:
-            with open(f"{file}", "w+", encoding="utf-8") as f:
-                f.write("\n".join(self.pho))
-        except FileNotFoundError:
-            print(f"{file} is not a valid path")
+        with open(f"{file}", "w+", encoding="utf-8") as f:
+            f.write("\n".join(self.pho))
 
     def make_sound(
         self,
-        file: str,
+        file: str | Path,
         voice: str = "it4",
         f0_ratio: float = 1.0,
         dur_ratio: float = 1.0,
@@ -226,16 +223,17 @@ class MBROLA:
             dur_ratio (float, optional): Constant to multiply the duration of the whole sound by. Defaults to 1.0 (same duration).
             remove_pho (bool, optional): Should the intermediate PHO file be deleted after the sound is created? Defaults to True.
         """
-        with open("tmp.pho", mode="w", encoding="utf-8") as f:
+        pho = Path("tmp.pho")
+        with open(pho, mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
-        cmd_str = f"{mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} tmp.pho {PurePosixPath(file)}"
+        cmd_str = f"{mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {Path(file)}"
         try:
-            sp.check_output(cmd_str)
+            sp.check_output(cmd_str, shell=True)
         except sp.CalledProcessError as e:
             print(f"Error when making sound for {file}: {e}")
         f.close()
         if remove_pho:
-            os.remove("tmp.pho")
+            pho.unlink()
 
 
 def make_pho(x) -> list[str]:
@@ -252,7 +250,7 @@ def make_pho(x) -> list[str]:
         list[str]: Lines in the PHO file.
     """
     if not isinstance(x, MBROLA):
-        raise TypeError("`x` must be of type MBROLA")
+        raise TypeError("`x` must be an instance of MBROLA class")
     pho = [f"; {x.word}", f"_ {x.outer_silences[0]}"]
     for ph, d, p in zip(x.phon, x.durations, x.pitch):
         p_seq = " ".join([str(pi) for pi in p])
@@ -269,7 +267,7 @@ class PlatformException(Exception):
     """
 
     def __init__(self):
-        self.message = f"MBROLA only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."  # pylint: disable=line-too-long
+        self.message = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."  # pylint: disable=line-too-long
         super().__init__(self.message)
 
 
@@ -305,7 +303,7 @@ def wsl_available() -> int:
     """  # pylint: disable=line-too-long
     if os.name != "nt" or not shutil.which("wsl"):
         return False
-    cmd = partial(sp.check_output, timeout=300, encoding="UTF-8", text=True)
+    cmd = partial(sp.check_output, timeout=5, encoding="UTF-8", text=True)
     try:
         return is_wsl(cmd(["wsl", "uname", "-r"]).strip())
     except sp.SubprocessError:
@@ -320,5 +318,6 @@ if __name__ == "__main__":
         pitch=[200, [200, 100, 100, 200], 200, 200, 200],
         outer_silences=(10, 10),
     )
+    cafe.export_pho("test.pho")
     print(cafe)
-    cafe.make_sound(Path("tests", "test.wav"))
+    cafe.make_sound("./test.wav")

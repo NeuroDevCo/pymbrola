@@ -1,4 +1,4 @@
-name: Pylint
+name: Lint and test
 
 on: [push]
 
@@ -21,4 +21,12 @@ jobs:
 
       - name: Analysing the code with pylint
         run: |
-          uv run pylint $(git ls-files '*.py')
+          uv run ruff check
+
+      - name: Installing MBROLA
+        run: |
+          /bin/bash bin/install.sh
+
+      - name: Testing with Pytest
+        run: |
+          uv run pytest --cov=mbrola --cov-report=term-missing
