@@ -7,10 +7,10 @@
 
 A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech synthesizer, enabling programmatic creation of MBROLA-compatible phoneme files and automated audio synthesis. This module validates phoneme, duration, and pitch sequences, generates `.pho` files, and can call the MBROLA executable to synthesize speech audio from text-like inputs.
 
-> **References:**  
-> Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October).  
-> The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes.  
-> In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE.  
+> **References:**
+> Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October).
+> The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes.
+> In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE.
 > [https://doi.org/10.1109/ICSLP.1996.607874](https://doi.org/10.1109/ICSLP.1996.607874)
 
 ## Features
@@ -42,21 +42,21 @@ pip install mbrola
 import mbrola
 
 # Create an MBROLA object
-house = mbrola.MBROLA(
-    word="house",
-    phon=["h", "a", "U", "s"],
+caffe = MBROLA(
+    word="caffè",
+    phon=["k", "a", "f", "f", "E1"],
     durations=100,  # or [100, 120, 100, 110]
-    pitch=[200, [200, 50, 200], 200, 100]
+    pitch=[100, [200, 50, 200], 100, 100, 200]
 )
 
 # Display phoneme sequence
-print(house)
+print(caffe)
 
 # Export PHO file
-house.export_pho("house.pho")
+caffe.export_pho("caffe.pho")
 
 # Synthesize and save audio (WAV file)
-house.make_sound("house.wav", voice="it4")
+caffe.make_sound("caffe.wav", voice="it4")
 ```
 
 The module uses the MBROLA command line tool under the hood. Ensure MBROLA is installed and available in your system path, or WSL if on Windows.
@@ -71,4 +71,3 @@ The module uses the MBROLA command line tool under the hood. Ensure MBROLA is in
 ## License
 
 `pymbrola` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
-
