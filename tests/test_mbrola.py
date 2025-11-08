@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 import pytest
-from mbrola import mbrola
+import mbrola
 
 cafe = mbrola.MBROLA("cafè", ["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
 

@@ -21,7 +21,7 @@ fi
 # Download and unzip MBROLA
 FNAME="mbrola-${RELEASE}.tar.gz"
 curl -L https://github.com/${REPO}/archive/refs/tags/${RELEASE}.tar.gz > ${FNAME}
-tar -xf ${FNAME}
+tar -xvf ${FNAME}
 
 # Compile MBROLA
 cd MBROLA-${RELEASE}

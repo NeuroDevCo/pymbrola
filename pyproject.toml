@@ -1,6 +1,6 @@
 [project]
 name = "mbrola"
-version = "0.2.0"
+version = "0.2.1"
 description = 'A Python front-end for the MBROLA speech synthesizer'
 readme = "README.md"
 requires-python = ">=3.12"
@@ -41,7 +41,7 @@ publish-url = "https://pypi.org/"
 explicit = true
 
 [tool.hatch.version]
-path = "mbrola/__about__.py"
+path = "src/__about__.py"
 
 [tool.hatch.envs.types]
 extra-dependencies = [
@@ -54,16 +54,18 @@ extra-dependencies = [
 python = ["3.10", "3.11"]
 
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:mbrola tests}"
+check = "mypy --install-types --non-interactive {args:src tests}"
 
 [tool.coverage.run]
-source_pkgs = ["mbrola", "tests"]
+source_pkgs = ["src", "tests"]
 branch = true
 parallel = true
 omit = [
-  "mbrola/__about__.py",
+  "src/__about__.py",
 ]
 
+[tool.hatch.build]
+sources = ["src"]
 
 [tool.hatch.build.targets.sdist]
 exclude = [
@@ -85,7 +87,7 @@ exclude = [
 addopts = "--maxfail=1 --cov=testing_demo"
 
 [tool.coverage.paths]
-pymbrola = ["mbrola", "*/pymbrola/mbrola"]
+pymbrola = ["src"]
 tests = ["tests", "*/pymbrola/tests"]
 
 [tool.coverage.report]

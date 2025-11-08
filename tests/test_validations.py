@@ -1,7 +1,7 @@
 """Test validation functions."""
 
 import pytest
-from mbrola import mbrola
+import mbrola
 
 WORD = "mbrola"
 PHON = list(WORD)
