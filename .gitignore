@@ -170,3 +170,4 @@ voices/
 /.benchmarks
 *.wav
 *.pho
+src/mbrola.egg-info/

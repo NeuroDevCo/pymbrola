@@ -8,6 +8,7 @@ Project-URL: Documentation, https://github.com/gongcastro/pymbrola#readme
 Project-URL: Issues, https://github.com/gongcastro/pymbrola/issues
 Project-URL: Source, https://github.com/gongcastro/pymbrola
 Classifier: Development Status :: 4 - Beta
+Classifier: Operating System :: POSIX :: Linux
 Classifier: Programming Language :: Python
 Classifier: Programming Language :: Python :: 3.8
 Classifier: Programming Language :: Python :: 3.9
