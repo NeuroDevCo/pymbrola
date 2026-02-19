@@ -3,7 +3,7 @@ A Python front-end to MBROLA.
 
 References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
-"""  # pylint: disable=line-too-long
+"""
 
 import os
 from pathlib import Path
@@ -32,7 +32,7 @@ def validate_word(
 
     Returns:
         str: validated word.
-    """  # pylint: disable=line-too-long
+    """
     if len(word) > max_chars:
         raise ValueError(f"`word` exceeds maximum characters ({max_chars})")
     if re.search(invalid_chars, word):
@@ -58,7 +58,7 @@ def validate_durations(
 
     Returns:
         list[int]: Phoneme durations.
-    """  # pylint: disable=line-too-long
+    """
     raise TypeError(
         f"`durations` must be int or list, but {type(durations)} was provided"
     )
@@ -153,9 +153,9 @@ class MBROLA:
     Attributes:
         word (str): label for the mbrola sound.
         phon (Sequence[str]): list of phonemes.
-        durations (list[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
-        pitch (list[int] | int, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
-        outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
+        durations (Sequence[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
+        pitch (int | Sequence[int] | Sequence[int | Sequence[int]], optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
+        outer_silences (Sequence[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
     Examples:
         >>> house = mb.MBROLA(
                 word = "house",
@@ -163,14 +163,14 @@ class MBROLA:
                 durations = "100",
                 pitch = [200, [200, 50, 200], 200, 100]
             )
-    """  # pylint: disable=line-too-long
+    """
 
     def __init__(
         self,
         word: str,
         phon: str | Sequence[str],
         durations: int | Sequence[int] = 100,
-        pitch: int | Sequence[int] = 200,
+        pitch: int | Sequence[int] | Sequence[int | Sequence[int]] = 200,
         outer_silences: Sequence[int] = (1, 1),
     ):
         self.word = validate_word(word)
@@ -197,13 +197,13 @@ class MBROLA:
         self.phon = self.phon + other.phon
         self.pho = self.pho + other
 
-    def export_pho(self, file: str) -> None:
+    def export_pho(self, file: str | Path) -> None:
         """Save PHO file.
 
         Args:
             file (str): Path of the output PHO file.
         """
-        with open(f"{file}", "w+", encoding="utf-8") as f:
+        with Path(file).open("w+", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
     def make_sound(
@@ -224,19 +224,23 @@ class MBROLA:
             remove_pho (bool, optional): Should the intermediate PHO file be deleted after the sound is created? Defaults to True.
         """
         pho = Path("tmp.pho")
-        with open(pho, mode="w", encoding="utf-8") as f:
+
+        with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
-        cmd_str = f"{mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {Path(file)}"
+
+        cmd_str = f"{mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {str(Path(file))}"
+
         try:
             sp.check_output(cmd_str, shell=True)
         except sp.CalledProcessError as e:
             print(f"Error when making sound for {file}: {e}")
+
         f.close()
         if remove_pho:
             pho.unlink()
 
 
-def make_pho(x) -> list[str]:
+def make_pho(x: MBROLA) -> list[str]:
     """Generate PHO file.
 
     A PHO (.pho) file contains the phonological information of the speech sound in a format that MBROLA can read. See more examples in the MBROLA documentation (https://github.com/numediart/MBROLA).
@@ -246,16 +250,21 @@ def make_pho(x) -> list[str]:
 
     Raises:
         TypeError: if ``x`` is not a MBROLA object.
+
     Returns:
         list[str]: Lines in the PHO file.
     """
     if not isinstance(x, MBROLA):
         raise TypeError("`x` must be an instance of MBROLA class")
+
     pho = [f"; {x.word}", f"_ {x.outer_silences[0]}"]
+
     for ph, d, p in zip(x.phon, x.durations, x.pitch):
         p_seq = " ".join([str(pi) for pi in p])
         pho.append(" ".join(map(str, [ph, d, p_seq])))
+
     pho.append(f"_ {x.outer_silences[1]}")
+
     return pho
 
 
@@ -267,7 +276,7 @@ class PlatformException(Exception):
     """
 
     def __init__(self):
-        self.message = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."  # pylint: disable=line-too-long
+        self.message = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."
         super().__init__(self.message)
 
 
@@ -275,13 +284,16 @@ class PlatformException(Exception):
 def mbrola_cmd():
     """
     Get MBROLA command for system command line.
-    """  # pylint: disable=line-too-long
+    """
     try:
         if is_wsl() or os.name == "posix":
             return "mbrola"
+
         if os.name == "nt" and wsl_available():
             return "wsl mbrola"
-        raise PlatformException
+
+        raise PlatformException()
+
     except PlatformException:
         return None
 
@@ -292,18 +304,23 @@ def is_wsl(version: str = platform.uname().release) -> bool:
 
     Returns:
         bool: returns ``True`` if Python is running in WSL, otherwise ``False``.
-    """  # pylint: disable=line-too-long
+    """
     return version.endswith("microsoft-standard-WSL2")
 
 
 @cache
-def wsl_available() -> int:
+def wsl_available() -> bool | int:
     """
-    Returns ``True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
-    """  # pylint: disable=line-too-long
+    Check if Windows Subsystem for Linux (WSL is available).
+
+    Returns:
+        bool | int: ``True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
+    """
     if os.name != "nt" or not shutil.which("wsl"):
         return False
+
     cmd = partial(sp.check_output, timeout=5, encoding="UTF-8", text=True)
+
     try:
         return is_wsl(cmd(["wsl", "uname", "-r"]).strip())
     except sp.SubprocessError:
