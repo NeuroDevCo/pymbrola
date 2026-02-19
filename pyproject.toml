@@ -1,6 +1,6 @@
 [project]
 name = "mbrola"
-version = "0.2.1"
+version = "0.2.2"
 description = 'A Python front-end for the MBROLA speech synthesizer'
 readme = "README.md"
 requires-python = ">=3.12"
@@ -11,6 +11,7 @@ authors = [
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
+  "Operating System :: POSIX :: Linux",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
@@ -20,6 +21,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
+
 dependencies = [
     "pytest>=8.3.5",
 ]

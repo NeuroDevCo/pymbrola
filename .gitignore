@@ -168,3 +168,6 @@ voices/
 /**/*.tar
 /.ruff_cache
 /.benchmarks
+*.wav
+*.pho
+src/mbrola.egg-info/
