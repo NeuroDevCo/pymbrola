@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: mbrola
-Version: 0.2.1
+Version: 0.2.2
 Summary: A Python front-end for the MBROLA speech synthesizer
 Author-email: Gonzalo Garcia-Castro <gongarciacastro@gmail.com>
 License-Expression: MIT

@@ -5,13 +5,12 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
+from functools import singledispatch, cache, partial
 import os
 from pathlib import Path
-import re
-from collections.abc import Sequence
 import platform
+import re
 import shutil
-from functools import singledispatch, cache, partial
 import subprocess as sp
 
 
@@ -43,9 +42,7 @@ def validate_word(
 
 
 @singledispatch
-def validate_durations(
-    durations: int | Sequence[int], phon: Sequence[str]
-) -> list[int]:
+def validate_durations(durations: int | list[int], phon: list[str]) -> list[int]:
     """Validate argument `durations`.
 
     Args:
@@ -65,19 +62,20 @@ def validate_durations(
 
 
 @validate_durations.register
-def _(durations: int, phon: str | Sequence[str]) -> list[int]:
+def _(durations: int, phon: str | list[str]) -> list[int]:
     return [durations] * len(phon)
 
 
 @validate_durations.register
-def _(durations: Sequence, phon: str | Sequence[str]) -> list[int]:
+def _(durations: list, phon: str | list[str]) -> list[int]:
     if len(durations) != len(phon):
         raise ValueError(f"`{durations}` must be the same length as {phon}")
+
     return list(map(int, durations))
 
 
 @singledispatch
-def validate_pitch(pitch: int | Sequence, phon: Sequence[str]) -> list:
+def validate_pitch(pitch: int | list, phon: list[str]) -> list:
     """Validate argument `pitch`.
 
     Args:
@@ -96,27 +94,30 @@ def validate_pitch(pitch: int | Sequence, phon: Sequence[str]) -> list:
 
 
 @validate_pitch.register
-def _(pitch: int, phon: Sequence[str]) -> list:
+def _(pitch: int, phon: list[str]) -> list:
     return [[pitch, pitch]] * len(phon)
 
 
 @validate_pitch.register
-def _(pitch: Sequence, phon: Sequence[str]) -> list:
+def _(pitch: list, phon: list[str]) -> list:
     if len(pitch) != len(phon):
         raise ValueError("`pitch` must be of same length as `phon`")
+
     for i, p in enumerate(pitch):
         if not isinstance(p, (int, list)):
             raise TypeError(
                 f"All elements in `pitch` must be int or list, but element {i} ({p}) is {type(p)}"
             )
+
         if isinstance(p, list) and not all(isinstance(pi, int) for pi in p):
             raise TypeError(
                 f"List elements inside `pitch` must contain only int, but element {i} ({p}) contains an non-int."
             )
+
     return [[p, p] if isinstance(p, int) else p for p in pitch]
 
 
-def validate_outer_silences(outer_silences: Sequence[int]):
+def validate_outer_silences(outer_silences: tuple[int, int]):
     """Validate argument `outer_silences`.
 
     Args:
@@ -168,11 +169,14 @@ class MBROLA:
     def __init__(
         self,
         word: str,
-        phon: str | Sequence[str],
-        durations: int | Sequence[int] = 100,
-        pitch: int | Sequence[int] | Sequence[int | Sequence[int]] = 200,
-        outer_silences: Sequence[int] = (1, 1),
+        phon: str | list[str],
+        durations: int | list[int] = 100,
+        pitch: int | list[int] | list[int | list[int]] = 200,
+        outer_silences: tuple[int, int] = (1, 1),
     ):
+        if isinstance(phon, str):
+            phon = [phon]
+
         self.word = validate_word(word)
         self.phon = list(map(str, phon))
         self.durations = validate_durations(durations, phon)
