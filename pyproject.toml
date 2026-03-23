@@ -43,7 +43,7 @@ package = true
 
 
 [tool.coverage.run]
-source_pkgs = ["src/mbrola/"]
+source_pkgs = ["src"]
 branch = true
 parallel = true
 omit = ["src/__about__.py"]
