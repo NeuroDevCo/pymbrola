@@ -10,4 +10,3 @@ src/mbrola.egg-info/dependency_links.txt
 src/mbrola.egg-info/requires.txt
 src/mbrola.egg-info/top_level.txt
 tests/test_mbrola.py
-tests/test_validations.py
