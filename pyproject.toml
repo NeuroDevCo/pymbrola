@@ -1,6 +1,6 @@
 [project]
-name = "mbrola"
-version = "0.2.3"
+name = "pymbrola"
+version = "0.2.4"
 description = 'A Python front-end for the MBROLA speech synthesizer'
 readme = "README.md"
 requires-python = ">=3.12"
@@ -34,7 +34,7 @@ requires = ["setuptools>=78.1.0", "wheel>=0.45.1"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-package-dir = { "" = "src" }
+py-modules = ["mbrola"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -47,18 +47,23 @@ explicit = true
 package = true
 
 
-[tool.coverage.run]
-source_pkgs = ["src"]
-branch = true
-parallel = true
-omit = ["src/__about__.py"]
-
 
 [tool.pytest.ini_options]
-addopts = "--maxfail=1 --cov=testing_demo"
+testpaths = ["tests"]
+python_files = "test_*.py"
+addopts = "-v --maxfail=1 --cov=src"
+
+
+
+[tool.coverage.run]
+source_pkgs = ["mbrola"]
+branch = true
+parallel = true
+relative_files = true
+omit = ["src/__about__.py"]
 
 [tool.coverage.paths]
-pymbrola = ["src"]
+pymbrola = ["mbrola"]
 tests = ["tests"]
 
 [tool.coverage.report]
