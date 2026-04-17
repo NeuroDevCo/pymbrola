@@ -1,5 +1,5 @@
 [project]
-name = "pymbrola"
+name = "mbrola"
 version = "0.2.4"
 description = 'A Python front-end for the MBROLA speech synthesizer'
 readme = "README.md"
