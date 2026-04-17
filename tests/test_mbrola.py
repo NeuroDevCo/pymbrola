@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from src import mbrola
+import mbrola as mb
 
-cafe = mbrola.MBROLA("cafè", ["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
+cafe = mb.MBROLA("cafè", ["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
 
 
 WORD = "mbrola"
@@ -63,11 +63,11 @@ class TestPho:
 
     def test_make_pho(self):
         """Test make_pho function."""
-        tree = mbrola.MBROLA(word="vaca", phon=["b", "a", "k", "a"])
-        assert mbrola.make_pho(tree)
+        tree = mb.MBROLA(word="vaca", phon=["b", "a", "k", "a"])
+        assert mb.make_pho(tree)
 
         with pytest.raises(TypeError):
-            mbrola.make_pho("a")  # ty: ignore[invalid-argument-type]
+            mb.make_pho("a")  # ty: ignore[invalid-argument-type]
 
     def test_export_pho(self):
         """Test MBROLA.export_pho method."""
@@ -93,35 +93,35 @@ class TestSound:
 class TestValidations:
     def test_validate_word(self):
         """Validate validate_word."""
-        assert mbrola.validate_word(WORD)
-        assert mbrola.validate_word(WORD) == WORD
+        assert mb.validate_word(WORD)
+        assert mb.validate_word(WORD) == WORD
 
         with pytest.raises(TypeError):
-            mbrola.validate_word(1)  # ty: ignore[invalid-argument-type]
+            mb.validate_word(1)  # ty: ignore[invalid-argument-type]
 
         with pytest.raises(ValueError):
-            mbrola.validate_word("a" * 256)
+            mb.validate_word("a" * 256)
 
         with pytest.raises(ValueError):
-            mbrola.validate_word("a/")
+            mb.validate_word("a/")
 
     def test_validate_durations(self):
         """Test validate_durations."""
         nphon = len(PHON)
 
-        assert mbrola.validate_durations(100, PHON)
-        assert mbrola.validate_durations(100, PHON) == [100] * nphon
-        assert mbrola.validate_durations([100] * nphon, PHON)
-        assert mbrola.validate_durations([100] * nphon, PHON) == [100] * len(PHON)
+        assert mb.validate_durations(100, PHON)
+        assert mb.validate_durations(100, PHON) == [100] * nphon
+        assert mb.validate_durations([100] * nphon, PHON)
+        assert mb.validate_durations([100] * nphon, PHON) == [100] * len(PHON)
 
         with pytest.raises(ValueError):
-            mbrola.validate_durations([100], PHON)
+            mb.validate_durations([100], PHON)
 
         with pytest.raises(TypeError):
-            mbrola.validate_durations("100", PHON)
+            mb.validate_durations("100", PHON)
 
         with pytest.raises(TypeError):
-            mbrola.validate_durations(1.0, PHON)
+            mb.validate_durations(1.0, PHON)
 
     def test_validate_pitch(self):
         """Test validate_pitch."""
@@ -138,37 +138,37 @@ class TestValidations:
             [200, 200],
         ]
 
-        assert mbrola.validate_pitch(pitch_int, PHON)
-        assert mbrola.validate_pitch(pitch_int, PHON) == output_int
-        assert mbrola.validate_pitch([pitch_int] * nphon, PHON) == output_int
-        assert mbrola.validate_pitch(pitch_list, PHON) == output_list
+        assert mb.validate_pitch(pitch_int, PHON)
+        assert mb.validate_pitch(pitch_int, PHON) == output_int
+        assert mb.validate_pitch([pitch_int] * nphon, PHON) == output_int
+        assert mb.validate_pitch(pitch_list, PHON) == output_list
 
         with pytest.raises(TypeError):
-            mbrola.validate_pitch("200", PHON)
+            mb.validate_pitch("200", PHON)
 
         with pytest.raises(TypeError):
-            mbrola.validate_pitch([200, "200", 200, 200, 200, 200], PHON)
+            mb.validate_pitch([200, "200", 200, 200, 200, 200], PHON)
 
         with pytest.raises(TypeError):
-            mbrola.validate_pitch([200, [200, "200"], 200, 200, 200, 200], PHON)
+            mb.validate_pitch([200, [200, "200"], 200, 200, 200, 200], PHON)
 
         with pytest.raises(TypeError):
-            mbrola.validate_pitch([200, (200, 200), 200, 200, 200, 200], PHON)
+            mb.validate_pitch([200, (200, 200), 200, 200, 200, 200], PHON)
 
         with pytest.raises(ValueError):
-            mbrola.validate_pitch([200, 200], PHON)
+            mb.validate_pitch([200, 200], PHON)
 
         with pytest.raises(TypeError):
-            mbrola.validate_pitch(1.0, PHON)
+            mb.validate_pitch(1.0, PHON)
 
     def test_validate_outer_silences(self):
         """Test validate_outer_silences."""
         outer_silences = (1, 1)
 
-        assert mbrola.validate_outer_silences(outer_silences) == outer_silences
+        assert mb.validate_outer_silences(outer_silences) == outer_silences
 
         with pytest.raises(TypeError):
-            mbrola.validate_outer_silences(outer_silences="2")  # ty: ignore[invalid-argument-type]
+            mb.validate_outer_silences(outer_silences="2")  # ty: ignore[invalid-argument-type]
 
         with pytest.raises(TypeError):
-            mbrola.validate_outer_silences(outer_silences=("a", 1))  # ty: ignore[invalid-argument-type]
+            mb.validate_outer_silences(outer_silences=("a", 1))  # ty: ignore[invalid-argument-type]
