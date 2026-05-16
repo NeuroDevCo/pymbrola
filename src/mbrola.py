@@ -205,7 +205,7 @@ class MBROLA:
         Args:
             file (str): Path of the output PHO file.
         """
-        with Path(file).open("w+", encoding="utf-8") as f:
+        with Path(file).open("w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
     def make_sound(
@@ -333,4 +333,3 @@ if __name__ == "__main__":
 
     cafe.export_pho("test.pho")
     print(cafe)
-    cafe.make_sound("./test.wav")

@@ -1,26 +1,37 @@
 [project]
 name = "mbrola"
-version = "0.3.0"
+version = "0.3.1"
 description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 license = "MIT"
-keywords = []
+keywords = ["mbbrola", "speech synthesis", "python"]
 authors = [
   { name = "Gonzalo García-Castro", email = "gongarciacastro@gmail.com" },
 ]
 classifiers = [
+  "Natural Language :: English",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Intended Audience :: Information Technology",
   "Development Status :: 4 - Beta",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Multimedia :: Sound/Audio",
+  "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
 
-dependencies = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
+[project.optional-dependencies]
+test = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
+lint = ["ruff>=0.12.9", "ty>=0.0.37"]
+
+[dependency-groups]
+dev = ["pytest>=8.3.5", "pytest-cov>=7.1.0", "ruff>=0.12.9", "ty>=0.0.37"]
 
 [project.urls]
 Documentation = "https://github.com/gongcastro/pymbrola#readme"
@@ -47,6 +58,3 @@ package = true
 [tool.pytest]
 addopts = ["--maxfail=1", "--cov=mbrola", "--cov-report=term-missing"]
 testpaths = ["tests"]
-
-[dependency-groups]
-dev = ["pytest>=8.3.5", "ruff>=0.12.9", "pytest-cov>=7.1.0"]

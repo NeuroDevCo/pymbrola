@@ -38,7 +38,7 @@ A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/gene
 
 MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the [Windows Susbsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). Install MBROLA in your machine following the instructions in the [MBROLA repository](https://github.com/numediart/MBROLA). If you are using WSL, install MBROLA in WSL. After this, you should be ready to install **pymbrola** using pip.
 
-```console
+```bash
 pip install mbrola
 ```
 
@@ -73,7 +73,7 @@ The module uses the MBROLA command line tool under the hood. Ensure MBROLA is in
 
 **pymbrola** implements the piecewise linear pitch specification as different inputs:
 
-If pitch is specified as an integer, pitch is assumed constant across phonemes:
+If pitch is specified as an **integer**, pitch is assumed constant across phonemes:
 
 ```python
 phon = list("kasa")
@@ -82,7 +82,7 @@ validate_pitch(200, phon)
 # [[(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)]]
 ```
 
-If pitch is specified as a list, each element in mapped to each phoneme. Integers in the list are treated as before (constant pitch for the whole phoneme):
+If pitch is specified as a **list**, each element in mapped to each phoneme. Integers in the list are treated as before (constant pitch for the whole phoneme):
 
 ```python
 phon = list("kasa")
@@ -109,6 +109,13 @@ validate_pitch(pitch, phon)
 # [[], [(25, 50), (50, 100), (75, 150), (90, 200)], [], [(0, 100)]]
 ```
 
+## Docker image
+
+For convenience, a [Docker image](https://hub.docker.com/repository/docker/gongcastro/pymbrola/general) is available at Dockerhub:
+
+```bash
+docker run -it gongcastro/pymbrola:latest
+``` 
 
 ## Troubleshooting
 
