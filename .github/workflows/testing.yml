@@ -33,7 +33,7 @@ jobs:
         run: uv run ruff check
 
       - name: Installing MBROLA
-        run: sudo /bin/bash bin/install.sh -it4
+        run: sudo /bin/bash bin/install.sh -v it4
 
       - name: Testing with Pytest
         run: |
