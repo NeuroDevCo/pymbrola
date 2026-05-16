@@ -3,7 +3,6 @@ name: Lint and test
 on: [push]
 
 jobs:
-  
   build:
     strategy:
       matrix:
@@ -13,6 +12,9 @@ jobs:
           - "3.11"
           - "3.12"
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write       
+      pull-requests: write  
     steps:
       - uses: actions/checkout@v4
 
@@ -31,7 +33,7 @@ jobs:
         run: uv run ruff check
 
       - name: Installing MBROLA
-        run: sudo /bin/bash bin/install.sh
+        run: sudo /bin/bash bin/install.sh -v it4
 
       - name: Testing with Pytest
         run: |

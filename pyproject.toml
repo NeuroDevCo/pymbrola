@@ -1,6 +1,6 @@
 [project]
 name = "mbrola"
-version = "0.2.6"
+version = "0.3.0"
 description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -51,4 +51,4 @@ addopts = ["--maxfail=1", "--cov=mbrola", "--cov-report term"]
 testpaths = ["tests"]
 
 [dependency-groups]
-dev = ["pytest>=8.3.5", "ruff>=0.12.9"]
+dev = ["pytest>=8.3.5", "ruff>=0.12.9", "pytest-cov>=7.1.0"]
