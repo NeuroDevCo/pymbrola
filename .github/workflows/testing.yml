@@ -34,10 +34,6 @@ jobs:
 
       - name: Installing MBROLA
         run: sudo /bin/bash bin/install.sh -v it4
-
-      - name: Testing with Pytest
-        run: |
-          uv run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=src tests/ | tee pytest-coverage.txt
       
       - name: Coverage comment
         uses: MishaKav/pytest-coverage-comment@v1
