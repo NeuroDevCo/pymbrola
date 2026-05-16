@@ -326,7 +326,6 @@ def wsl_available() -> bool | int:
 
 
 if __name__ == "__main__":
-    MBROLA(list("kasa")).make_sound("test.wav")
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],
         durations=[200, 300, 200, 200, 200],
