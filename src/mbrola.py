@@ -5,8 +5,6 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
-from tomlkit.items import Float
-
 from functools import singledispatch, cache, partial
 import os
 from pathlib import Path
@@ -74,7 +72,7 @@ def validate_pitch(
 
 @validate_pitch.register
 def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
-    if isinstance(pitch, Float):
+    if isinstance(pitch, float):
         warnings.warn(
             "pitch values must be integers, floats have been forced to integers"
         )
@@ -84,7 +82,6 @@ def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
 
 @validate_pitch.register
 def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
-
     error = TypeError("All elements in `pitch` must be list[tuple[float, int]]")
     if len(pitch) != len(phon):
         raise error
@@ -99,6 +96,9 @@ def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
         return [[(0, int(p))] for p in pitch]
 
     for i, pit in enumerate(pitch):
+        if isinstance(pit, (float, int)):
+            pit = [(0, pit)]
+            pitch[i] = pit
         if not isinstance(pit, list):
             raise error
 
@@ -108,10 +108,7 @@ def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
         if not all(len(p) == 2 for p in pit if p):
             raise error
 
-        if not pit:
-            continue
-
-        for j, (t, p) in enumerate(pit):
+        for j, (t, p) in enumerate(pit):  # ty: ignore[not-iterable]
             if not (isinstance(t, (float, int)) and isinstance(p, (int, float))):
                 raise error
 
@@ -173,7 +170,9 @@ class MBROLA:
         self,
         phon: str | list[str],
         durations: int | list[int] = 100,
-        pitch: int | list[int] | list[list[tuple[float, int]]] = 200,
+        pitch: int
+        | list[int | float]
+        | list[int | float | list[int | float | tuple[int | float, int | float]]] = 200,
         outer_silences: tuple[int, int] = (1, 1),
     ):
         if isinstance(phon, str):
@@ -184,12 +183,6 @@ class MBROLA:
         self.pitch = validate_pitch(pitch, self.phon)
         self.outer_silences = validate_outer_silences(outer_silences)
         self.pho = make_pho(self)
-
-    def __str__(self):
-        return "MBROLA object:" + "\n" + "\n".join(self.pho)
-
-    def __repr__(self):
-        return "MBROLA object':" + "\n" + "\n".join(self.pho)
 
     def __len__(self):
         return len(self.phon)
@@ -329,7 +322,7 @@ if __name__ == "__main__":
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],
         durations=[200, 300, 200, 200, 200],
-        pitch=[[(0, 200.0)], [(0, 200.0)], [(0, 200.0)], [(0, 200.0)], [(0, 200.0)]],
+        pitch=[200, [(50, 400)], [(30, 200)], [], []],
         outer_silences=(10, 10),
     )
 

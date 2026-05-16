@@ -1,7 +1,7 @@
 [project]
 name = "mbrola"
 version = "0.2.5"
-description = 'A Python front-end for the MBROLA speech synthesizer'
+description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
@@ -22,7 +22,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
-dependencies = ["pytest>=8.3.5"]
+dependencies = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
 
 [project.urls]
 Documentation = "https://github.com/gongcastro/pymbrola#readme"
@@ -46,23 +46,9 @@ publish-url = "https://pypi.org/"
 explicit = true
 package = true
 
-
-[tool.coverage.run]
-source_pkgs = ["src"]
-branch = true
-parallel = true
-omit = ["src/__about__.py"]
-
-
-[tool.pytest.ini_options]
-addopts = "--maxfail=1 --cov=testing_demo"
-
-[tool.coverage.paths]
-pymbrola = ["src"]
-tests = ["tests"]
-
-[tool.coverage.report]
-exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+[tool.pytest]
+addopts = ["--maxfail=1", "--cov=mbrola", "--cov-report term"]
+testpaths = ["tests"]
 
 [dependency-groups]
-dev = ["pytest>=8.3.5", "pytest-cov>=5.0.0", "ruff>=0.12.9"]
+dev = ["pytest>=8.3.5", "ruff>=0.12.9"]
