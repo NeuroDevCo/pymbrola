@@ -5,162 +5,168 @@ from pathlib import Path
 
 import pytest
 
-import mbrola as mb
-
-cafe = mb.MBROLA("cafè", ["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
+from src import mbrola as mb
 
 
-WORD = "mbrola"
-PHON = list(WORD)
+@pytest.fixture
+def mb_fix():
+    return mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
 
 
 class TestAttr:
-    def test_mbrola_attr(self):
+    def test_mbrola_attr(self, mb_fix):
         """Test MBROLA class attributes."""
-        assert cafe
-        assert hasattr(cafe, "word")
-        assert hasattr(cafe, "phon")
-        assert hasattr(cafe, "durations")
-        assert hasattr(cafe, "pitch")
-        assert hasattr(cafe, "outer_silences")
-        assert hasattr(cafe, "pho")
-        assert hasattr(cafe, "export_pho")
-        assert hasattr(cafe, "make_sound")
+        assert mb_fix
+        assert hasattr(mb_fix, "phon")
+        assert hasattr(mb_fix, "durations")
+        assert hasattr(mb_fix, "pitch")
+        assert hasattr(mb_fix, "outer_silences")
+        assert hasattr(mb_fix, "pho")
+        assert hasattr(mb_fix, "export_pho")
+        assert hasattr(mb_fix, "make_sound")
 
-    def test_mbrola_attr_type(self):
+    def test_mbrola_attr_type(self, mb_fix):
         """Test MBROLA class attribute types."""
-        assert isinstance(cafe.word, str)
-        assert isinstance(cafe.phon, list)
-        assert isinstance(cafe.durations, list)
-        assert isinstance(cafe.pitch, list)
-        assert all(isinstance(p, list) for p in cafe.pitch)
-        assert all(isinstance(pi, int) for p in cafe.pitch for pi in p)
-        assert isinstance(cafe.outer_silences, tuple)
-        assert hasattr(cafe, "pho")
-        assert isinstance(cafe.pho, list)
-        assert all(isinstance(p, str) for p in cafe.pho)
-        assert callable(cafe.export_pho)
-        assert callable(cafe.make_sound)
-
-    def test_mbrola_dunders(self):
-        """Test that string is correct."""
-        assert "MBROLA object for word" in str(cafe)
-        assert "MBROLA object for word" in repr(cafe)
+        assert isinstance(mb_fix.phon, list)
+        assert isinstance(mb_fix.durations, list)
+        assert isinstance(mb_fix.pitch, list)
+        assert all(isinstance(p, list) for p in mb_fix.pitch)
+        assert isinstance(mb_fix.outer_silences, tuple)
+        assert hasattr(mb_fix, "pho")
+        assert isinstance(mb_fix.pho, list)
+        assert all(isinstance(p, str) for p in mb_fix.pho)
+        assert callable(mb_fix.export_pho)
+        assert callable(mb_fix.make_sound)
 
 
 class TestPho:
-    def test_mbrola_pho(self):
-        """Test mbrola.pho attribute."""
-        assert len(cafe.pho) == len(cafe.phon) + 3
-        assert cafe.pho[0].startswith("; ")
-        assert cafe.pho[1].startswith("_ ")
-        assert all(p.startswith(cafe.phon[i]) for i, p in enumerate(cafe.pho[2:-1]))
-        for i, d, p in zip(cafe.pho[2:-1], cafe.durations, cafe.pitch):
-            assert i.split(" ")[1] == str(d)
-            assert i.split(" ")[2] == str(p[0])
-            assert i.split(" ")[3] == str(p[1])
-        assert cafe.pho[-1].startswith("_ ")
+    def test_mbrola_pho(self, mb_fix):
+        """Test mb.pho attribute."""
+        assert mb_fix.pho[0].startswith("; ")
+        assert mb_fix.pho[1].startswith("_ ")
+        assert all(p.startswith(mb_fix.phon[i]) for i, p in enumerate(mb_fix.pho[2:-1]))
+
+        def strip(x: str | int, chars="(), "):
+            return str(x).strip(chars)
+
+        for i, ph, d, p in zip(
+            mb_fix.pho[2:-1], mb_fix.phon, mb_fix.durations, mb_fix.pitch
+        ):
+            pho = [strip(ti) for ti in i.split(" ", maxsplit=3)]
+            pho_0, pho_1, pho_2, pho_3 = pho
+            assert pho_0 == str(ph)
+            assert pho_1 == str(d)
+            assert pho_2 == str(p[0][0])
+            assert pho_3 == str(p[0][1])
+
+        assert mb_fix.pho[-1].startswith("_ ")
 
     def test_make_pho(self):
         """Test make_pho function."""
-        tree = mb.MBROLA(word="vaca", phon=["b", "a", "k", "a"])
+        tree = mb.MBROLA(phon=["b", "a", "k", "a"])
         assert mb.make_pho(tree)
 
-        with pytest.raises(TypeError):
-            mb.make_pho("a")  # ty: ignore[invalid-argument-type]
-
-    def test_export_pho(self):
+    def test_export_pho(self, mb_fix):
         """Test MBROLA.export_pho method."""
-        file = Path("tests", "cafe.pho")
-        cafe.export_pho(file=file)
+        file = Path("tests", "mb_fix.pho")
+        mb_fix.export_pho(file=file)
         assert file.exists()
 
         with open(file, encoding="utf-8") as f:
             lines = [line.strip("\n") for line in f.readlines()]
-        assert lines == cafe.pho
+        assert lines == mb_fix.pho
         os.unlink(file)
 
 
 class TestSound:
-    def test_make_sound(self):
+    def test_make_sound(self, mb_fix):
         """Test MBROLA.make_sound method."""
-        file = Path("tests", "cafe.wav")
-        cafe.make_sound(file=file)
+        file = Path("tests", "mb_fix.wav")
+        mb_fix.make_sound(file=file)
         assert file.exists()
         os.unlink(file)
 
 
-class TestValidations:
-    def test_validate_word(self):
-        """Validate validate_word."""
-        assert mb.validate_word(WORD)
-        assert mb.validate_word(WORD) == WORD
-
-        with pytest.raises(TypeError):
-            mb.validate_word(1)  # ty: ignore[invalid-argument-type]
-
-        with pytest.raises(ValueError):
-            mb.validate_word("a" * 256)
-
-        with pytest.raises(ValueError):
-            mb.validate_word("a/")
-
-    def test_validate_durations(self):
+class TestDurationValidation:
+    def test_validate_durations(self, mb_fix):
         """Test validate_durations."""
-        nphon = len(PHON)
+        nphon = len(mb_fix)
 
-        assert mb.validate_durations(100, PHON)
-        assert mb.validate_durations(100, PHON) == [100] * nphon
-        assert mb.validate_durations([100] * nphon, PHON)
-        assert mb.validate_durations([100] * nphon, PHON) == [100] * len(PHON)
+        assert mb.validate_durations(100, mb_fix.phon)
+        assert mb.validate_durations(100, mb_fix.phon) == [100] * nphon
+        assert mb.validate_durations([100] * nphon, mb_fix.phon)
+        assert mb.validate_durations([100] * nphon, mb_fix.phon) == [100] * len(mb_fix)
 
         with pytest.raises(ValueError):
-            mb.validate_durations([100], PHON)
+            mb.validate_durations([100], mb_fix.phon)
 
         with pytest.raises(TypeError):
-            mb.validate_durations("100", PHON)
+            mb.validate_durations("100", mb_fix.phon)
 
         with pytest.raises(TypeError):
-            mb.validate_durations(1.0, PHON)
+            mb.validate_durations(1.0, mb_fix.phon)
 
-    def test_validate_pitch(self):
+
+class TestPitchValidation:
+    """Test pitch validation."""
+
+    def test_int(self, mb_fix, f: int | float = 200):
         """Test validate_pitch."""
-        nphon = len(PHON)
-        pitch_int = 200
-        output_int = [[200, 200]] * nphon
-        pitch_list = [200, [200, 10, 200], 200, 200, 200, 200]
-        output_list = [
-            [200, 200],
-            [200, 10, 200],
-            [200, 200],
-            [200, 200],
-            [200, 200],
-            [200, 200],
-        ]
 
-        assert mb.validate_pitch(pitch_int, PHON)
-        assert mb.validate_pitch(pitch_int, PHON) == output_int
-        assert mb.validate_pitch([pitch_int] * nphon, PHON) == output_int
-        assert mb.validate_pitch(pitch_list, PHON) == output_list
+        out = [[(0, f)]] * len(mb_fix)
+        assert mb.validate_pitch(f, mb_fix.phon) == out
+
+    def test_int_list(self, mb_fix, f: int | float = 200):
+        x = [f] * len(mb_fix)
+        out = [[(0, f)]] * len(mb_fix)
+        assert mb.validate_pitch(x, mb_fix.phon) == out
+
+    def test_float_list(self, mb_fix, f: int | float = 200.0):
+        x = [f] * len(mb_fix)
+        out = [[(0, f)]] * len(mb_fix)
+
+        with pytest.warns(UserWarning):
+            assert mb.validate_pitch(x, mb_fix.phon) == out
+
+    def test_empty_list(self, mb_fix):
+        x = [[]] * len(mb_fix)
+        assert mb.validate_pitch(x, mb_fix.phon) == [[]] * len(mb_fix)
+
+    def test_tuple_list(self, mb_fix, t: int | float = 0, f: int | float = 200):
+        x = [[(t, f)], [(t, f)], [(t, f)], [(t + 50, f + 50)], [(t, f)]]
+        assert mb.validate_pitch(x, mb_fix.phon) == x
+
+    def test_tuple_list_empty(self, mb_fix, t: int | float = 0, f: int | float = 200):
+        x = [[(t, f)], [], [], [(t + 50, f + 50)], []]
+        assert mb.validate_pitch(x, mb_fix.phon) == x
+
+    def test_bad_type_str(self, mb_fix):
+        with pytest.raises(TypeError):
+            mb.validate_pitch("200", mb_fix.phon)
+
+    def test_bad_type_list_str(self, mb_fix):
+        with pytest.raises(TypeError):
+            mb.validate_pitch(["200"] * len(mb_fix), mb_fix.phon)
+
+    def test_bad_type_list_list_tuple_str(self, mb_fix, f: int | float = 200):
+        with pytest.raises(TypeError):
+            mb.validate_pitch([[(str(f), f)]] * len(mb_fix), mb_fix.phon)
 
         with pytest.raises(TypeError):
-            mb.validate_pitch("200", PHON)
+            mb.validate_pitch([[(200, str(f))]] * len(mb_fix), mb_fix.phon)
+
+    def test_bad_type_list_list(self, mb_fix, f: int | float = 200):
+        with pytest.raises(TypeError):
+            mb.validate_pitch([[f, f], f, f, f], mb_fix.phon)
 
         with pytest.raises(TypeError):
-            mb.validate_pitch([200, "200", 200, 200, 200, 200], PHON)
+            mb.validate_pitch([[(f,)], f, f, f], mb_fix.phon)
 
         with pytest.raises(TypeError):
-            mb.validate_pitch([200, [200, "200"], 200, 200, 200, 200], PHON)
+            mb.validate_pitch([[(f, f, f)], f, f, f], mb_fix.phon)
 
-        with pytest.raises(TypeError):
-            mb.validate_pitch([200, (200, 200), 200, 200, 200, 200], PHON)
 
-        with pytest.raises(ValueError):
-            mb.validate_pitch([200, 200], PHON)
-
-        with pytest.raises(TypeError):
-            mb.validate_pitch(1.0, PHON)
-
+class TestOuterSilenceValidation:
     def test_validate_outer_silences(self):
         """Test validate_outer_silences."""
         outer_silences = (1, 1)

@@ -9,36 +9,11 @@ from functools import singledispatch, cache, partial
 import os
 from pathlib import Path
 import platform
-import re
 import shutil
 import subprocess as sp
+import warnings
 
-
-def validate_word(
-    word: str, invalid_chars: str = r'[<>:"/\\|?*]', max_chars: int = 255
-) -> str:
-    """Validate argument `word`.
-
-    Args:
-        word (str): label for the mbrola sound.
-        invalid_chars (str, optional): invalid characters to look for. Defaults to ``r'[<>:"/\\|?*]'``.
-        max_chars (int, optional): maximum allowed characters in word. Defaults to 255.
-
-    Raises:
-        TypeError: if `word` is not a str.
-        ValueError: if length if `word` exceeds 255 characters. This avoids accidentally very long inputs that could lead to memory issues.
-        ValueError: if `word` contains at least one invalid character (['[', '<', '>', ':', '"', '/', '\\', '\\', '|', '?', '*', ']']).
-
-    Returns:
-        str: validated word.
-    """
-    if len(word) > max_chars:
-        raise ValueError(f"`word` exceeds maximum characters ({max_chars})")
-    if re.search(invalid_chars, word):
-        raise ValueError(
-            f"`word` cannot contain the following characters: {list(invalid_chars)}"
-        )
-    return word
+PITCH_TYPE = list[list[tuple[int, int]]]
 
 
 @singledispatch
@@ -57,7 +32,7 @@ def validate_durations(durations: int | list[int], phon: list[str]) -> list[int]
         list[int]: Phoneme durations.
     """
     raise TypeError(
-        f"`durations` must be int or list, but {type(durations)} was provided"
+        f"`durations` must be int or list length {len(phon)}, but {type(durations)} was provided"
     )
 
 
@@ -75,11 +50,13 @@ def _(durations: list, phon: str | list[str]) -> list[int]:
 
 
 @singledispatch
-def validate_pitch(pitch: int | list, phon: list[str]) -> list:
+def validate_pitch(
+    pitch: int | list[list[tuple[float, int]]], phon: list[str]
+) -> PITCH_TYPE:
     """Validate argument `pitch`.
 
     Args:
-        pitch (int | Sequence, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
+        pitch (int | Sequence, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
         phon (str | Sequence[str]): string or list of phonemes.
 
     Raises:
@@ -90,31 +67,57 @@ def validate_pitch(pitch: int | list, phon: list[str]) -> list:
     Returns:
         list: validated pitch.
     """
-    raise TypeError(f"`pitch` must be int or Sequence, but {type(pitch)} was provided")
+    raise TypeError(f"`pitch` must be int or list, but {type(pitch)} was provided")
 
 
 @validate_pitch.register
-def _(pitch: int, phon: list[str]) -> list:
-    return [[pitch, pitch]] * len(phon)
+def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
+    if isinstance(pitch, float):
+        warnings.warn(
+            "pitch values must be integers, floats have been forced to integers"
+        )
+
+    return [[(0, int(pitch))]] * len(phon)
 
 
 @validate_pitch.register
-def _(pitch: list, phon: list[str]) -> list:
+def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
+    error = TypeError("All elements in `pitch` must be list[tuple[float, int]]")
     if len(pitch) != len(phon):
-        raise ValueError("`pitch` must be of same length as `phon`")
+        raise error
 
-    for i, p in enumerate(pitch):
-        if not isinstance(p, (int, list)):
-            raise TypeError(
-                f"All elements in `pitch` must be int or list, but element {i} ({p}) is {type(p)}"
-            )
+    if all(isinstance(p, int) for p in pitch):
+        return [[(0, p)] for p in pitch]
 
-        if isinstance(p, list) and not all(isinstance(pi, int) for pi in p):
-            raise TypeError(
-                f"List elements inside `pitch` must contain only int, but element {i} ({p}) contains an non-int."
-            )
+    if any(isinstance(p, float) for p in pitch):
+        warnings.warn(
+            "pitch values must be integers, floats have been forced to integers"
+        )
+        return [[(0, int(p))] for p in pitch]
 
-    return [[p, p] if isinstance(p, int) else p for p in pitch]
+    for i, pit in enumerate(pitch):
+        if isinstance(pit, (float, int)):
+            pit = [(0, pit)]
+            pitch[i] = pit
+        if not isinstance(pit, list):
+            raise error
+
+        if not all(isinstance(p, tuple) for p in pit if p):
+            raise error
+
+        if not all(len(p) == 2 for p in pit if p):
+            raise error
+
+        for j, (t, p) in enumerate(pit):  # ty: ignore[not-iterable]
+            if not (isinstance(t, (float, int)) and isinstance(p, (int, float))):
+                raise error
+
+            if isinstance(p, float):
+                pitch[i][j] = (t, int(p))
+                warnings.warn(
+                    "pitch values must be integers, floats have been forced to integers"
+                )
+    return pitch
 
 
 def validate_outer_silences(outer_silences: tuple[int, int]):
@@ -145,21 +148,18 @@ class MBROLA:
     An MBROLA class contains the necessary elements to synthesise an audio using MBROLA.
 
     Args:
-        word (str): label for the mbrola sound.
         phon (list[str] | tuple[int]): list of phonemes.
         durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (list[int] | int, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
         outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
     Attributes:
-        word (str): label for the mbrola sound.
         phon (Sequence[str]): list of phonemes.
         durations (Sequence[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (int | Sequence[int] | Sequence[int | Sequence[int]], optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
         outer_silences (Sequence[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
     Examples:
         >>> house = mb.MBROLA(
-                word = "house",
                 phonemes = ["h", "a", "U", "s"],
                 durations = "100",
                 pitch = [200, [200, 50, 200], 200, 100]
@@ -168,27 +168,21 @@ class MBROLA:
 
     def __init__(
         self,
-        word: str,
         phon: str | list[str],
         durations: int | list[int] = 100,
-        pitch: int | list[int] | list[int | list[int]] = 200,
+        pitch: int
+        | list[int | float]
+        | list[int | float | list[int | float | tuple[int | float, int | float]]] = 200,
         outer_silences: tuple[int, int] = (1, 1),
     ):
         if isinstance(phon, str):
             phon = [phon]
 
-        self.word = validate_word(word)
         self.phon = list(map(str, phon))
         self.durations = validate_durations(durations, phon)
         self.pitch = validate_pitch(pitch, self.phon)
         self.outer_silences = validate_outer_silences(outer_silences)
         self.pho = make_pho(self)
-
-    def __str__(self):
-        return f"MBROLA object for word {self.word}:" + "\n" + "\n".join(self.pho)
-
-    def __repr__(self):
-        return f"MBROLA object for word '{self.word}':" + "\n" + "\n".join(self.pho)
 
     def __len__(self):
         return len(self.phon)
@@ -197,7 +191,6 @@ class MBROLA:
         return self.pho == other.pho
 
     def __add__(self, other, sep="_"):
-        self.word = self.word + sep + other.word
         self.phon = self.phon + other.phon
         self.pho = self.pho + other
 
@@ -252,16 +245,10 @@ def make_pho(x: MBROLA) -> list[str]:
     Arguments:
         x (MBROLA): MBROLA object to make a PHO file for.
 
-    Raises:
-        TypeError: if ``x`` is not a MBROLA object.
-
     Returns:
         list[str]: Lines in the PHO file.
     """
-    if not isinstance(x, MBROLA):
-        raise TypeError("`x` must be an instance of MBROLA class")
-
-    pho = [f"; {x.word}", f"_ {x.outer_silences[0]}"]
+    pho = [f"; {' '.join(x.phon)}", f"_ {x.outer_silences[0]}"]
 
     for ph, d, p in zip(x.phon, x.durations, x.pitch):
         p_seq = " ".join([str(pi) for pi in p])
@@ -333,12 +320,12 @@ def wsl_available() -> bool | int:
 
 if __name__ == "__main__":
     cafe = MBROLA(
-        word="cafè",
         phon=["k", "a", "f", "f", "E1"],
-        durations=100,
-        pitch=[200, [200, 100, 100, 200], 200, 200, 200],
+        durations=[200, 300, 200, 200, 200],
+        pitch=[200, [(50, 400)], [(30, 200)], [], []],
         outer_silences=(10, 10),
     )
+
     cafe.export_pho("test.pho")
     print(cafe)
     cafe.make_sound("./test.wav")
