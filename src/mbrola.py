@@ -57,7 +57,7 @@ def validate_durations(durations: int | list[int], phon: list[str]) -> list[int]
         list[int]: Phoneme durations.
     """
     raise TypeError(
-        f"`durations` must be int or list, but {type(durations)} was provided"
+        f"`durations` must be int or list length {len(phon)}, but {type(durations)} was provided"
     )
 
 
