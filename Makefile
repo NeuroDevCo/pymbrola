@@ -9,7 +9,8 @@ test:
 	uv run pytest --cov=. --maxfail=1 --cov-report term
 
 docker-build:
-	docker build . -t mbrola
+	docker build . -t gongcastro/pymbrola
+	docker compose up -d
 
 docker-run:
-	docker run -it mbrola
+	docker run -it gongcastro/pymbrola:latest

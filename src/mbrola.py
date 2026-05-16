@@ -5,6 +5,8 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
+from pytest import CaptureFixture
+
 from functools import singledispatch, cache, partial
 import os
 from pathlib import Path
@@ -205,7 +207,7 @@ class MBROLA:
         Args:
             file (str): Path of the output PHO file.
         """
-        with Path(file).open("w+", encoding="utf-8") as f:
+        with Path(file).open("w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
     def make_sound(
@@ -324,6 +326,7 @@ def wsl_available() -> bool | int:
 
 
 if __name__ == "__main__":
+    MBROLA(list("kasa")).make_sound("test.wav")
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],
         durations=[200, 300, 200, 200, 200],
@@ -333,4 +336,3 @@ if __name__ == "__main__":
 
     cafe.export_pho("test.pho")
     print(cafe)
-    cafe.make_sound("./test.wav")
