@@ -37,11 +37,4 @@ jobs:
 
       - name: Testing with Pytest
         run: |
-          uv run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=src tests/ | tee pytest-coverage.txt
-      
-      - name: Coverage comment
-        uses: MishaKav/pytest-coverage-comment@v1
-        with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest.xml
-          hide-emoji: true
+          uv run pytest --maxfail=1 --cov-report=term-missing
