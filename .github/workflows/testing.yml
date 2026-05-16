@@ -2,8 +2,11 @@ name: Lint and test
 
 on: [push]
 
+permissions:
+  contents: read        # For checkout and comparing commits
+  pull-requests: write  # For creating/updating PR comments
+
 jobs:
-  
   build:
     strategy:
       matrix:
@@ -45,6 +48,7 @@ jobs:
           hide-emoji: true
       - name: Dynamic Badges
         uses: schneegans/dynamic-badges-action@v1.7.0
+        
         with:
             auth: ${{ secrets.GIST_SECRET }}
             gistID: your-gist-id
