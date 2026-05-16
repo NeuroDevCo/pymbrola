@@ -108,7 +108,7 @@ def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
         if not all(len(p) == 2 for p in pit if p):
             raise error
 
-        for j, (t, p) in enumerate(pit):  # ty: ignore[not-iterable]
+        for j, (t, p) in enumerate(pit):
             if not (isinstance(t, (float, int)) and isinstance(p, (int, float))):
                 raise error
 
