@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from src import mbrola
+import mbrola as mb
 
+cafe = mb.MBROLA("cafè", ["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
 
 @pytest.fixture
 def mb():
@@ -85,8 +86,22 @@ class TestSound:
         os.unlink(file)
 
 
-class TestDurationValidation:
-    def test_validate_durations(self, mb):
+class TestValidations:
+    def test_validate_word(self):
+        """Validate validate_word."""
+        assert mb.validate_word(WORD)
+        assert mb.validate_word(WORD) == WORD
+
+        with pytest.raises(TypeError):
+            mb.validate_word(1)  # ty: ignore[invalid-argument-type]
+
+        with pytest.raises(ValueError):
+            mb.validate_word("a" * 256)
+
+        with pytest.raises(ValueError):
+            mb.validate_word("a/")
+
+    def test_validate_durations(self):
         """Test validate_durations."""
         nphon = len(mb)
 
@@ -169,10 +184,10 @@ class TestOuterSilenceValidation:
         """Test validate_outer_silences."""
         outer_silences = (1, 1)
 
-        assert mbrola.validate_outer_silences(outer_silences) == outer_silences
+        assert mb.validate_outer_silences(outer_silences) == outer_silences
 
         with pytest.raises(TypeError):
-            mbrola.validate_outer_silences(outer_silences="2")  # ty: ignore[invalid-argument-type]
+            mb.validate_outer_silences(outer_silences="2")  # ty: ignore[invalid-argument-type]
 
         with pytest.raises(TypeError):
-            mbrola.validate_outer_silences(outer_silences=("a", 1))  # ty: ignore[invalid-argument-type]
+            mb.validate_outer_silences(outer_silences=("a", 1))  # ty: ignore[invalid-argument-type]

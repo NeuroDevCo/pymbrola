@@ -28,12 +28,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Analysing the code with pylint
-        run: |
-          uv run ruff check
+        run: uv run ruff check
 
       - name: Installing MBROLA
-        run: |
-          sudo /bin/bash bin/install.sh
+        run: sudo /bin/bash bin/install.sh
 
       - name: Testing with Pytest
         run: |
