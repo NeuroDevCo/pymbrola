@@ -1,13 +1,13 @@
 [project]
 name = "mbrola"
-version = "0.2.5"
+version = "0.2.6"
 description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 keywords = []
 authors = [
-  { name = "Gonzalo Garcia-Castro", email = "gongarciacastro@gmail.com" },
+  { name = "Gonzalo García-Castro", email = "gongarciacastro@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
