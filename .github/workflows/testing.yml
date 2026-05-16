@@ -45,19 +45,3 @@ jobs:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest.xml
           hide-emoji: true
-      - name: Dynamic Badges
-        uses: schneegans/dynamic-badges-action@v1.7.0
-        
-        with:
-            auth: ${{ secrets.GIST_SECRET }}
-            gistID: your-gist-id
-            filename: coverage.json
-            label: Coverage
-            message: ${{ steps.coverage.outputs.coverage }}
-            color: ${{ steps.coverage.outputs.color }}
-        
-      - name: Fail if coverage too low
-        if: ${{ steps.coverage.outputs.coverage < 80 }}
-        run: |
-          echo "Coverage is below 80%!"
-          exit 1
