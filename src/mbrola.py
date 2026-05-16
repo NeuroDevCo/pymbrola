@@ -252,15 +252,9 @@ def make_pho(x: MBROLA) -> list[str]:
     Arguments:
         x (MBROLA): MBROLA object to make a PHO file for.
 
-    Raises:
-        TypeError: if ``x`` is not a MBROLA object.
-
     Returns:
         list[str]: Lines in the PHO file.
     """
-    if not isinstance(x, MBROLA):
-        raise TypeError("`x` must be an instance of MBROLA class")
-
     pho = [f"; {x.word}", f"_ {x.outer_silences[0]}"]
 
     for ph, d, p in zip(x.phon, x.durations, x.pitch):
