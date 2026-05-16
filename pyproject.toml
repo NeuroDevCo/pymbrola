@@ -30,6 +30,9 @@ classifiers = [
 test = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
 lint = ["ruff>=0.12.9", "ty>=0.0.37"]
 
+[dependency-groups]
+dev = ["pytest>=8.3.5", "pytest-cov>=7.1.0", "ruff>=0.12.9", "ty>=0.0.37"]
+
 [project.urls]
 Documentation = "https://github.com/gongcastro/pymbrola#readme"
 Issues = "https://github.com/gongcastro/pymbrola/issues"
