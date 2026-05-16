@@ -75,11 +75,11 @@ def _(durations: list, phon: str | list[str]) -> list[int]:
 
 
 @singledispatch
-def validate_pitch(pitch: int | list, phon: list[str]) -> list:
+def validate_pitch(pitch: int | list[list[tuple[float, int]]], phon: list[str]) -> list:
     """Validate argument `pitch`.
 
     Args:
-        pitch (int | Sequence, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
+        pitch (int | Sequence, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
         phon (str | Sequence[str]): string or list of phonemes.
 
     Raises:
@@ -90,7 +90,7 @@ def validate_pitch(pitch: int | list, phon: list[str]) -> list:
     Returns:
         list: validated pitch.
     """
-    raise TypeError(f"`pitch` must be int or Sequence, but {type(pitch)} was provided")
+    raise TypeError(f"`pitch` must be int or list, but {type(pitch)} was provided")
 
 
 @validate_pitch.register
@@ -100,21 +100,23 @@ def _(pitch: int, phon: list[str]) -> list:
 
 @validate_pitch.register
 def _(pitch: list, phon: list[str]) -> list:
+
+    error = TypeError("All elements in `pitch` must be list[tuple[float, int]]")
     if len(pitch) != len(phon):
-        raise ValueError("`pitch` must be of same length as `phon`")
+        raise error
 
-    for i, p in enumerate(pitch):
-        if not isinstance(p, (int, list)):
-            raise TypeError(
-                f"All elements in `pitch` must be int or list, but element {i} ({p}) is {type(p)}"
-            )
+    for pit in pitch:
+        if not isinstance(pit, list):
+            raise error
 
-        if isinstance(p, list) and not all(isinstance(pi, int) for pi in p):
-            raise TypeError(
-                f"List elements inside `pitch` must contain only int, but element {i} ({p}) contains an non-int."
-            )
+        if not all(isinstance(p, tuple) for p in pit if p):
+            raise error
 
-    return [[p, p] if isinstance(p, int) else p for p in pitch]
+        for t, p in pit:
+            if not (isinstance(t, (float, int)) and isinstance(p, int)):
+                raise error
+
+    return pitch
 
 
 def validate_outer_silences(outer_silences: tuple[int, int]):
@@ -171,7 +173,7 @@ class MBROLA:
         word: str,
         phon: str | list[str],
         durations: int | list[int] = 100,
-        pitch: int | list[int] | list[int | list[int]] = 200,
+        pitch: int | list[list[tuple[float, int]]] = 200,
         outer_silences: tuple[int, int] = (1, 1),
     ):
         if isinstance(phon, str):
@@ -329,8 +331,8 @@ if __name__ == "__main__":
     cafe = MBROLA(
         word="cafè",
         phon=["k", "a", "f", "f", "E1"],
-        durations=100,
-        pitch=[200, [200, 100, 100, 200], 200, 200, 200],
+        durations=[200, 1000, 200, 200, 200],
+        pitch=[[], [(40, 200), (60, 500), (80, 100)], [], [], []],
         outer_silences=(10, 10),
     )
     cafe.export_pho("test.pho")
