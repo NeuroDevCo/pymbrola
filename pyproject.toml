@@ -21,12 +21,14 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
-  "License :: OSI Approved :: MIT License",
+  "Topic :: Multimedia :: Sound/Audio",
+  "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
 
-dependencies = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
+[project.optional-dependencies]
+tests = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
+lint = ["ruff>=0.12.9", "ty>=0.0.37"]
 
 [project.urls]
 Documentation = "https://github.com/gongcastro/pymbrola#readme"
@@ -53,6 +55,3 @@ package = true
 [tool.pytest]
 addopts = ["--maxfail=1", "--cov=mbrola", "--cov-report=term-missing"]
 testpaths = ["tests"]
-
-[dependency-groups]
-dev = ["pytest>=8.3.5", "ruff>=0.12.9", "pytest-cov>=7.1.0"]
