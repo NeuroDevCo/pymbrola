@@ -7,18 +7,16 @@ import pytest
 
 from src import mbrola
 
-cafe = mbrola.MBROLA("cafè", ["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
+cafe = mbrola.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
 
 
-WORD = "mbrola"
-PHON = list(WORD)
+PHON = list("baka")
 
 
 class TestAttr:
     def test_mbrola_attr(self):
         """Test MBROLA class attributes."""
         assert cafe
-        assert hasattr(cafe, "word")
         assert hasattr(cafe, "phon")
         assert hasattr(cafe, "durations")
         assert hasattr(cafe, "pitch")
@@ -29,7 +27,6 @@ class TestAttr:
 
     def test_mbrola_attr_type(self):
         """Test MBROLA class attribute types."""
-        assert isinstance(cafe.word, str)
         assert isinstance(cafe.phon, list)
         assert isinstance(cafe.durations, list)
         assert isinstance(cafe.pitch, list)
@@ -63,7 +60,7 @@ class TestPho:
 
     def test_make_pho(self):
         """Test make_pho function."""
-        tree = mbrola.MBROLA(word="vaca", phon=["b", "a", "k", "a"])
+        tree = mbrola.MBROLA(phon=["b", "a", "k", "a"])
         assert mbrola.make_pho(tree)
 
         with pytest.raises(TypeError):
@@ -91,20 +88,6 @@ class TestSound:
 
 
 class TestValidations:
-    def test_validate_word(self):
-        """Validate validate_word."""
-        assert mbrola.validate_word(WORD)
-        assert mbrola.validate_word(WORD) == WORD
-
-        with pytest.raises(TypeError):
-            mbrola.validate_word(1)  # ty: ignore[invalid-argument-type]
-
-        with pytest.raises(ValueError):
-            mbrola.validate_word("a" * 256)
-
-        with pytest.raises(ValueError):
-            mbrola.validate_word("a/")
-
     def test_validate_durations(self):
         """Test validate_durations."""
         nphon = len(PHON)

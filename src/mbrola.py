@@ -9,36 +9,8 @@ from functools import singledispatch, cache, partial
 import os
 from pathlib import Path
 import platform
-import re
 import shutil
 import subprocess as sp
-
-
-def validate_word(
-    word: str, invalid_chars: str = r'[<>:"/\\|?*]', max_chars: int = 255
-) -> str:
-    """Validate argument `word`.
-
-    Args:
-        word (str): label for the mbrola sound.
-        invalid_chars (str, optional): invalid characters to look for. Defaults to ``r'[<>:"/\\|?*]'``.
-        max_chars (int, optional): maximum allowed characters in word. Defaults to 255.
-
-    Raises:
-        TypeError: if `word` is not a str.
-        ValueError: if length if `word` exceeds 255 characters. This avoids accidentally very long inputs that could lead to memory issues.
-        ValueError: if `word` contains at least one invalid character (['[', '<', '>', ':', '"', '/', '\\', '\\', '|', '?', '*', ']']).
-
-    Returns:
-        str: validated word.
-    """
-    if len(word) > max_chars:
-        raise ValueError(f"`word` exceeds maximum characters ({max_chars})")
-    if re.search(invalid_chars, word):
-        raise ValueError(
-            f"`word` cannot contain the following characters: {list(invalid_chars)}"
-        )
-    return word
 
 
 @singledispatch
@@ -147,21 +119,18 @@ class MBROLA:
     An MBROLA class contains the necessary elements to synthesise an audio using MBROLA.
 
     Args:
-        word (str): label for the mbrola sound.
         phon (list[str] | tuple[int]): list of phonemes.
         durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (list[int] | int, optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
         outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
     Attributes:
-        word (str): label for the mbrola sound.
         phon (Sequence[str]): list of phonemes.
         durations (Sequence[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (int | Sequence[int] | Sequence[int | Sequence[int]], optional): pitch in Hertz (Hz). Defaults to 200. If an integer is provided, the pitch contour of each phoneme is assumed to be constant at the indicated value. If a list of integers or strings is provided, each element in the list indicates the value at which the pitch contour of each phoneme is kept constant. If a list of lists (of integers or strings), each value in each element describes the pitch contour for each phoneme.
         outer_silences (Sequence[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
     Examples:
         >>> house = mb.MBROLA(
-                word = "house",
                 phonemes = ["h", "a", "U", "s"],
                 durations = "100",
                 pitch = [200, [200, 50, 200], 200, 100]
@@ -170,7 +139,6 @@ class MBROLA:
 
     def __init__(
         self,
-        word: str,
         phon: str | list[str],
         durations: int | list[int] = 100,
         pitch: int | list[list[tuple[float, int]]] = 200,
@@ -179,7 +147,6 @@ class MBROLA:
         if isinstance(phon, str):
             phon = [phon]
 
-        self.word = validate_word(word)
         self.phon = list(map(str, phon))
         self.durations = validate_durations(durations, phon)
         self.pitch = validate_pitch(pitch, self.phon)
@@ -187,10 +154,10 @@ class MBROLA:
         self.pho = make_pho(self)
 
     def __str__(self):
-        return f"MBROLA object for word {self.word}:" + "\n" + "\n".join(self.pho)
+        return "MBROLA object:" + "\n" + "\n".join(self.pho)
 
     def __repr__(self):
-        return f"MBROLA object for word '{self.word}':" + "\n" + "\n".join(self.pho)
+        return "MBROLA object':" + "\n" + "\n".join(self.pho)
 
     def __len__(self):
         return len(self.phon)
@@ -199,7 +166,6 @@ class MBROLA:
         return self.pho == other.pho
 
     def __add__(self, other, sep="_"):
-        self.word = self.word + sep + other.word
         self.phon = self.phon + other.phon
         self.pho = self.pho + other
 
@@ -257,7 +223,7 @@ def make_pho(x: MBROLA) -> list[str]:
     Returns:
         list[str]: Lines in the PHO file.
     """
-    pho = [f"; {x.word}", f"_ {x.outer_silences[0]}"]
+    pho = [f"; {' '.join(x.phon)}", f"_ {x.outer_silences[0]}"]
 
     for ph, d, p in zip(x.phon, x.durations, x.pitch):
         p_seq = " ".join([str(pi) for pi in p])
@@ -329,7 +295,6 @@ def wsl_available() -> bool | int:
 
 if __name__ == "__main__":
     cafe = MBROLA(
-        word="cafè",
         phon=["k", "a", "f", "f", "E1"],
         durations=[200, 1000, 200, 200, 200],
         pitch=[[], [(40, 200), (60, 500), (80, 100)], [], [], []],
