@@ -5,12 +5,17 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
+from tomlkit.items import Float
+
 from functools import singledispatch, cache, partial
 import os
 from pathlib import Path
 import platform
 import shutil
 import subprocess as sp
+import warnings
+
+PITCH_TYPE = list[list[tuple[int, int]]]
 
 
 @singledispatch
@@ -47,7 +52,9 @@ def _(durations: list, phon: str | list[str]) -> list[int]:
 
 
 @singledispatch
-def validate_pitch(pitch: int | list[list[tuple[float, int]]], phon: list[str]) -> list:
+def validate_pitch(
+    pitch: int | list[list[tuple[float, int]]], phon: list[str]
+) -> PITCH_TYPE:
     """Validate argument `pitch`.
 
     Args:
@@ -66,28 +73,53 @@ def validate_pitch(pitch: int | list[list[tuple[float, int]]], phon: list[str]) 
 
 
 @validate_pitch.register
-def _(pitch: int, phon: list[str]) -> list:
-    return [[pitch, pitch]] * len(phon)
+def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
+    if isinstance(pitch, Float):
+        warnings.warn(
+            "pitch values must be integers, floats have been forced to integers"
+        )
+
+    return [[(0, int(pitch))]] * len(phon)
 
 
 @validate_pitch.register
-def _(pitch: list, phon: list[str]) -> list:
+def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
 
     error = TypeError("All elements in `pitch` must be list[tuple[float, int]]")
     if len(pitch) != len(phon):
         raise error
 
-    for pit in pitch:
+    if all(isinstance(p, int) for p in pitch):
+        return [[(0, p)] for p in pitch]
+
+    if any(isinstance(p, float) for p in pitch):
+        warnings.warn(
+            "pitch values must be integers, floats have been forced to integers"
+        )
+        return [[(0, int(p))] for p in pitch]
+
+    for i, pit in enumerate(pitch):
         if not isinstance(pit, list):
             raise error
 
         if not all(isinstance(p, tuple) for p in pit if p):
             raise error
 
-        for t, p in pit:
-            if not (isinstance(t, (float, int)) and isinstance(p, int)):
+        if not all(len(p) == 2 for p in pit if p):
+            raise error
+
+        if not pit:
+            continue
+
+        for j, (t, p) in enumerate(pit):
+            if not (isinstance(t, (float, int)) and isinstance(p, (int, float))):
                 raise error
 
+            if isinstance(p, float):
+                pitch[i][j] = (t, int(p))
+                warnings.warn(
+                    "pitch values must be integers, floats have been forced to integers"
+                )
     return pitch
 
 
@@ -141,7 +173,7 @@ class MBROLA:
         self,
         phon: str | list[str],
         durations: int | list[int] = 100,
-        pitch: int | list[list[tuple[float, int]]] = 200,
+        pitch: int | list[int] | list[list[tuple[float, int]]] = 200,
         outer_silences: tuple[int, int] = (1, 1),
     ):
         if isinstance(phon, str):
@@ -296,10 +328,11 @@ def wsl_available() -> bool | int:
 if __name__ == "__main__":
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],
-        durations=[200, 1000, 200, 200, 200],
-        pitch=[[], [(40, 200), (60, 500), (80, 100)], [], [], []],
+        durations=[200, 300, 200, 200, 200],
+        pitch=[[(0, 200.0)], [(0, 200.0)], [(0, 200.0)], [(0, 200.0)], [(0, 200.0)]],
         outer_silences=(10, 10),
     )
+
     cafe.export_pho("test.pho")
     print(cafe)
     cafe.make_sound("./test.wav")
