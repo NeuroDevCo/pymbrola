@@ -29,6 +29,6 @@ jobs:
         run: sudo /bin/bash bin/install.sh -v it4
       - name: Testing with Pytest
         run: |
-          uv run pytest --maxfail=1 --cov-report=term-missing
+          uv run pytest --maxfail=1 --cov=. tests/ --cov-report=term-missing
       - name: Publish
         run: uv publish
