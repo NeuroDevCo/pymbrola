@@ -10,14 +10,20 @@ authors = [
   { name = "Gonzalo García-Castro", email = "gongarciacastro@gmail.com" },
 ]
 classifiers = [
+  "Natural Language :: English",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Intended Audience :: Information Technology",
   "Development Status :: 4 - Beta",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "License :: OSI Approved :: MIT License",
 ]
 
 dependencies = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
