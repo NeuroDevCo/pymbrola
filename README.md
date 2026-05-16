@@ -1,7 +1,14 @@
 # pymbrola
 
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/NeuroDevCo/pymbrola/testing.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/mbrola.svg)](https://pypi.org/project/mbrola)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mbrola.svg)](https://pypi.org/project/mbrola)
+![GitHub License](https://img.shields.io/github/license/NeuroDevCo/pymbrola)
+![PyPI - Status](https://img.shields.io/pypi/status/mbrola)
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/gongcastro/pymbrola/latest)
+![GitHub Release](https://img.shields.io/github/v/release/NeuroDevCo/pymbrola)
+
+
 
 -----
 
