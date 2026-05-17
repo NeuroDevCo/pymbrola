@@ -14,6 +14,12 @@ import subprocess as sp
 import warnings
 
 PITCH_TYPE = list[list[tuple[int, int]]]
+PITCH_TYPE_INPUT = (
+    int
+    | int
+    | list[int | float]
+    | list[int | float | list[int | float | tuple[int | float, int | float]]]
+)
 
 
 @singledispatch
@@ -51,11 +57,7 @@ def _(durations: list, phon: str | list[str]) -> list[int]:
 
 @singledispatch
 def validate_pitch(
-    pitch: int
-    | int
-    | list[int | float]
-    | list[int | float | list[int | float | tuple[int | float, int | float]]],
-    phon: list[str],
+    pitch: PITCH_TYPE_INPUT,
 ) -> PITCH_TYPE:
     """Validate argument `pitch`.
 
@@ -175,9 +177,7 @@ class MBROLA:
         self,
         phon: str | list[str],
         durations: int | list[int] = 100,
-        pitch: int
-        | list[int | float]
-        | list[int | float | list[int | float | tuple[int | float, int | float]]] = 200,
+        pitch: PITCH_TYPE_INPUT = 200,
         outer_silences: tuple[int, int] = (1, 1),
     ):
         if isinstance(phon, str):

@@ -160,19 +160,35 @@ lint = [
     { name = "ruff" },
     { name = "ty" },
 ]
-tests = [
+test = [
     { name = "pytest" },
     { name = "pytest-cov" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+    { name = "ty" },
+]
+
 [package.metadata]
 requires-dist = [
-    { name = "pytest", marker = "extra == 'tests'", specifier = ">=8.3.5" },
-    { name = "pytest-cov", marker = "extra == 'tests'", specifier = ">=7.1.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.5" },
+    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.1.0" },
     { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.12.9" },
     { name = "ty", marker = "extra == 'lint'", specifier = ">=0.0.37" },
 ]
-provides-extras = ["tests", "lint"]
+provides-extras = ["test", "lint"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "ruff", specifier = ">=0.12.9" },
+    { name = "ty", specifier = ">=0.0.37" },
+]
 
 [[package]]
 name = "packaging"
