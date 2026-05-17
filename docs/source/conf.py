@@ -6,6 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+from pathlib import Path
 import os
 import sys
 
@@ -32,5 +33,6 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+Path("_static").mkdir(exist_ok=True)
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
