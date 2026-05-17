@@ -456,6 +456,9 @@ wheels = [
 name = "mbrola"
 version = "0.3.2"
 source = { editable = "." }
+dependencies = [
+    { name = "pydata-sphinx-theme" },
+]
 
 [package.optional-dependencies]
 docs = [
@@ -482,6 +485,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "pydata-sphinx-theme", specifier = ">=0.17.1" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.5" },
     { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.1.0" },
     { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.12.9" },
