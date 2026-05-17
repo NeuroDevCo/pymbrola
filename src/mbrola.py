@@ -5,6 +5,7 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
+from copy import deepcopy
 from functools import singledispatch, cache, partial
 import os
 from pathlib import Path
@@ -56,9 +57,7 @@ def _(durations: list, phon: str | list[str]) -> list[int]:
 
 
 @singledispatch
-def validate_pitch(
-    pitch: PITCH_TYPE_INPUT,
-) -> PITCH_TYPE:
+def validate_pitch(pitch: PITCH_TYPE_INPUT) -> PITCH_TYPE:
     """Validate argument `pitch`.
 
     Args:
@@ -66,12 +65,11 @@ def validate_pitch(
         phon (str | Sequence[str]): string or list of phonemes.
 
     Raises:
-        TypeError: if pitch is not int or list.
-        TypeError: if pitch is a list but at least one element is not list or int.
-        TypeError: if pitch is a list of lists, and at least one element in at least one of the lists is not an int.
-        ValueError: if pitch is a list of different length as phon.
+        ValueError: if `pitch` is a list of different length as `phon`.
+        TypeError: `pitch` is not an int or a list[tuple[float, int]]"
+
     Returns:
-        list: validated pitch.
+        int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]: validated pitch.
     """
     raise TypeError(f"`pitch` must be int or list, but {type(pitch)} was provided")
 
@@ -79,9 +77,8 @@ def validate_pitch(
 @validate_pitch.register
 def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
     if isinstance(pitch, float):
-        warnings.warn(
-            "pitch values must be integers, floats have been forced to integers"
-        )
+        warn = "pitch values must be integers, floats have been forced to integers"
+        warnings.warn(warn)
 
     return [[(0, int(pitch))]] * len(phon)
 
@@ -90,21 +87,19 @@ def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
 def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
     error = TypeError("All elements in `pitch` must be list[tuple[float, int]]")
     if len(pitch) != len(phon):
-        raise error
+        raise ValueError("`pitch` must be of same length as `phon`")
 
-    if all(isinstance(p, int) for p in pitch):
-        return [[(0, p)] for p in pitch]
-
-    if any(isinstance(p, float) for p in pitch):
-        warnings.warn(
-            "pitch values must be integers, floats have been forced to integers"
-        )
+    if all(isinstance(p, (int, float)) for p in pitch):
+        if any(isinstance(p, float) for p in pitch):
+            warn = "pitch values must be integers, floats have been forced to integers"
+            warnings.warn(warn)
         return [[(0, int(p))] for p in pitch]
 
     for i, pit in enumerate(pitch):
         if isinstance(pit, (float, int)):
             pit = [(0, pit)]
             pitch[i] = pit
+
         if not isinstance(pit, list):
             raise error
 
@@ -126,7 +121,7 @@ def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
     return pitch
 
 
-def validate_outer_silences(outer_silences: tuple[int, int]):
+def validate_outer_silences(outer_silences: tuple[int, int]) -> tuple[int, int]:
     """Validate argument `outer_silences`.
 
     Args:
@@ -181,7 +176,10 @@ class MBROLA:
         outer_silences: tuple[int, int] = (1, 1),
     ):
         if isinstance(phon, str):
-            phon = [phon]
+            if len(phon) > 1:
+                phon = list(phon)
+            else:
+                phon = [phon]
 
         self.phon = list(map(str, phon))
         self.durations = validate_durations(durations, phon)
@@ -195,9 +193,14 @@ class MBROLA:
     def __eq__(self, other):
         return self.pho == other.pho
 
-    def __add__(self, other, sep="_"):
-        self.phon = self.phon + other.phon
-        self.pho = self.pho + other
+    def __add__(self, other):
+        new = self.copy()
+        new.phon = self.phon + other.phon
+        new.pho = self.pho + other.pho
+        return new
+
+    def copy(self):
+        return deepcopy(self)
 
     def export_pho(self, file: str | Path) -> None:
         """Save PHO file.
@@ -235,7 +238,7 @@ class MBROLA:
         try:
             sp.check_output(cmd_str, shell=True)
         except sp.CalledProcessError as e:
-            print(f"Error when making sound for {file}: {e}")
+            raise RuntimeError(f"Error when generating {file}:\n{e}")
 
         f.close()
         if remove_pho:
@@ -281,17 +284,13 @@ def mbrola_cmd():
     """
     Get MBROLA command for system command line.
     """
-    try:
-        if is_wsl() or os.name == "posix":
-            return "mbrola"
+    if is_wsl() or os.name == "posix":
+        return "mbrola"
 
-        if os.name == "nt" and wsl_available():
-            return "wsl mbrola"
+    if os.name == "nt" and wsl_available():
+        return "wsl mbrola"
 
-        raise PlatformException()
-
-    except PlatformException:
-        return None
+    raise PlatformException()
 
 
 @cache
@@ -327,7 +326,7 @@ if __name__ == "__main__":
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],
         durations=[200, 300, 200, 200, 200],
-        pitch=[200, [(50, 400)], [(30, 200)], [], []],
+        pitch=[200, [(50.0, 400)], [(30, 200.1)], 200.0, []],
         outer_silences=(10, 10),
     )
 
