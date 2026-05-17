@@ -21,6 +21,7 @@ release = "v0.3.2"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    "pydata_sphinx_theme",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",  # For Google and NumPy style docstrings
     "sphinx.ext.viewcode",  # Optional: to include links to source code
