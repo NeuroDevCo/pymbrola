@@ -1,7 +1,10 @@
-src
-===
+mbrola
+======
 
-.. toctree::
-   :maxdepth: 4
+mbrola module
+-----------------
 
-   src
+.. automodule:: mbrola
+   :members:
+   :show-inheritance:
+   :undoc-members:
