@@ -6,12 +6,20 @@
 pymbrola documentation
 ======================
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
+**pymbrola** is a Python interface for the `a MBROLA`_ speech synthesizer, enabling programmatic creation of MBROLA-compatible phoneme files and automated audio synthesis. This module validates phoneme, duration, and pitch sequences, generates `.pho` files, and can call the MBROLA executable to synthesize speech audio from text-like inputs.
 
+.. _a link: https://github.com/numediart/MBROLA
+
+   Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. [https://doi.org/10.1109/ICSLP.1996.607874](https://doi.org/10.1109/ICSLP.1996.607874)
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   modules
+
+Indices and Tables
+==================
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
