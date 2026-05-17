@@ -23,13 +23,12 @@ release = "v0.3.2"
 extensions = [
     "sphinx.ext.autodoc",
     "myst_parser",
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",  # For Google and NumPy style docstrings
     "sphinx.ext.viewcode",  # Optional: to include links to source code
 ]
 
-source_suffix = {
-    ".md": "markdown",
-}
+source_suffix = {".md": "markdown", ".rst": "restructuredtext"}
 
 
 templates_path = ["_templates"]
@@ -42,3 +41,23 @@ exclude_patterns = []
 Path("_static").mkdir(exist_ok=True)
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
+html_theme_options = {
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/NeuroDevCo/pymbrola",
+            "icon": "fa-brands fa-github",
+        },
+    ],
+    "navbar_align": "content",
+    "secondary_sidebar_items": ["page-toc", "edit-this-page", "sourcelink", "donate"],
+    "use_edit_page_button": True,
+}
+
+html_context = {
+    "github_user": "NeuroDevCo",
+    "github_repo": "pymbrola",
+    "github_version": "main",
+    "doc_path": "doc/source/",
+    "default_mode": "light",
+}

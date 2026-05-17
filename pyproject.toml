@@ -1,6 +1,6 @@
 [project]
 name = "mbrola"
-version = "0.3.7"
+version = "0.3.8"
 description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
 requires-python = ">=3.10"

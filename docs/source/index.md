@@ -12,6 +12,12 @@
 
 -----
 
+Contents
+--------
+.. toctree::
+
+   api
+
 A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech synthesizer, enabling programmatic creation of MBROLA-compatible phoneme files and automated audio synthesis. This module validates phoneme, duration, and pitch sequences, generates `.pho` files, and can call the MBROLA executable to synthesize speech audio from text-like inputs.
 
 > **References:**
