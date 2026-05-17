@@ -1,6 +1,6 @@
 [project]
 name = "mbrola"
-version = "0.3.6"
+version = "0.3.7"
 description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,6 +25,7 @@ classifiers = [
   "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
   "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
+dependencies = ["myst-parser>=4.0.1"]
 
 
 [project.optional-dependencies]
