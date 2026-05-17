@@ -6,7 +6,7 @@ install:
 test:
 	uv run ruff format
 	uv run ruff check
-	uv run pytest --cov=. --maxfail=1 --cov-report term
+	uv run pytest --maxfail=1 --cov --cov-branch --cov-report=xml
 
 docker-build:
 	docker build . -t gongcastro/pymbrola

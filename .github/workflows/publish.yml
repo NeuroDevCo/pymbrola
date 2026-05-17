@@ -8,27 +8,41 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+
     permissions:
       id-token: write
       contents: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
       - name: Install uv
         uses: astral-sh/setup-uv@v7
+
       - name: "Set up Python"
         uses: actions/setup-python@v6
         with:
           python-version-file: ".python-version"
+
       - name: Build
         run: uv build
+
       - name: Analysing the code with pylint
         run: |
           uv run ruff check
+      
       - name: Installing MBROLA
         run: sudo /bin/bash bin/install.sh -v it4
+      
       - name: Testing with Pytest
         run: |
-          uv run pytest --maxfail=1 --cov=. tests/ --cov-report=term-missing
+          uv run pytest --maxfail=1 --cov --cov-branch --cov-report=xml
+      
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Publish
         run: uv publish

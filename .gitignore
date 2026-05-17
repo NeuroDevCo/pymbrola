@@ -223,3 +223,4 @@ assets/
 /.benchmarks
 *.wav
 *.pho
+tests/*.wav
