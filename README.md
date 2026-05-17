@@ -7,7 +7,7 @@
 ![PyPI - Status](https://img.shields.io/pypi/status/mbrola)
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/gongcastro/pymbrola/latest)
 ![GitHub Release](https://img.shields.io/github/v/release/NeuroDevCo/pymbrola)
-
+![Codecov](https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola)
 
 
 -----
