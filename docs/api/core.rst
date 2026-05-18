@@ -1,8 +1,6 @@
-pymbrola package
-================
-
-Module contents
----------------
+===========
+Core Module
+===========
 
 .. automodule:: mbrola
    :members:
