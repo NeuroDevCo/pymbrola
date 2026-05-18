@@ -1,6 +1,6 @@
 [project]
 name = "mbrola"
-version = "0.3.10"
+version = "0.3.11"
 description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,6 +32,7 @@ dependencies = ["myst-parser>=4.0.1"]
 test = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
 lint = ["ruff>=0.12.9", "ty>=0.0.37"]
 docs = ["sphinx-gallery>=0.21.0"]
+
 [dependency-groups]
 dev = [
   "pydata-sphinx-theme>=0.17.1",
