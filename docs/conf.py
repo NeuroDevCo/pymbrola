@@ -22,6 +22,7 @@ release = "v0.3.8"
 extensions = [
     "sphinx.ext.todo",
     "myst_parser",
+    "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
 ]

@@ -4,7 +4,7 @@ pymbrola package
 Module contents
 ---------------
 
-.. automodule:: babylab
+.. automodule:: mbrola
    :members:
    :undoc-members:
    :show-inheritance:
