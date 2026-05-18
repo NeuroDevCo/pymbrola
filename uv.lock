@@ -485,7 +485,7 @@ wheels = [
 
 [[package]]
 name = "mbrola"
-version = "0.3.8"
+version = "0.3.11"
 source = { editable = "." }
 dependencies = [
     { name = "myst-parser", version = "4.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -507,6 +507,8 @@ test = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "myst-parser", version = "4.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "myst-parser", version = "5.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pydata-sphinx-theme" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -528,6 +530,7 @@ provides-extras = ["test", "lint", "docs"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "myst-parser", specifier = ">=4.0.1" },
     { name = "pydata-sphinx-theme", specifier = ">=0.17.1" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
