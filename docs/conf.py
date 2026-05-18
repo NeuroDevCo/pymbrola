@@ -1,7 +1,7 @@
 project = "pymbrola"
 copyright = "2024, NeuroDevCo"
 author = "Gonzalo García-Castro"
-release = "0.3.20"
+release = "0.3.23"
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -22,14 +22,8 @@ html_static_path = ["_static"]
 
 html_theme_options = {
     "github_url": "https://github.com/NeuroDevCo/pymbrola",
-    "twitter_url": "https://twitter.com/NeuroDevCo",
     "search_analytics_id": "",
     "analytics_id": "",
-    "logo": {
-        "text": "pymbrola",
-        "image_light": "_static/logo.png",
-        "image_dark": "_static/logo.png",
-    },
     "navbar_align": "left",
     "footer_items": ["copyright", "sphinx-version"],
 }
