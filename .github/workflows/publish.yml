@@ -63,7 +63,8 @@ jobs:
     steps:
 
       - name: Install dependencies
-        run: python -m pip install -r docs/requirements.txt
+        run: |
+          python -m pip install sphinx==8.0.0 pydata-sphinx-theme==0.17.1 sphinx-gallery==0.21.0 myst-parser==4.0.1
 
       - id: deployment
         uses: sphinx-notes/pages@v3
