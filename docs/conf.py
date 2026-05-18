@@ -1,57 +1,64 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
-import os
-import sys
-
-# Add src directory to path so Sphinx can import mbrola module
-sys.path.insert(0, os.path.abspath(os.path.join("..", "src")))
-
 project = "pymbrola"
-copyright = "2026, Gonzalo García-Castro"
+copyright = "2024, NeuroDevCo"
 author = "Gonzalo García-Castro"
-release = "v0.3.8"
-
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+release = "0.3.20"
 
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
-    "sphinx.ext.todo",
     "myst_parser",
+    "sphinx_gallery.load_gallery",
 ]
-
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".txt": "markdown",
-    ".md": "markdown",
-}
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-# Autodoc configuration
+# HTML theme settings
+html_theme = "pydata_sphinx_theme"
+html_static_path = ["_static"]
+
+html_theme_options = {
+    "github_url": "https://github.com/NeuroDevCo/pymbrola",
+    "twitter_url": "https://twitter.com/NeuroDevCo",
+    "search_analytics_id": "",
+    "analytics_id": "",
+    "logo": {
+        "text": "pymbrola",
+        "image_light": "_static/logo.png",
+        "image_dark": "_static/logo.png",
+    },
+    "navbar_align": "left",
+    "footer_items": ["copyright", "sphinx-version"],
+}
+
+# Sphinx Gallery
+sphinx_gallery_conf = {
+    "examples_dirs": "examples",
+    "gallery_dirs": "auto_examples",
+    "mod_example_dir": "modules/generated",
+    "doc_module": ("pymbrola",),
+    "reference_url": {"pymbrola": None},
+    "capture_repr": ("_repr_html_", "__repr__"),
+    "ignore_repr_types": r"matplotlib.animation.FuncAnimation",
+}
+
+# MyST Parser
+myst_enable_extensions = ["dollarmath", "amsmath"]
+
+# Autodoc settings
 autodoc_default_options = {
     "members": True,
+    "member-order": "bysource",
+    "special-members": "__init__",
     "undoc-members": True,
     "show-inheritance": True,
 }
 
-# Napoleon extension configuration for Google-style docstrings
-napoleon_google_docstring = True
-napoleon_numpy_docstring = False
-napoleon_include_private_members = False
-napoleon_include_special_members = False
-
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-
-html_theme = "pydata_sphinx_theme"
-html_static_path = ["_static"]
+# Intersphinx
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+}
