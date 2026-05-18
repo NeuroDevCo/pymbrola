@@ -10,7 +10,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "myst_parser",
-    "sphinx_gallery.load_gallery",
+    "sphinx_gallery",
 ]
 
 templates_path = ["_templates"]
