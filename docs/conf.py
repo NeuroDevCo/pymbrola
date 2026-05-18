@@ -9,7 +9,8 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(".."))
+# Add src directory to path so Sphinx can import mbrola module
+sys.path.insert(0, os.path.abspath(os.path.join("..", "src")))
 
 project = "pymbrola"
 copyright = "2026, Gonzalo García-Castro"
@@ -20,11 +21,11 @@ release = "v0.3.8"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx.ext.todo",
-    "myst_parser",
+    "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "sphinx.ext.autodoc",
+    "sphinx.ext.todo",
+    "myst_parser",
 ]
 
 source_suffix = {
@@ -36,6 +37,18 @@ source_suffix = {
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# Autodoc configuration
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
+
+# Napoleon extension configuration for Google-style docstrings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
+napoleon_include_private_members = False
+napoleon_include_special_members = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
