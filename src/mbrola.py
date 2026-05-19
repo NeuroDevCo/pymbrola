@@ -24,7 +24,7 @@ PITCH_TYPE_INPUT = (
 
 
 @singledispatch
-def validate_durations(durations: int | list[int], phon: list[str]) -> list[int]:
+def _validate_durations(durations: int | list[int], phon: list[str]) -> list[int]:
     """Validate argument `durations`.
 
     Args:
@@ -38,19 +38,18 @@ def validate_durations(durations: int | list[int], phon: list[str]) -> list[int]
     Returns:
         list[int]: Phoneme durations.
 
-    :meta private
     """
     raise TypeError(
         f"`durations` must be int or list length {len(phon)}, but {type(durations)} was provided"
     )
 
 
-@validate_durations.register
+@_validate_durations.register
 def _(durations: int, phon: str | list[str]) -> list[int]:
     return [durations] * len(phon)
 
 
-@validate_durations.register
+@_validate_durations.register
 def _(durations: list, phon: str | list[str]) -> list[int]:
     if len(durations) != len(phon):
         raise ValueError(f"`{durations}` must be the same length as {phon}")
@@ -59,7 +58,7 @@ def _(durations: list, phon: str | list[str]) -> list[int]:
 
 
 @singledispatch
-def validate_pitch(pitch: PITCH_TYPE_INPUT) -> PITCH_TYPE:
+def _validate_pitch(pitch: PITCH_TYPE_INPUT) -> PITCH_TYPE:
     """Validate argument `pitch`.
 
     Args:
@@ -73,12 +72,11 @@ def validate_pitch(pitch: PITCH_TYPE_INPUT) -> PITCH_TYPE:
     Returns:
         int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]: validated pitch.
 
-    :meta private
     """
     raise TypeError(f"`pitch` must be int or list, but {type(pitch)} was provided")
 
 
-@validate_pitch.register
+@_validate_pitch.register
 def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
     if isinstance(pitch, float):
         warn = "pitch values must be integers, floats have been forced to integers"
@@ -87,7 +85,7 @@ def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
     return [[(0, int(pitch))]] * len(phon)
 
 
-@validate_pitch.register
+@_validate_pitch.register
 def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
     error = TypeError("All elements in `pitch` must be list[tuple[float, int]]")
     if len(pitch) != len(phon):
@@ -125,7 +123,7 @@ def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
     return pitch
 
 
-def validate_outer_silences(outer_silences: tuple[int, int]) -> tuple[int, int]:
+def _validate_outer_silences(outer_silences: tuple[int, int]) -> tuple[int, int]:
     """Validate argument `outer_silences`.
 
     Args:
@@ -136,8 +134,6 @@ def validate_outer_silences(outer_silences: tuple[int, int]) -> tuple[int, int]:
 
     Returns:
         tuple[int, int]: validated outer_silences.
-
-    :meta private
     """
 
     if (
@@ -166,6 +162,7 @@ class MBROLA:
         durations (list[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
         pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
         outer_silences (Sequence[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
+
     Examples:
         >>> house = mb.MBROLA(
                 phonemes = ["h", "a", "U", "s"],
@@ -188,10 +185,10 @@ class MBROLA:
                 phon = [phon]
 
         self.phon = list(map(str, phon))
-        self.durations = validate_durations(durations, phon)
-        self.pitch = validate_pitch(pitch, self.phon)
-        self.outer_silences = validate_outer_silences(outer_silences)
-        self.pho = make_pho(self)
+        self.durations = _validate_durations(durations, phon)
+        self.pitch = _validate_pitch(pitch, self.phon)
+        self.outer_silences = _validate_outer_silences(outer_silences)
+        self.pho = _make_pho(self)
 
     def __len__(self):
         return len(self.phon)
@@ -239,7 +236,7 @@ class MBROLA:
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
-        cmd_str = f"{mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {str(Path(file))}"
+        cmd_str = f"{_mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {str(Path(file))}"
 
         try:
             sp.check_output(cmd_str, shell=True)
@@ -251,7 +248,7 @@ class MBROLA:
             pho.unlink()
 
 
-def make_pho(x: MBROLA) -> list[str]:
+def _make_pho(x: MBROLA) -> list[str]:
     """Generate PHO file.
 
     A PHO (.pho) file contains the phonological information of the speech sound in a format that MBROLA can read. See more examples in the MBROLA documentation (https://github.com/numediart/MBROLA).
@@ -278,8 +275,6 @@ class PlatformException(Exception):
 
     Args:
         Exception (Exception): A super class Exception.
-
-    :meta private
     """
 
     def __init__(self):
@@ -288,35 +283,31 @@ class PlatformException(Exception):
 
 
 @cache
-def mbrola_cmd():
+def _mbrola_cmd():
     """
     Get MBROLA command for system command line.
-
-    :meta private
     """
-    if is_wsl() or os.name == "posix":
+    if _is_wsl() or os.name == "posix":
         return "mbrola"
 
-    if os.name == "nt" and wsl_available():
+    if os.name == "nt" and _wsl_available():
         return "wsl mbrola"
 
     raise PlatformException()
 
 
 @cache
-def is_wsl(version: str = platform.uname().release) -> bool:
+def _is_wsl(version: str = platform.uname().release) -> bool:
     """Evaluate if function is running on Windows Subsystem for Linux (WSL).
 
     Returns:
         bool: returns ``True`` if Python is running in WSL, otherwise ``False``.
-
-    :meta private
     """
     return version.endswith("microsoft-standard-WSL2")
 
 
 @cache
-def wsl_available() -> bool | int:
+def _wsl_available() -> bool | int:
     """
     Check if Windows Subsystem for Linux (WSL is available).
 
