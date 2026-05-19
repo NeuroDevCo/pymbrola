@@ -37,6 +37,8 @@ def validate_durations(durations: int | list[int], phon: list[str]) -> list[int]
 
     Returns:
         list[int]: Phoneme durations.
+
+    :meta private
     """
     raise TypeError(
         f"`durations` must be int or list length {len(phon)}, but {type(durations)} was provided"
@@ -70,6 +72,8 @@ def validate_pitch(pitch: PITCH_TYPE_INPUT) -> PITCH_TYPE:
 
     Returns:
         int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]: validated pitch.
+
+    :meta private
     """
     raise TypeError(f"`pitch` must be int or list, but {type(pitch)} was provided")
 
@@ -132,6 +136,8 @@ def validate_outer_silences(outer_silences: tuple[int, int]) -> tuple[int, int]:
 
     Returns:
         tuple[int, int]: validated outer_silences.
+
+    :meta private
     """
 
     if (
@@ -272,6 +278,8 @@ class PlatformException(Exception):
 
     Args:
         Exception (Exception): A super class Exception.
+
+    :meta private
     """
 
     def __init__(self):
@@ -283,6 +291,8 @@ class PlatformException(Exception):
 def mbrola_cmd():
     """
     Get MBROLA command for system command line.
+
+    :meta private
     """
     if is_wsl() or os.name == "posix":
         return "mbrola"
@@ -299,6 +309,8 @@ def is_wsl(version: str = platform.uname().release) -> bool:
 
     Returns:
         bool: returns ``True`` if Python is running in WSL, otherwise ``False``.
+
+    :meta private
     """
     return version.endswith("microsoft-standard-WSL2")
 
@@ -310,6 +322,8 @@ def wsl_available() -> bool | int:
 
     Returns:
         bool | int: ``True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
+
+    :meta private
     """
     if os.name != "nt" or not shutil.which("wsl"):
         return False
