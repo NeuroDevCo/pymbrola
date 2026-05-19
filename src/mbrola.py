@@ -322,7 +322,7 @@ def _wsl_available() -> bool | int:
     cmd = partial(sp.check_output, timeout=5, encoding="UTF-8", text=True)
 
     try:
-        return is_wsl(cmd(["wsl", "uname", "-r"]).strip())
+        return _is_wsl(cmd(["wsl", "uname", "-r"]).strip())
     except sp.SubprocessError:
         return False
 
