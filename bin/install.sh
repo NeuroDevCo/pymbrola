@@ -163,7 +163,7 @@ tar -xzf "${TEMP_DIR}/${FNAME}" -C "${TEMP_DIR}" || {
     exit 1
 }
 
-readonly REPO="numediart/MBROLA"
+MBDIR="${TEMP_DIR}/MBROLA-${RELEASE}"
 
 [[ $OSTYPE == 'darwin'* ]] && sed -i '' '70s/^/#/' $MBDIR/Misc/common.h; 
 
