@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Analysing the code with pylint
+      - name: Linting with Ruff
         run: uv run --group dev ruff check
 
       - name: Installing MBROLA
