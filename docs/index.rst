@@ -73,10 +73,11 @@ Table of Contents
    :maxdepth: 2
 
    user_guide/index
-   api/index
    examples/index
    contributing
    license
+   api/index
+
 
 References
 ===========
