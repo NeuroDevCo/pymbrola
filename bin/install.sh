@@ -163,6 +163,8 @@ tar -xzf "${TEMP_DIR}/${FNAME}" -C "${TEMP_DIR}" || {
     exit 1
 }
 
+[[ $OSTYPE == 'darwin'* ]] && sed -i '' '70s/^/#/' ./Misc/common.h; 
+
 # Compile and install MBROLA
 cd "${TEMP_DIR}/MBROLA-${RELEASE}" || exit 1
 if ! make; then
