@@ -3,7 +3,6 @@ name: Lint and test
 on:
   push:
     branches-ignore:
-      - main
       - gh-pages
 
 jobs:
