@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version:
           - "3.10"
           - "3.11"
@@ -35,8 +35,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Analysing the code with pylint
+      - name: Linting with Ruff
         run: uv run --group dev ruff check
+
+      - name: Wait random time to prevent permission issues in cURL
+        run: sleep $((random % 5))
 
       - name: Installing MBROLA
         run: sudo /bin/bash bin/install.sh -v it4
