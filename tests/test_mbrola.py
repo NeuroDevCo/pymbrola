@@ -63,6 +63,11 @@ class TestAttr:
         assert len(added) == len(mb_fix) + len(mb2)
         assert len(added.pho) == len(mb_fix.pho) + len(mb2.pho)
 
+    def test_copy(self, mb_fix):
+        copy = mb_fix.copy()
+        assert copy == mb_fix
+        assert copy is not mb_fix
+
 
 class TestPho:
     def test_pho(self, mb_fix):
