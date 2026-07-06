@@ -5,26 +5,27 @@
 #
 # SPDX-License-Identifier: MIT
 
-from .mbrola import (
-    MBROLA,
+from .mbrola import MBROLA, _make_pho
+
+from .utils import (
     PlatformException,
-    is_wsl,
-    make_pho,
-    mbrola_cmd,
-    validate_durations,
-    validate_outer_silences,
-    validate_pitch,
-    wsl_available,
+    _is_wsl,
+    _mbrola_cmd,
+    _validate_durations,
+    _validate_outer_silences,
+    _validate_pitch,
+    _wsl_available,
 )
+
 
 __all__ = [
     "MBROLA",
     "PlatformException",
-    "is_wsl",
-    "make_pho",
-    "mbrola_cmd",
-    "validate_durations",
-    "validate_outer_silences",
-    "validate_pitch",
-    "wsl_available",
+    "_is_wsl",
+    "_make_pho",
+    "_mbrola_cmd",
+    "_validate_durations",
+    "_validate_outer_silences",
+    "_validate_pitch",
+    "_wsl_available",
 ]

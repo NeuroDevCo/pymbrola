@@ -38,7 +38,7 @@ Requirements
 =============
 
 - Python 3.10+
-- `MBROLA binary <https://github.com/numediart/MBROLA>`_ installed and available in your system path
+- `MBROLA binary <https://github.com/numediart/MBROLA>`_ installed and available in your system path.
 - MBROLA voices (e.g., ``it4``) installed at ``/usr/share/mbrola/<voice>/<voice>``
 
 Installation
@@ -65,18 +65,6 @@ Quick Start
 
    # Synthesize and save audio
    caffe.make_sound("caffe.wav", voice="it4")
-
-Table of Contents
-==================
-
-.. toctree::
-   :maxdepth: 2
-
-   user_guide/index
-   api/index
-   examples/index
-   contributing
-   license
 
 References
 ===========
