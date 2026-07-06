@@ -68,6 +68,10 @@ class TestAttr:
         assert copy == mb_fix
         assert copy is not mb_fix
 
+    def test_len(self, mb_fix):
+        assert len(mb_fix) == 5
+        assert len(mb_fix) == len(mb_fix.phon)
+
 
 class TestPho:
     def test_pho(self, mb_fix):
