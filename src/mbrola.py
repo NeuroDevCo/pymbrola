@@ -174,12 +174,13 @@ class MBROLA:
             >>> house.make_sound("sound.wav", dur_ratio=2.0, voice="en1") # make audio double as fast
             >>> house.make_sound("sound.wav", remove_pho=False, voice="en1") # keep pho file in same directory
         """
-        pho = Path(file).with_suffix(".pho")
+        file = Path(file)
+        pho = file.with_suffix(".pho")
 
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
-        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {str(Path(file))}"
+        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {str(file)}"
 
         try:
             sp.check_output(cmd_str, shell=True)

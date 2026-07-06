@@ -139,6 +139,6 @@ class TestSound:
 
     def test_sp_error(self, mb_fix):
         """Test that subprocess errors are raised."""
-        with pytest.raises(RuntimeError):
+        with pytest.raises(FileNotFoundError):
             file = Path("bad_path", "mb_fix.wav")
             mb_fix.make_sound(file=file)
