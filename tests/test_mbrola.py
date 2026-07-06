@@ -10,15 +10,18 @@ from src import mbrola as mb
 
 @pytest.fixture
 def mb_fix():
+    """MBROLA fixture instance."""
     return mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
 
 
 class TestAttr:
     def test_mbrola(self):
+        """Test MBROLA initialization."""
         x = mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
         assert isinstance(x, mb.MBROLA)
 
     def test_string_phon(self):
+        """Test MBROLA initialization with string of phonemes."""
         phon = "kaffe"
         x = mb.MBROLA(phon, 100, 200, (1, 1))
         assert isinstance(x.phon, list)
@@ -53,10 +56,12 @@ class TestAttr:
         assert callable(mb_fix.make_sound)
 
     def test_eq(self, mb_fix):
+        """Test `==` method."""
         mb2 = mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
         assert mb_fix == mb2
 
     def test_add(self, mb_fix):
+        """Test `+` method."""
         mb2 = mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
         added = mb_fix + mb2
         assert isinstance(added, mb.MBROLA)
@@ -64,11 +69,13 @@ class TestAttr:
         assert len(added.pho) == len(mb_fix.pho) + len(mb2.pho)
 
     def test_copy(self, mb_fix):
+        """Test copy method."""
         copy = mb_fix.copy()
         assert copy == mb_fix
         assert copy is not mb_fix
 
     def test_len(self, mb_fix):
+        """Test len method."""
         assert len(mb_fix) == 5
         assert len(mb_fix) == len(mb_fix.phon)
 
@@ -121,7 +128,17 @@ class TestSound:
         assert file.exists()
         os.unlink(file)
 
+    def test_make_sound_remove_pho(self, mb_fix):
+        """Test MBROLA.make_sound method."""
+        file = Path("tests", "mb_fix.wav")
+        mb_fix.make_sound(file=file, remove_pho=False)
+        assert file.exists()
+        assert file.with_suffix(".pho").exists()
+
+        os.unlink(file)
+
     def test_sp_error(self, mb_fix):
-        with pytest.raises(RuntimeError):
+        """Test that subprocess errors are raised."""
+        with pytest.raises(FileNotFoundError):
             file = Path("bad_path", "mb_fix.wav")
             mb_fix.make_sound(file=file)

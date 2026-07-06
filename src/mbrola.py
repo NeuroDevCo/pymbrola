@@ -31,8 +31,8 @@ class MBROLA:
         outer_silences (Sequence[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
     Examples:
-        >>> house = mb.MBROLA(
-                phonemes = ["h", "a", "U", "s"],
+        >>> house = MBROLA(
+                phon = ["h", "a", "U", "s"],
                 durations = 100,
                 pitch = 200
             )
@@ -45,6 +45,8 @@ class MBROLA:
         pitch: utils.PITCH_TYPE_INPUT = 200,
         outer_silences: tuple[int, int] = (1, 1),
     ):
+        """Initiate MBROLA instance."""
+
         if isinstance(phon, str):
             if len(phon) > 1:
                 phon = list(phon)
@@ -57,19 +59,82 @@ class MBROLA:
         self.outer_silences = utils._validate_outer_silences(outer_silences)
         self.pho = _make_pho(self)
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """Get number of phonemes in MBROLA instance.
+
+        Returns:
+            int: Number of phonemes in MBROLA instance.
+
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> len(house)
+            4
+        """
         return len(self.phon)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
+        """Check if two MBROLA instances are equal.
+
+        Args:
+            other (MBROLA): Another MBROLA instance to compare.
+        Returns:
+            bool: True if both MBROLA instances are equal.
+
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house_1 = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house==house_1
+            True
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> caffe = MBROLA(phon = ["k", "a", "f", "f", "E"])
+            >>> house_0==house_1
+            False
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house_300 = MBROLA(phon = ["h", "a", "U", "s"], duration=300)
+            >>> house==house_300
+            True
+        """
         return self.pho == other.pho
 
     def __add__(self, other):
+        """Concatenate phonemes from two MBROLA instances.
+
+        Args:
+            other (MBROLA): Another MBROLA instance to concatenate.
+
+        Returns:
+            MBROLA: Concatenated MBROLA instance.
+
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> len(house)
+            4
+            >>> house_1 = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> len(house_1)
+            4
+            >>> len(house + house_1)
+            8
+        """
         new = self.copy()
         new.phon = self.phon + other.phon
         new.pho = self.pho + other.pho
+
         return new
 
     def copy(self):
+        """Make deep copy of MBROLA instance.
+
+        Returns:
+            MBROLA: Deep copy of original MBROLA instance.
+
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house_1 = house.copy()
+            >>> house == house_1
+            True
+            >>> house is house_1
+            False
+        """
         return deepcopy(self)
 
     def export_pho(self, file: str | Path) -> None:
@@ -77,6 +142,10 @@ class MBROLA:
 
         Args:
             file (str): Path of the output PHO file.
+
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house.export_pho("sample.pho")
         """
         with Path(file).open("w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
@@ -88,7 +157,7 @@ class MBROLA:
         f0_ratio: float = 1.0,
         dur_ratio: float = 1.0,
         remove_pho: bool = True,
-    ):
+    ) -> None:
         """Generate MBROLA sound WAV file.
 
         Args:
@@ -97,13 +166,21 @@ class MBROLA:
             f0_ratio (float, optional): Constant to multiply the fundamental frequency of the whole sound by. Defaults to 1.0 (same fundamental frequency).
             dur_ratio (float, optional): Constant to multiply the duration of the whole sound by. Defaults to 1.0 (same duration).
             remove_pho (bool, optional): Should the intermediate PHO file be deleted after the sound is created? Defaults to True.
+
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house.make_sound("sound.wav", voice="en1")
+            >>> house.make_sound("sound.wav", f0_ratio=0.5, voice="en1") # reduce F0 to half the original Hz.
+            >>> house.make_sound("sound.wav", dur_ratio=2.0, voice="en1") # make audio double as fast
+            >>> house.make_sound("sound.wav", remove_pho=False, voice="en1") # keep pho file in same directory
         """
-        pho = Path("tmp.pho")
+        file = Path(file)
+        pho = file.with_suffix(".pho")
 
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
-        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {str(Path(file))}"
+        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {str(file)}"
 
         try:
             sp.check_output(cmd_str, shell=True)
