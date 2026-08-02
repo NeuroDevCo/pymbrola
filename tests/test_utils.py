@@ -36,23 +36,23 @@ class TestDurationValidation:
 class TestPitchValidation:
     """Test pitch validation."""
 
-    def test_int(self, mb_fix, f: int | float = 200):
+    def test_int(self, mb_fix, f: float = 200):
         """Test validate_pitch."""
 
         out = [[(0, f)]] * len(mb_fix)
         assert utils._validate_pitch(f, mb_fix.phon) == out
 
-    def test_float(self, mb_fix, f: int | float = 200):
+    def test_float(self, mb_fix, f: float = 200):
         out = [[(0, f)]] * len(mb_fix)
         with pytest.warns(UserWarning):
             assert utils._validate_pitch(200.1, mb_fix.phon) == out
 
-    def test_int_list(self, mb_fix, f: int | float = 200):
+    def test_int_list(self, mb_fix, f: float = 200):
         x = [f] * len(mb_fix)
         out = [[(0, f)]] * len(mb_fix)
         assert utils._validate_pitch(x, mb_fix.phon) == out
 
-    def test_float_list(self, mb_fix, f: int | float = 200.0):
+    def test_float_list(self, mb_fix, f: float = 200.0):
         x = [f] * len(mb_fix)
         out = [[(0, f)]] * len(mb_fix)
 
@@ -67,15 +67,15 @@ class TestPitchValidation:
         x = [[]] * len(mb_fix)
         assert utils._validate_pitch(x, mb_fix.phon) == [[]] * len(mb_fix)
 
-    def test_tuple_list(self, mb_fix, t: int | float = 0, f: int | float = 200):
+    def test_tuple_list(self, mb_fix, t: float = 0, f: float = 200):
         x = [[(t, f)], [(t, f)], [(t, f)], [(t + 50, f + 50)], [(t, f)]]
         assert utils._validate_pitch(x, mb_fix.phon) == x
 
-    def test_tuple_list_empty(self, mb_fix, t: int | float = 0, f: int | float = 200):
+    def test_tuple_list_empty(self, mb_fix, t: float = 0, f: float = 200):
         x = [[(t, f)], [], [], [(t + 50, f + 50)], []]
         assert utils._validate_pitch(x, mb_fix.phon) == x
 
-    def test_bad_length(self, mb_fix, n: int = 4, f: int | float = 200):
+    def test_bad_length(self, mb_fix, n: int = 4, f: float = 200):
         p = [f] * n
         with pytest.raises(ValueError):
             utils._validate_pitch(p, mb_fix.phon)
@@ -92,14 +92,14 @@ class TestPitchValidation:
         with pytest.raises(TypeError):
             utils._validate_pitch(["200"] * len(mb_fix), mb_fix.phon)
 
-    def test_bad_type_list_list_tuple_str(self, mb_fix, f: int | float = 200):
+    def test_bad_type_list_list_tuple_str(self, mb_fix, f: float = 200):
         with pytest.raises(TypeError):
             utils._validate_pitch([[(str(f), f)]] * len(mb_fix), mb_fix.phon)
 
         with pytest.raises(TypeError):
             utils._validate_pitch([[(200, str(f))]] * len(mb_fix), mb_fix.phon)
 
-    def test_bad_type_list_list(self, mb_fix, f: int | float = 200):
+    def test_bad_type_list_list(self, mb_fix, f: float = 200):
         with pytest.raises(TypeError):
             utils._validate_pitch([[f, f], f, f, f, f], mb_fix.phon)
 

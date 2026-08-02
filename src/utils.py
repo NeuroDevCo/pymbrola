@@ -1,11 +1,11 @@
 """Util functions and wrappers for the MBROLA module."""
 
-from functools import singledispatch, cache, partial
 import os
 import platform
 import shutil
 import subprocess as sp
 import warnings
+from functools import cache, partial, singledispatch
 
 PITCH_TYPE = list[list[tuple[int, int]]]
 PITCH_TYPE_INPUT = (
@@ -82,11 +82,7 @@ def _validate_pitch(pitch: PITCH_TYPE_INPUT) -> PITCH_TYPE:
 
 
 @_validate_pitch.register
-def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
-    if isinstance(pitch, float):
-        warn = "pitch values must be integers, floats have been forced to integers"
-        warnings.warn(warn)
-
+def _(pitch: float, phon: list[str]) -> PITCH_TYPE:
     return [[(0, int(pitch))]] * len(phon)
 
 

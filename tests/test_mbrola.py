@@ -114,7 +114,7 @@ class TestPho:
         assert file.exists()
 
         with open(file, encoding="utf-8") as f:
-            lines = [line.strip("\n") for line in f.readlines()]
+            lines = [line.strip("\n") for line in f]
 
         assert lines == mb_fix.pho
         os.unlink(file)
