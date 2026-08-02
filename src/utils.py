@@ -1,11 +1,11 @@
 """Util functions and wrappers for the MBROLA module."""
 
-from functools import singledispatch, cache, partial
 import os
 import platform
 import shutil
 import subprocess as sp
 import warnings
+from functools import cache, partial, singledispatch
 
 PITCH_TYPE = list[list[tuple[int, int]]]
 PITCH_TYPE_INPUT = (
@@ -33,8 +33,8 @@ def _validate_durations(durations: int | list[int], phon: list[str]) -> list[int
     """Validate argument `durations`.
 
     Args:
-        durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100.
-        phon (Sequence[str]): string or list of phonemes.
+        durations (int | list[int], optional): phoneme duration in milliseconds. Defaults to 100.
+        phon (list[str]): string or list of phonemes.
 
     Raises:
         ValueError: if length of durations is different than length of phon.
@@ -63,12 +63,12 @@ def _(durations: list, phon: str | list[str]) -> list[int]:
 
 
 @singledispatch
-def _validate_pitch(pitch: PITCH_TYPE_INPUT) -> PITCH_TYPE:
+def _validate_pitch(pitch: PITCH_TYPE_INPUT, phon: str | list[str]) -> PITCH_TYPE:
     """Validate argument `pitch`.
 
     Args:
         pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
-        phon (str | Sequence[str]): string or list of phonemes.
+        phon (str | list[str]): string or list of phonemes.
 
     Raises:
         ValueError: if `pitch` is a list of different length as `phon`.
@@ -82,12 +82,13 @@ def _validate_pitch(pitch: PITCH_TYPE_INPUT) -> PITCH_TYPE:
 
 
 @_validate_pitch.register
-def _(pitch: int | float, phon: list[str]) -> PITCH_TYPE:
-    if isinstance(pitch, float):
-        warn = "pitch values must be integers, floats have been forced to integers"
-        warnings.warn(warn)
-
+def _(pitch: float, phon: list[str]) -> PITCH_TYPE:
     return [[(0, int(pitch))]] * len(phon)
+
+
+@_validate_pitch.register
+def _(pitch: int, phon: list[str]) -> PITCH_TYPE:
+    return [[(0, pitch)]] * len(phon)
 
 
 @_validate_pitch.register
@@ -122,9 +123,6 @@ def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
 
             if isinstance(p, float):
                 pitch[i][j] = (t, int(p))
-                warnings.warn(
-                    "pitch values must be integers, floats have been forced to integers"
-                )
     return pitch
 
 

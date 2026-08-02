@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: MIT
 
 from .mbrola import MBROLA, _make_pho
-
 from .utils import (
     PlatformException,
     _is_wsl,
@@ -16,7 +15,6 @@ from .utils import (
     _validate_pitch,
     _wsl_available,
 )
-
 
 __all__ = [
     "MBROLA",
