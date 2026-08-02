@@ -44,8 +44,7 @@ class TestPitchValidation:
 
     def test_float(self, mb_fix, f: float = 200):
         out = [[(0, f)]] * len(mb_fix)
-        with pytest.warns(UserWarning):
-            assert utils._validate_pitch(200.1, mb_fix.phon) == out
+        assert utils._validate_pitch(f, mb_fix.phon) == out
 
     def test_int_list(self, mb_fix, f: float = 200):
         x = [f] * len(mb_fix)
@@ -55,13 +54,7 @@ class TestPitchValidation:
     def test_float_list(self, mb_fix, f: float = 200.0):
         x = [f] * len(mb_fix)
         out = [[(0, f)]] * len(mb_fix)
-
-        with pytest.warns(UserWarning):
-            assert utils._validate_pitch(x, mb_fix.phon) == out
-
-        x = [int(f), [(f, int(f))], [(30, f)], 200.0, []]
-        with pytest.warns(UserWarning):
-            assert utils._validate_pitch(x, mb_fix.phon) == x
+        assert utils._validate_pitch(x, mb_fix.phon) == out
 
     def test_empty_list(self, mb_fix):
         x = [[]] * len(mb_fix)

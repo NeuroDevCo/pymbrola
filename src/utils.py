@@ -87,6 +87,11 @@ def _(pitch: float, phon: list[str]) -> PITCH_TYPE:
 
 
 @_validate_pitch.register
+def _(pitch: int, phon: list[str]) -> PITCH_TYPE:
+    return [[(0, pitch)]] * len(phon)
+
+
+@_validate_pitch.register
 def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
     error = TypeError("All elements in `pitch` must be list[tuple[float, int]]")
     if len(pitch) != len(phon):

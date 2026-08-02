@@ -181,7 +181,8 @@ class MBROLA:
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
-        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {file!r}"
+        file_str = str(file)
+        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {file_str}"
 
         try:
             sp.check_output(cmd_str, shell=True)
