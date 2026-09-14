@@ -58,9 +58,10 @@ class MBROLA:
             else:
                 phon = [phon]
 
-        self.phon = list(map(str, phon))
+        phon = list(map(str, phon))
+        self.phon = phon
         self.durations = utils._validate_durations(durations, phon)
-        self.pitch = utils._validate_pitch(pitch, self.phon)
+        self.pitch = utils._validate_pitch(pitch, phon)
         self.outer_silences = utils._validate_outer_silences(outer_silences)
         self.pho = _make_pho(self)
 
@@ -196,7 +197,8 @@ class MBROLA:
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
-        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {str(file)}"
+        file_str = str(file)
+        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {file_str}"
 
         try:
             sp.check_output(cmd_str, shell=True)
