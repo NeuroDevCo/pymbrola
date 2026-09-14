@@ -2,12 +2,14 @@
 Installation
 =====================
 
+
 Requirements
 =============
 
-- Python 3.10 or higher
-- `MBROLA <https://github.com/numediart/MBROLA>`_ binary
-- MBROLA voices
+- Python 3.10+
+- `MBROLA binary <https://github.com/numediart/MBROLA>`_ installed and available in your system path.
+- MBROLA voices (e.g., ``it4``) installed at ``/usr/share/mbrola/<voice>/<voice>``
+
 
 Installing MBROLA
 ===================
@@ -21,6 +23,9 @@ Using the install script:
    sudo bin/install.sh --voice fr2 it4  # install voices fr2 and it4
    sudo bin/install.sh --voice all      # install all voices
    sudo bin/install.sh                  # install no voices
+
+
+You may mind `this blog post <https://gongcastro.github.io/blog/pymbrola-installation/pymbrola-installation.html>`__ I made useful.
 
 Using Docker
 =============
