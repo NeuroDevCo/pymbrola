@@ -5,9 +5,10 @@ Installation
 Requirements
 =============
 
-- Python 3.10 or higher
-- `MBROLA <https://github.com/numediart/MBROLA>`_ binary
-- MBROLA voices
+- Python 3.10+
+- `MBROLA binary <https://github.com/numediart/MBROLA>`_ installed and available in your system path.
+- MBROLA voices (e.g., ``it4``) installed at ``/usr/share/mbrola/<voice>/<voice>``
+
 
 Installing MBROLA
 ===================

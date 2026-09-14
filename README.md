@@ -61,7 +61,7 @@ caffe = MBROLA(
     word="caffè",
     phon=["k", "a", "f", "f", "E1"],
     durations=100,  # or [100, 120, 100, 110]
-    pitch=[100, [200, 50, 200], 100, 100, 200]
+    pitch=[100, [200, 50, 200], 100, 100, 200],
 )
 
 # Display phoneme sequence

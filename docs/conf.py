@@ -1,3 +1,10 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(".."))
+
+from src import mbrola
+
 project = "pymbrola"
 copyright = "2024, NeuroDevCo"
 author = "Gonzalo García-Castro"
@@ -9,12 +16,16 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
+    "nbsphinx",
     "myst_parser",
     "sphinx_gallery",
+    "sphinx_toggleprompt",
 ]
 
 templates_path = ["_templates"]
+autosummary_generate = True
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+source_suffix = [".rst", ".md"]
 
 # HTML theme settings
 html_theme = "pydata_sphinx_theme"
@@ -46,7 +57,7 @@ myst_enable_extensions = ["dollarmath", "amsmath"]
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
-    "special-members": "__init__",
+    # "special-members": "__init__",
     "undoc-members": True,
     "show-inheritance": True,
 }
@@ -56,3 +67,5 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable", None),
 }
+
+pygments_style = "sphinx"

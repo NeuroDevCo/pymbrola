@@ -35,11 +35,13 @@ docs = ["sphinx-gallery>=0.21.0", "myst-parser>=4.0.1"]
 [dependency-groups]
 dev = [
   "myst-parser>=4.0.1",
+  "nbsphinx>=0.9.8",
   "pydata-sphinx-theme>=0.17.1",
   "pytest>=8.3.5",
   "pytest-cov>=7.1.0",
   "ruff>=0.12.9",
   "sphinx-gallery>=0.21.0",
+  "sphinx-toggleprompt>=0.6.0",
   "ty>=0.0.37",
 ]
 

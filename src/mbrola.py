@@ -5,9 +5,9 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
+import subprocess as sp
 from copy import deepcopy
 from pathlib import Path
-import subprocess as sp
 
 from src import utils
 
@@ -15,27 +15,29 @@ from src import utils
 class MBROLA:
     """A class for generating MBROLA sounds.
 
-    An MBROLA class contains the necessary elements to synthesise an audio using MBROLA.
+        An MBROLA class contains the necessary elements to synthesise an audio using MBROLA.
 
-    Args:
-        phon (list[str] | tuple[int]): list of phonemes.
-        durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
-        pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+        Args:
+            phon (list[str] | tuple[int]): list of phonemes.
+            durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
+            pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
 
-        outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
+            outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
-    Attributes:
-        phon (list[str]): list of phonemes.
-        durations (list[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
-        pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
-        outer_silences (Sequence[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
+        Attributes:
+            phon (list[str]): list of phonemes.
+            durations (list[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
+            pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+            outer_silences (Sequence[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
-    Examples:
-        >>> house = MBROLA(
-                phon = ["h", "a", "U", "s"],
-                durations = 100,
-                pitch = 200
-            )
+        Examples:
+            >>> house = MBROLA(
+                    phon = ["h", "a", "U", "s"],
+                    durations = 100,
+                    pitch = 200
+                )
+
+    :meta public:
     """
 
     def __init__(
@@ -45,7 +47,10 @@ class MBROLA:
         pitch: utils.PITCH_TYPE_INPUT = 200,
         outer_silences: tuple[int, int] = (1, 1),
     ):
-        """Initiate MBROLA instance."""
+        """Initiate MBROLA instance.
+
+        :meta private:
+        """
 
         if isinstance(phon, str):
             if len(phon) > 1:
@@ -62,37 +67,40 @@ class MBROLA:
     def __len__(self) -> int:
         """Get number of phonemes in MBROLA instance.
 
-        Returns:
-            int: Number of phonemes in MBROLA instance.
+            Returns:
+                int: Number of phonemes in MBROLA instance.
 
-        Examples:
-            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> len(house)
-            4
+            Examples:
+                >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+                >>> len(house)
+                4
+        :meta public:
         """
         return len(self.phon)
 
     def __eq__(self, other) -> bool:
         """Check if two MBROLA instances are equal.
 
-        Args:
-            other (MBROLA): Another MBROLA instance to compare.
-        Returns:
-            bool: True if both MBROLA instances are equal.
+            Args:
+                other (MBROLA): Another MBROLA instance to compare.
+            Returns:
+                bool: True if both MBROLA instances are equal.
 
-        Examples:
-            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> house_1 = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> house==house_1
-            True
-            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> caffe = MBROLA(phon = ["k", "a", "f", "f", "E"])
-            >>> house_0==house_1
-            False
-            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> house_300 = MBROLA(phon = ["h", "a", "U", "s"], duration=300)
-            >>> house==house_300
-            True
+            Examples:
+                >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+                >>> house_1 = MBROLA(phon = ["h", "a", "U", "s"])
+                >>> house==house_1
+                True
+                >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+                >>> caffe = MBROLA(phon = ["k", "a", "f", "f", "E"])
+                >>> house_0==house_1
+                False
+                >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+                >>> house_300 = MBROLA(phon = ["h", "a", "U", "s"], duration=300)
+                >>> house==house_300
+                True
+
+        :meta public:
         """
         return self.pho == other.pho
 
@@ -114,6 +122,8 @@ class MBROLA:
             4
             >>> len(house + house_1)
             8
+
+        :meta public:
         """
         new = self.copy()
         new.phon = self.phon + other.phon
@@ -134,18 +144,22 @@ class MBROLA:
             True
             >>> house is house_1
             False
+
+        :meta public:
         """
         return deepcopy(self)
 
     def export_pho(self, file: str | Path) -> None:
         """Save PHO file.
 
-        Args:
-            file (str): Path of the output PHO file.
+                Args:
+                    file (str): Path of the output PHO file.
 
-        Examples:
-            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> house.export_pho("sample.pho")
+                Examples:
+                    >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+                    >>> house.export_pho("sample.pho")
+
+        :meta public:
         """
         with Path(file).open("w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
@@ -173,6 +187,8 @@ class MBROLA:
             >>> house.make_sound("sound.wav", f0_ratio=0.5, voice="en1") # reduce F0 to half the original Hz.
             >>> house.make_sound("sound.wav", dur_ratio=2.0, voice="en1") # make audio double as fast
             >>> house.make_sound("sound.wav", remove_pho=False, voice="en1") # keep pho file in same directory
+
+        :meta public:
         """
         file = Path(file)
         pho = file.with_suffix(".pho")
