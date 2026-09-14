@@ -1,25 +1,21 @@
 import os
 import sys
+from importlib import metadata
 
 sys.path.insert(0, os.path.abspath(".."))
-
-from src import mbrola
 
 project = "pymbrola"
 copyright = "2024, NeuroDevCo"
 author = "Gonzalo García-Castro"
-release = "0.3.23"
+release = metadata.version("mbrola")
 
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
-    "nbsphinx",
     "myst_parser",
     "sphinx_gallery",
-    "sphinx_toggleprompt",
 ]
 
 templates_path = ["_templates"]
@@ -36,6 +32,7 @@ html_theme_options = {
     "search_analytics_id": "",
     "analytics_id": "",
     "navbar_align": "left",
+    "show_nav_level": 2,
     "footer_items": ["copyright", "sphinx-version"],
 }
 

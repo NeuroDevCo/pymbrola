@@ -2,6 +2,8 @@
 Quick start
 ===========
 
+This is a quick walkthrough to get you up and running with **pymbrola**, you may find [this blog post](https://gongcastro.github.io/blog/pymbrola-using/pymbrola-using.html) I made useful.
+
 Creating a simple synthesis:
 
 .. code-block:: python

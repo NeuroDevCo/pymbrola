@@ -2,6 +2,7 @@
 Installation
 =====================
 
+
 Requirements
 =============
 
@@ -22,6 +23,9 @@ Using the install script:
    sudo bin/install.sh --voice fr2 it4  # install voices fr2 and it4
    sudo bin/install.sh --voice all      # install all voices
    sudo bin/install.sh                  # install no voices
+
+
+You may mind `this blog post <https://gongcastro.github.io/blog/pymbrola-installation/pymbrola-installation.html>`__ I made useful.
 
 Using Docker
 =============
