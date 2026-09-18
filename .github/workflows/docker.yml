@@ -1,7 +1,9 @@
 name: ci
 
 on:
-  push: main
+  push:
+    branches-ignore:
+      - gh-pages
   release:
     types: [published]
 
