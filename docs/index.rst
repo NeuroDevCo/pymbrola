@@ -1,5 +1,3 @@
-:html_theme.sidebar_secondary.remove:
-
 ========
 pymbrola
 ========
@@ -29,8 +27,10 @@ pymbrola
    
    Installation <installation>
    Quick start <quick_start>
-   About MBROLA <mbrola.rst>
-   API Reference <reference>
+   About MBROLA <mbrola>
+   API Reference <api/index>
+   Contributing <contributing>
+   License <license>
 
 Docker image
 ------------
@@ -67,7 +67,7 @@ Supported by
 
 Funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Council Executive Agency (ERCEA). Neither the European Union nor the granting authority can be held responsible for them. This work is supported by the ERC StG 101115991 (GALA) awarded to Chiara Santolin
 
-.. image:: _static/EN_FundedbytheEU_RGB_POS.png
+.. image:: _static/img/EN_FundedbytheEU_RGB_POS.png
     :alt: erc
     :width: 400
     :target: https://erc.europa.eu/homepage

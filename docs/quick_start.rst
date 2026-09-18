@@ -7,6 +7,7 @@ This is a quick walkthrough to get you up and running with **pymbrola**, you may
 Creating a simple synthesis:
 
 .. code-block:: python
+  :linenos:
 
    import mbrola
 
@@ -30,6 +31,7 @@ Specifying Phonemes
 Phonemes are specified as a list of strings:
 
 .. code-block:: python
+  :linenos:
 
    import mbrola
 
@@ -49,7 +51,7 @@ Durations can be specified as:
 - **List of integers:** One duration per phoneme
 
 .. code-block:: python
-
+  :linenos:
    # All phonemes have 100ms duration
    durations = 100
 
@@ -62,7 +64,7 @@ Viewing Results
 Display the phoneme sequence:
 
 .. code-block:: python
-
+  :linenos:
    print(word)
 
 This will output a structured representation of the phonemes, durations, and pitch values.
@@ -78,7 +80,7 @@ Constant Pitch
 If pitch is specified as an **integer**, pitch is assumed constant across phonemes:
 
 .. code-block:: python
-   
+  :linenos:
    phon = list("kasa")
    pitch = 200
    validate_pitch(200, phon)
@@ -95,7 +97,7 @@ Pitch per Phoneme
 Specify pitch as a list, with one value per phoneme:
 
 .. code-block:: python
-
+  :linenos:
    phon = list("kasa")
    pitch = [200, 50, 50, 100]
 
@@ -111,7 +113,7 @@ Complex Pitch Contours
 If pitch is specified as a **list**, each element in mapped to each phoneme. Integers in the list are treated as before (constant pitch for the whole phoneme):
 
 .. code-block:: python
-
+  :linenos:
    phon = list("kasa")
    pitch = [[], [(25, 50), (50, 100), (75, 150), (90, 200)], [], 100]
 
@@ -132,7 +134,7 @@ Using Empty Lists
 Empty lists inside the main list are treated as constant pitch sections:
 
 .. code-block:: python
-
+  :linenos:
    phon = list("kasa")
    pitch = [[], 50, [], 100]
 
@@ -145,7 +147,7 @@ Result:
 Non-empty lists must consist in lists of tuples. Each tuple contains two values. The first value is the time (as a percentage of the duration of the phoneme) at which the pitch should be modified inside the phoneme (as a float or integer), and the second value is the pitch that should be set at that time (as an integer):
 
 .. code-block:: python
-
+  :linenos:
    phon = list("kasa")
    pitch = [[], [(25, 50), (50, 100), (75, 150), (90, 200)], [], 100]
    validate_pitch(pitch, phon)
