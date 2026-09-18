@@ -21,7 +21,6 @@ class MBROLA:
             phon (list[str] | tuple[int]): list of phonemes.
             durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
             pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
-
             outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
         Attributes:
@@ -58,10 +57,9 @@ class MBROLA:
             else:
                 phon = [phon]
 
-        phon = list(map(str, phon))
-        self.phon = phon
+        self.phon = list(map(str, phon))
         self.durations = utils._validate_durations(durations, phon)
-        self.pitch = utils._validate_pitch(pitch, phon)
+        self.pitch = utils._validate_pitch(pitch, self.phon)
         self.outer_silences = utils._validate_outer_silences(outer_silences)
         self.pho = _make_pho(self)
 
@@ -197,8 +195,8 @@ class MBROLA:
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
-        file_str = str(file)
-        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {file_str}"
+        flabel = str(file)
+        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {flabel}"
 
         try:
             sp.check_output(cmd_str, shell=True)
