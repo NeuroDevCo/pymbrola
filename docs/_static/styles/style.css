@@ -1,0 +1,13 @@
+body {
+    background: url('../img/background.svg') no-repeat center center fixed;
+    background-size: 100% auto;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-variation-settings:
+        "width" 100;
+    width: 100%;
+    word-break: break-word;
+}

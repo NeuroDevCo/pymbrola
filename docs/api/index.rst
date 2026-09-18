@@ -5,7 +5,7 @@ API Reference
 .. toctree::
    :maxdepth: 2
 
-   core
+   generated
 
 .. autosummary::
    :toctree: generated

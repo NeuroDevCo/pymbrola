@@ -15,7 +15,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "myst_parser",
-    "sphinx_gallery",
 ]
 
 templates_path = ["_templates"]
@@ -26,25 +25,15 @@ source_suffix = [".rst", ".md"]
 # HTML theme settings
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
+html_logo = "_static/img/logo.png"
+html_favicon = "_static/img/logo.png"
+html_css_files = ["styles/style.css", "styles/fonts.css"]
 
 html_theme_options = {
     "github_url": "https://github.com/NeuroDevCo/pymbrola",
-    "search_analytics_id": "",
-    "analytics_id": "",
     "navbar_align": "left",
     "show_nav_level": 2,
-    "footer_items": ["copyright", "sphinx-version"],
-}
-
-# Sphinx Gallery
-sphinx_gallery_conf = {
-    "examples_dirs": "examples",
-    "gallery_dirs": "auto_examples",
-    "mod_example_dir": "modules/generated",
-    "doc_module": ("pymbrola",),
-    "reference_url": {"pymbrola": None},
-    "capture_repr": ("_repr_html_", "__repr__"),
-    "ignore_repr_types": r"matplotlib.animation.FuncAnimation",
+    "back_to_top_button": True,
 }
 
 # MyST Parser
@@ -54,9 +43,10 @@ myst_enable_extensions = ["dollarmath", "amsmath"]
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
-    # "special-members": "__init__",
+    "special-members": "__init__",
     "undoc-members": True,
     "show-inheritance": True,
+    "html_search_language": "en",
 }
 
 # Intersphinx
