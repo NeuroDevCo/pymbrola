@@ -34,6 +34,7 @@ docs = ["sphinx-gallery>=0.21.0", "myst-parser>=4.0.1"]
 
 [dependency-groups]
 dev = [
+  "atsphinx-audioplayer>=0.2.1",
   "myst-parser>=4.0.1",
   "pre-commit>=4.6.2",
   "pydata-sphinx-theme>=0.17.1",
