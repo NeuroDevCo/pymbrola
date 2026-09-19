@@ -18,8 +18,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     permissions:
-      contents: write       
-      pull-requests: write  
+      contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
       - name: Testing with Pytest
         run: |
           uv run pytest --maxfail=1 --cov --cov-branch --cov-report=xml
-      
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:

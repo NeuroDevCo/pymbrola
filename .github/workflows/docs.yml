@@ -3,7 +3,7 @@ name: Documentation
 on:
   release:
     types: [published]
-  
+
 jobs:
   docs:
     name: Deploy Sphinx docs
@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        
+
       - name: Install dependencies
         run: |
           python -m pip install sphinx==8.0.0 pydata-sphinx-theme==0.17.1 sphinx-gallery==0.21.0 myst-parser==4.0.1

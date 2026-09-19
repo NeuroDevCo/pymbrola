@@ -11,7 +11,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 
-COPY bin/install.sh ./install.sh 
+COPY bin/install.sh ./install.sh
 RUN chmod +x ./install.sh && ./install.sh -v it4
 
 RUN useradd -m appuser && chown -R appuser /app
