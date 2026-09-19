@@ -29,6 +29,3 @@ MBROLA works in a very different way. First, MBROLA takes phonetic symbols as in
 .. rubric:: Footnotes
 
 .. [#c1] Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. `https://doi.org/10.1109/ICSLP.1996.607874 <https://doi.org/10.1109/ICSLP.1996.607874>`_
-
-
-

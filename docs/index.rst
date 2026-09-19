@@ -24,7 +24,7 @@ pymbrola
 
 .. toctree::
    :hidden:
-   
+
    Installation <installation>
    Quick start <quick_start>
    About MBROLA <mbrola>

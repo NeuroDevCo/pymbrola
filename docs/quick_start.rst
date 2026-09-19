@@ -84,7 +84,7 @@ If pitch is specified as an **integer**, pitch is assumed constant across phonem
    phon = list("kasa")
    pitch = 200
    validate_pitch(200, phon)
-   
+
 Result:
 
 .. code-block:: python

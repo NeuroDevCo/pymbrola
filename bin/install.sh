@@ -10,11 +10,8 @@ readonly REPO="numediart/MBROLA"
 readonly VOICES_REPO="numediart/MBROLA-voices"
 readonly DEST="/usr/bin/mbrola"
 readonly VOICES_DEST="/usr/share/mbrola"
-readonly TEMP_DIR="$(mktemp -d)"
-TRAP_EXIT() {
-    rm -rf "${TEMP_DIR}"
-}
-trap TRAP_EXIT EXIT INT TERM
+TEMP_DIR="$(mktemp -d)"
+readonly TEMP_DIR
 
 # --- Defaults ---
 VOICE=()
@@ -165,10 +162,10 @@ tar -xzf "${TEMP_DIR}/${FNAME}" -C "${TEMP_DIR}" || {
 
 MBDIR="${TEMP_DIR}/MBROLA-${RELEASE}"
 
-[[ $OSTYPE == 'darwin'* ]] && sed -i '' '70s/^/#/' $MBDIR/Misc/common.h; 
+[[ $OSTYPE == 'darwin'* ]] && sed -i '' '70s/^/#/' "$MBDIR"/Misc/common.h;
 
 # Compile and install MBROLA
-cd $MBDIR || exit 1
+cd "$MBDIR" || exit 1
 if ! make; then
     echo "Error: Failed to compile MBROLA." >&2
     exit 1
