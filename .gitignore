@@ -224,3 +224,4 @@ assets/
 *.wav
 *.pho
 tests/*.wav
+!/docs/**/*.wav

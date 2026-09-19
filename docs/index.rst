@@ -19,14 +19,14 @@ pymbrola
 .. image:: https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola
    :alt: Codecov
 
-| A Python front-end for the `MBROLA <https://github.com/numediart/MBROLA>`__ speech synthesizer. **pymbrola** enables programmatic creation of MBROLA-compatible phoneme files and automated audio synthesis with Python. It provides a simple interface to the MBROLA speech synthesizer, supporting customizable phonemes, durations, and pitch contours.
+| A **Python** front-end for the `MBROLA <https://github.com/numediart/MBROLA>`__ speech synthesizer. **pymbrola** enables programmatic creation of MBROLA-compatible **.pho files** and automated **audio synthesis** with Python, supporting customizable phonemes, durations, and pitch contours.
 
 
 .. toctree::
    :hidden:
 
    Installation <installation>
-   Quick start <quick_start>
+   Usage <usage>
    About MBROLA <mbrola>
    API Reference <api/index>
    Contributing <contributing>
@@ -48,19 +48,6 @@ Troubleshooting
 - If you encounter an error about platform support, make sure you are running on Linux or WSL.
 - Write an `issue <https://github.com/NeuroDevCo/pymbrola/issues>`__, I'll look into it ASAP.
 
-
-References
-----------
-
-Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October).
-The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes.
-In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE.
-`https://doi.org/10.1109/ICSLP.1996.607874 <https://doi.org/10.1109/ICSLP.1996.607874>`_
-
-License
--------
-
-`pymbrola` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
 
 Supported by
 ------------

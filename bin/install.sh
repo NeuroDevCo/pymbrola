@@ -31,7 +31,8 @@ download_voice() {
         exit 1
     fi
 
-    git clone --depth 1 --filter=blob:none --sparse "https://github.com/${VOICES_REPO}.git" "${voices_repo_dir}" || {
+    URL="https://github.com/${VOICES_REPO}.git"
+    git clone --depth 1 --filter=blob:none --sparse "$URL" "${voices_repo_dir}" || {
         echo "Error: Failed to clone MBROLA-voices repository." >&2
         exit 1
     }

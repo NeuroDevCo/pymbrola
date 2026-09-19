@@ -2,12 +2,9 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
       - id: check-yaml
       - id: check-toml
       - id: debug-statements
-      - id: double-quote-string-fixer
       - id: name-tests-test
         entry: name-tests-test --pytest-test-first
       - id: requirements-txt-fixer
@@ -18,16 +15,6 @@ repos:
     rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
-
-  - repo: https://github.com/openstack/bashate
-    rev: 2.1.1
-    hooks:
-      - id: bashate
-        name: bashate
-        description: This hook runs bashate for linting shell scripts
-        entry: bashate
-        language: python
-        types: [shell]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.8
