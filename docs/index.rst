@@ -21,6 +21,25 @@ pymbrola
 
 | A **Python** front-end for the `MBROLA <https://github.com/numediart/MBROLA>`__ speech synthesizer. **pymbrola** enables programmatic creation of MBROLA-compatible **.pho files** and automated **audio synthesis** with Python, supporting customizable phonemes, durations, and pitch contours.
 
+.. code-block:: ipython
+  :linenos:
+
+   import mbrola
+
+   # Create an MBROLA object
+   word = mbrola.MBROLA(
+       phon=["h", "e", "l", "@U"],
+       durations=[75, 100, 100, 200],
+       pitch=[50, 150, 175, 200]
+   )
+
+   # Export to PHO file
+   word.export_pho("hello.pho")
+
+   # Synthesize and save audio in WAV file
+   word.make_sound("hello.wav", voice="en1")
+
+.. audio:: _static/sounds/hello.wav
 
 .. toctree::
    :hidden:
