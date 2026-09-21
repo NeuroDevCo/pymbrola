@@ -39,9 +39,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv export --format requirements.txt --group dev
+          uv export --format docs/requirements.txt --group dev
 
       - id: Deploy
         uses: sphinx-notes/pages@v3
         with:
-          requirements_path: requirements.txt
+          requirements_path: docs/requirements.txt
