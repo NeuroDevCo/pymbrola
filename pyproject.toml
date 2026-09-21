@@ -25,6 +25,7 @@ classifiers = [
   "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
   "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
+dependencies = []
 
 
 [project.optional-dependencies]
@@ -35,6 +36,7 @@ docs = ["sphinx-gallery>=0.21.0", "myst-parser>=4.0.1"]
 [dependency-groups]
 dev = [
   "atsphinx-audioplayer>=0.2.1",
+  "ipython>=8.39.0",
   "myst-parser>=4.0.1",
   "pre-commit>=4.6.2",
   "pydata-sphinx-theme>=0.17.1",
@@ -42,6 +44,7 @@ dev = [
   "pytest-cov>=7.1.0",
   "ruff>=0.12.9",
   "sphinx-autobuild>=2024.10.3",
+  "sphinx-copybutton>=0.5.2",
   "sphinx-gallery>=0.21.0",
   "sphinx-toggleprompt>=0.6.0",
   "ty>=0.0.37",
