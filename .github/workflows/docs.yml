@@ -39,7 +39,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv export --format requirements.txt
+          uv export --format requirements.txt --group dev
 
       - id: Deploy
         uses: sphinx-notes/pages@v3
