@@ -17,6 +17,7 @@ extensions = [
     "myst_parser",
     "atsphinx.audioplayer",
     "sphinx_copybutton",
+    "sphinxext.opengraph",
 ]
 
 templates_path = ["_templates"]
@@ -62,3 +63,9 @@ pygments_style = "sphinx"
 ## Copy button
 copybutton_prompt_text = ">>> "
 copybutton_exclude = ".linenos, .gp"
+
+# Opengraph
+ogp_site_url = "https://neurodevco.github.io/"
+ogp_social_cards = {
+    "image": "_static/img/logo.png",
+}
