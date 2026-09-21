@@ -39,7 +39,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group dev
+          uv pip install -r pyproject.toml --group dev
+
 
       - id: deployment
         uses: sphinx-notes/pages@v3
