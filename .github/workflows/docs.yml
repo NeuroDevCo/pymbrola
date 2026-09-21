@@ -39,6 +39,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          uv venv
           uv pip install -r pyproject.toml --group dev
 
 
