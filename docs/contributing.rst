@@ -2,7 +2,7 @@
 Contributing
 ==============
 
-We welcome contributions to pymbrola! Here's how you can help:
+Contributions to pymbrola are welcome! Here's how you can help:
 
 Getting Started
 ================
@@ -20,7 +20,7 @@ Install development dependencies:
 
 .. code-block:: bash
 
-   pip install -e ".[dev]"
+   python -m pip install -e ".[dev]"
 
 Running Tests
 ==============
@@ -29,13 +29,13 @@ Run the test suite:
 
 .. code-block:: bash
 
-   pytest
+   uv run pytest
 
 Run tests with coverage:
 
 .. code-block:: bash
 
-   pytest --cov=mbrola
+	uv run pytest --maxfail=1 --cov --cov-branch --cov-report=xml
 
 Code Style
 ===========
