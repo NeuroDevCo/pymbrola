@@ -48,7 +48,6 @@ pymbrola
    Usage <usage>
    About MBROLA <mbrola>
    API Reference <api/index>
-   Contributing <contributing>
    License <license>
 
 Docker image
