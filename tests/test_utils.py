@@ -30,7 +30,7 @@ class TestDurationValidation:
             utils._validate_durations("100", mb_fix.phon)
 
         with pytest.raises(TypeError):
-            utils._validate_durations(1.0, mb_fix.phon)
+            utils._validate_durations(None, mb_fix.phon)
 
 
 class TestPitchValidation:
