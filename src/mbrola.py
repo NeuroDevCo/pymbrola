@@ -10,6 +10,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from src import utils
+from src.utils import Number, PitchInput
 
 
 class MBROLA:
@@ -18,16 +19,16 @@ class MBROLA:
         An MBROLA class contains the necessary elements to synthesise an audio using MBROLA.
 
         Args:
-            phon (list[str] | tuple[int]): list of phonemes.
-            durations (int | Sequence[int], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
-            pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
-            outer_silences (tuple[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
+            phon (list[str] | tuple[float]): list of phonemes.
+            durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in `phon` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
+            pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+            outer_silences (tuple[float, float], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
         Attributes:
             phon (list[str]): list of phonemes.
-            durations (list[int] | int, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
-            pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
-            outer_silences (Sequence[int, int], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
+            durations (list[float] | float, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in `phon` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
+            pitch (float | list[float] | list[tuple[float, float]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+            outer_silences (tuple[float, float], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1.0, 1.0).
 
         Examples:
             >>> house = MBROLA(
@@ -42,9 +43,9 @@ class MBROLA:
     def __init__(
         self,
         phon: str | list[str],
-        durations: int | list[int] = 100,
-        pitch: utils.PITCH_TYPE_INPUT = 200,
-        outer_silences: tuple[int, int] = (1, 1),
+        durations: Number | list[Number] = 100,
+        pitch: PitchInput = 200,
+        outer_silences: tuple[Number, Number] = (1, 1),
     ):
         """Initiate MBROLA instance.
 
@@ -234,7 +235,7 @@ if __name__ == "__main__":
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],
         durations=[200, 300, 200, 200, 200],
-        pitch=[200, [(50.0, 400)], [(30, 200.1)], 200.0, []],
+        pitch=[200, [(50.0, 400), (75, 500.0)], [(30, 200.1)], 200.0, []],
         outer_silences=(10, 10),
     )
 

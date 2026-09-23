@@ -79,6 +79,12 @@ class TestAttr:
         assert len(mb_fix) == 5
         assert len(mb_fix) == len(mb_fix.phon)
 
+    def test_float(self, mb_fix):
+        """Test MBROLA initialization with floats."""
+        x = mb.MBROLA(["k", "a", "f", "f", "E1"], 100.1, 200.5, (1, 1))
+        assert x.durations == [100.1] * 5
+        assert x.pitch == [[(0, 200.5)]] * 5
+
 
 class TestPho:
     def test_pho(self, mb_fix):

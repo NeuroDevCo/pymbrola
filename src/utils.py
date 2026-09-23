@@ -4,16 +4,13 @@ import os
 import platform
 import shutil
 import subprocess as sp
-import warnings
 from functools import cache, partial, singledispatch
+from typing import TypeAlias
 
-PITCH_TYPE = list[list[tuple[int, int]]]
-PITCH_TYPE_INPUT = (
-    int
-    | int
-    | list[int | float]
-    | list[int | float | list[int | float | tuple[int | float, int | float]]]
-)
+Number: TypeAlias = float | int
+PitchElement: TypeAlias = Number | list[tuple[Number, Number]]
+PitchInput: TypeAlias = Number | list[PitchElement] | list[tuple[Number, Number]]
+PitchOutput: TypeAlias = list[list[tuple[float, float]]]
 
 
 class PlatformException(Exception):
@@ -29,122 +26,111 @@ class PlatformException(Exception):
 
 
 @singledispatch
-def _validate_durations(durations: int | list[int], phon: list[str]) -> list[int]:
+def _validate_durations(
+    durations: Number | list[Number], phon: list[str]
+) -> list[float]:
     """Validate argument `durations`.
 
     Args:
-        durations (int | list[int], optional): phoneme duration in milliseconds. Defaults to 100.
+        durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100.
         phon (list[str]): string or list of phonemes.
 
     Raises:
         ValueError: if length of durations is different than length of phon.
-        TypeError: if durations is not a list or int.
+        TypeError: if durations is not a float or a list of floats.
 
     Returns:
-        list[int]: Phoneme durations.
+        list[float]: Phoneme durations.
 
     """
     raise TypeError(
-        f"`durations` must be int or list length {len(phon)}, but {type(durations)} was provided"
+        f"`durations` must be a float or list of floats with length {len(phon)}, but {type(durations)} was provided"
     )
 
 
 @_validate_durations.register
-def _(durations: int, phon: str | list[str]) -> list[int]:
+def _(durations: Number, phon: str | list[str]) -> list[float]:
     return [durations] * len(phon)
 
 
 @_validate_durations.register
-def _(durations: list, phon: str | list[str]) -> list[int]:
+def _(durations: list, phon: str | list[str]) -> list[float]:
     if len(durations) != len(phon):
         raise ValueError(f"`{durations}` must be the same length as {phon}")
 
-    return list(map(int, durations))
+    return list(map(float, durations))
 
 
 @singledispatch
-def _validate_pitch(pitch: PITCH_TYPE_INPUT, phon: str | list[str]) -> PITCH_TYPE:
+def _validate_pitch(pitch: PitchInput, phon: str | list[str]) -> PitchOutput:
     """Validate argument `pitch`.
 
     Args:
-        pitch (int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+        pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
         phon (str | list[str]): string or list of phonemes.
 
     Raises:
         ValueError: if `pitch` is a list of different length as `phon`.
-        TypeError: `pitch` is not an int or a list[tuple[float, int]]"
+        TypeError: `pitch` is not an float or a list[tuple[float, float]]"
 
     Returns:
-        int | list[int | float] | list[int | float | list[int | float | tuple[int | float, int | float]]]: validated pitch.
+        float | list[float] | list[float | list[float | tuple[float, float]]]: validated pitch.
 
     """
-    raise TypeError(f"`pitch` must be int or list, but {type(pitch)} was provided")
+    raise TypeError(
+        f"`pitch` must be a float or list of floats, but {type(pitch)} was provided"
+    )
 
 
 @_validate_pitch.register
-def _(pitch: float, phon: list[str]) -> PITCH_TYPE:
-    return [[(0, int(pitch))]] * len(phon)
-
-
-@_validate_pitch.register
-def _(pitch: int, phon: list[str]) -> PITCH_TYPE:
+def _(pitch: Number, phon: list[str]) -> PitchOutput:
     return [[(0, pitch)]] * len(phon)
 
 
 @_validate_pitch.register
-def _(pitch: list, phon: list[str]) -> PITCH_TYPE:
-    error = TypeError("All elements in `pitch` must be list[tuple[float, int]]")
+def _(pitch: list, phon: list[str]) -> PitchOutput:
+    error = TypeError("All elements in `pitch` must be list[tuple[float, float]]")
     if len(pitch) != len(phon):
         raise ValueError("`pitch` must be of same length as `phon`")
 
-    if all(isinstance(p, (int, float)) for p in pitch):
-        if any(isinstance(p, float) for p in pitch):
-            warn = "pitch values must be integers, floats have been forced to integers"
-            warnings.warn(warn)
-        return [[(0, int(p))] for p in pitch]
-
     for i, pit in enumerate(pitch):
-        if isinstance(pit, (float, int)):
+        if isinstance(pit, Number):
             pit = [(0, pit)]
             pitch[i] = pit
 
-        if not isinstance(pit, list):
+        is_correct = (
+            isinstance(pit, list)
+            and all(isinstance(p, tuple) for p in pit if p)
+            and all(len(p) == 2 for p in pit if p)
+            and all(isinstance(p, Number) for pi in pit for p in pi)
+        )
+        if not is_correct:
             raise error
 
-        if not all(isinstance(p, tuple) for p in pit if p):
-            raise error
-
-        if not all(len(p) == 2 for p in pit if p):
-            raise error
-
-        for j, (t, p) in enumerate(pit):
-            if not (isinstance(t, (float, int)) and isinstance(p, (int, float))):
-                raise error
-
-            if isinstance(p, float):
-                pitch[i][j] = (t, int(p))
     return pitch
 
 
-def _validate_outer_silences(outer_silences: tuple[int, int]) -> tuple[int, int]:
+def _validate_outer_silences(
+    outer_silences: tuple[Number, Number],
+) -> tuple[Number, Number]:
     """Validate argument `outer_silences`.
 
     Args:
-        outer_silences (tuple[int, int]): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
+        outer_silences (tuple[float, float]): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
 
     Raises:
-        TypeError: if outer_silences is not a tuple of int of length 2.
+        TypeError: if `outer_silences` is not a tuple of float of length 2.
 
     Returns:
-        tuple[int, int]: validated outer_silences.
+        tuple[float, float]: validated outer silences.
     """
 
     if (
         not isinstance(outer_silences, tuple)
         or len(outer_silences) != 2
-        or not all(isinstance(o, int) for o in outer_silences)
+        or not all(isinstance(o, Number) for o in outer_silences)
     ):
-        raise TypeError("`outer_silences` must be a tuple of int of length 2")
+        raise TypeError("`outer_silences` must be a tuple of float of length 2")
     return outer_silences
 
 
@@ -167,7 +153,7 @@ def _is_wsl(version: str = platform.uname().release) -> bool:
     """Evaluate if function is running on Windows Subsystem for Linux (WSL).
 
     Returns:
-        bool: returns ``True`` if Python is running in WSL, otherwise ``False``.
+        bool: returns `True` if Python is running in WSL, otherwise `False`.
     """
     return version.endswith("microsoft-standard-WSL2")
 
