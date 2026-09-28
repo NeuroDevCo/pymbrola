@@ -55,10 +55,7 @@ class MBROLA:
         """
 
         if isinstance(phon, str):
-            if len(phon) > 1:
-                phon = list(phon)
-            else:
-                phon = [phon]
+            phon = list(phon) if len(phon) > 1 else [phon]
 
         self.phon = list(map(str, phon))
         self.durations = utils._validate_durations(durations, phon)

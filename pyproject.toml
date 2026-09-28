@@ -74,5 +74,5 @@ explicit = true
 package = true
 
 [tool.pytest]
-addopts = ["--maxfail=1", "--cov=mbrola", "--cov-report=term-missing"]
+addopts = ["--maxfail=1", "--cov-report=term-missing"]
 testpaths = ["tests"]
