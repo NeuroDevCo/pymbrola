@@ -1,6 +1,8 @@
 """
 A Python front-end to MBROLA.
 
+The MBROLA class provides all necessary features to specify the string of phonemes in a desired speech synthesis, their duration, their pitch, and to generate the resulting audio file locally.
+
 References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
@@ -19,7 +21,7 @@ class MBROLA:
         An MBROLA class contains the necessary elements to synthesise an audio using MBROLA.
 
         Args:
-            phon (list[str] | tuple[float]): list of phonemes.
+            phon (str | list[str]): list of phonemes.
             durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in `phon` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
             pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
             outer_silences (tuple[float, float], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
@@ -53,10 +55,7 @@ class MBROLA:
         """
 
         if isinstance(phon, str):
-            if len(phon) > 1:
-                phon = list(phon)
-            else:
-                phon = [phon]
+            phon = list(phon) if len(phon) > 1 else [phon]
 
         self.phon = list(map(str, phon))
         self.durations = utils._validate_durations(durations, phon)
