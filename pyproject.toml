@@ -52,7 +52,7 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/gongcastro/pymbrola#readme"
+Documentation = "https://neurodevco.github.io/pymbrola/"
 Issues = "https://github.com/gongcastro/pymbrola/issues"
 Source = "https://github.com/gongcastro/pymbrola"
 
