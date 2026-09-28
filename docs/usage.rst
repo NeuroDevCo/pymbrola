@@ -4,7 +4,7 @@ Usage
 
 This is a quick walkthrough to get you up and running with **pymbrola**. Here is a simple synthesis:
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    import mbrola
@@ -30,7 +30,7 @@ Specifying Phonemes
 Phonemes are specified as a list of strings. Each phoneme in the specified list must be included in the repertoire of phonemes in the MBROLA voice being used. In the previous example, the phoneme `"E1"` works because it is part of the `en1` voice (see here https://github.com/numediart/MBROLA-voices/blob/master/data/en1/README.txt). Using a phoneme that does not exist in the selected voice will result in an error. You can consult which phonemes are available for each language in the `README.txt` located in the voice's folder.
 
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    import mbrola
@@ -51,7 +51,7 @@ Specifying Durations
 
 Durations are provided as milliseconds, and can be specified as a single integer or as a list of integers. If a single integer, the specified duration is applied to all phonemes.
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    # All phonemes have 100 ms duration
@@ -61,7 +61,7 @@ Durations are provided as milliseconds, and can be specified as a single integer
 
 If a list of phonemes, each element in the list is sequentially matched with each phoneme (the list of durations must have same length as the list of phonemes).
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    durations = [100, 120, 100, 110, 150]
@@ -76,7 +76,7 @@ Pitch Contours
 
 Pitch can be specified in several way. If pitch is specified as an **integer**, pitch is assumed constant across phonemes:
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    caffe = mbrola.MBROLA(phon=phons, pitch=200)
@@ -86,7 +86,7 @@ Pitch can be specified in several way. If pitch is specified as an **integer**, 
 
 If pitch is specified as a **list of integers**, with one value per provided phoneme, following MBROLA the resulting pitch contour will be remain constant at each value for the time spanned by its corresponding phoneme.
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    pitch = [200, 50, 50, 75, 100]
@@ -99,7 +99,7 @@ If pitch is specified as a **list of integers**, with one value per provided pho
 
 If any elements in the list of pitch values is `None` or an empty list `[]`, that value is converted to the default pitch value (200 Hz), and treated as if such valuee had been provided as an integer instead.
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    pitch = [300, [], 100, 50, []]
@@ -117,7 +117,7 @@ For instance, in the following example pitch is specified so that:
 2) Second phoneme (`a`): Pitch starts at 200 Hz, then changes to 50 Hz at 25 ms after phoneme onset, then changes to 100 Hz after 50 ms, then changes to 90 Hz after 90 ms.
 3) Rest of the phonemes (`f`, `f`, `E1`): Pitch changes to 300 Hz after 50 ms.
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    pitch = [300, [(25, 50), (50, 100), (75, 150), (90, 200)], 100, 100]
@@ -132,7 +132,7 @@ Generating a .pho file
 
 Under the hood, **pymbrola** transforms the provided inputs into a string formatted as a .pho file. These files contain the instructions that MBROLA needs to synthesise the sound. You can check what the .pho file of a `MBROLA` instance looks like using the `pho` attribute, or exporting it as a .pho file to your file system using the `export_pho` method:
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    caffe = mbrola.MBROLA(phon=phons)
@@ -154,7 +154,7 @@ Synthesising the sound
 
 Finally, you can create the audio file in WAV format by using the `make_sound` method:
 
-.. code-block:: ipython
+.. code-block:: python
   :linenos:
 
    caffe = mbrola.MBROLA(phon=phons)
