@@ -1,4 +1,4 @@
-# pymbrola<a href="https://neurodevco.github.io/pymbrola"><img src="docs/_static/img/logo.png" align="right" height="138" /></a>
+# pymbrola<a href="https://neurodevco.github.io/pymbrola"><img src="docs/_static/img/logo.png" align="right" height="50" /></a>
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/NeuroDevCo/pymbrola/testing.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/mbrola.svg)](https://pypi.org/project/mbrola)
