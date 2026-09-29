@@ -1,4 +1,4 @@
-# pymbrola<a href="https://neurodevco.github.io/pymbrola"><img src="docs/_static/img/logo.png" align="right" height="138" /></a>
+# pymbrola<a href="https://neurodevco.github.io/pymbrola"><img src="docs/_static/img/logo.png" align="right" height="100" /></a>
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/NeuroDevCo/pymbrola/testing.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/mbrola.svg)](https://pypi.org/project/mbrola)
@@ -12,8 +12,6 @@
 -----
 
 A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech synthesizer, enabling programmatic creation of MBROLA-compatible phoneme files and automated audio synthesis. This module validates phoneme, duration, and pitch sequences, generates `.pho` files, and can call the MBROLA executable to synthesize speech audio from text-like inputs.
-
-![](/docs/_static/img/logo.png)
 
 > **References:**
 > Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October).
