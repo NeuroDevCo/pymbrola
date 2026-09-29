@@ -1,4 +1,4 @@
-# pymbrola
+# pymbrola<a href="https://neurodevco.github.io/pymbrola"><img src="docs/_static/img/logo.png" align="right" height="138" /></a>
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/NeuroDevCo/pymbrola/testing.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/mbrola.svg)](https://pypi.org/project/mbrola)
@@ -9,10 +9,11 @@
 ![GitHub Release](https://img.shields.io/github/v/release/NeuroDevCo/pymbrola)
 ![Codecov](https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola)
 
-
 -----
 
 A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech synthesizer, enabling programmatic creation of MBROLA-compatible phoneme files and automated audio synthesis. This module validates phoneme, duration, and pitch sequences, generates `.pho` files, and can call the MBROLA executable to synthesize speech audio from text-like inputs.
+
+![](/docs/_static/img/logo.png)
 
 > **References:**
 > Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October).
@@ -25,7 +26,6 @@ A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech 
 - **Front-end to MBROLA:** Easily create `.pho` files and synthesize audio with Python.
 - **Input validation:** Prevents invalid file and phoneme sequence errors.
 - **Customizable:** Easily set phonemes, durations, pitch contours, and leading/trailing silences.
-- **Cross-platform (Linux/WSL):** Automatically detects and adapts to Linux or Windows Subsystem for Linux environments.
 
 ## Requirements
 
@@ -38,8 +38,10 @@ sudo bin/install.sh --voice all # install all voices
 sudo bin/install.sh # install no voices
 ```
 
-A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience.
 - MBROLA voices (e.g., `it4`) must be installed at `/usr/share/mbrola/<voice>/<voice>`.
+
+> [!TIP]
+> A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience.
 
 ## Installation
 

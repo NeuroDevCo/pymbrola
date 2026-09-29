@@ -2,22 +2,25 @@
 pymbrola
 ========
 
-.. image:: https://img.shields.io/github/actions/workflow/status/NeuroDevCo/pymbrola/testing.yml
+.. |gh-actions| image:: https://img.shields.io/github/actions/workflow/status/NeuroDevCo/pymbrola/testing.yml
    :alt: GitHub Actions Workflow Status
+   :class: display
 
-.. image:: https://img.shields.io/pypi/v/mbrola.svg
+.. |pypi-version| image:: https://img.shields.io/pypi/v/mbrola.svg
    :alt: PyPI - Version
    :target: https://pypi.org/project/mbrola
 
-.. image:: https://img.shields.io/pypi/pyversions/mbrola.svg
+.. |pypi-pyversions| image:: https://img.shields.io/pypi/pyversions/mbrola.svg
    :alt: PyPI - Python Version
    :target: https://pypi.org/project/mbrola
 
-.. image:: https://img.shields.io/github/license/NeuroDevCo/pymbrola
+.. |license| image:: https://img.shields.io/github/license/NeuroDevCo/pymbrola
    :alt: GitHub License
 
-.. image:: https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola
+.. |codecov| image:: https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola
    :alt: Codecov
+
+|gh-actions| |pypi-version| |pypi-pyversions| |license| |codecov|
 
 | A **Python** front-end for the `MBROLA <https://github.com/numediart/MBROLA>`__ speech synthesizer. **pymbrola** enables programmatic creation of MBROLA-compatible **.pho files** and automated **audio synthesis** with Python, supporting customizable phonemes, durations, and pitch contours.
 

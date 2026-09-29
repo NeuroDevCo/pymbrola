@@ -11,3 +11,7 @@ body {
     width: 100%;
     word-break: break-word;
 }
+
+.badge-line {
+    text-align: center;
+}
