@@ -25,7 +25,10 @@ classifiers = [
   "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
   "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
-dependencies = []
+dependencies = [
+    "fsspec[http]>=2026.9.0",
+    "tqdm>=4.70.1",
+]
 
 
 [project.optional-dependencies]
