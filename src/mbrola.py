@@ -151,12 +151,12 @@ class MBROLA:
     def export_pho(self, file: str | Path) -> None:
         """Save PHO file.
 
-                Args:
-                    file (str): Path of the output PHO file.
+        Args:
+            file (str): Path of the output PHO file.
 
-                Examples:
-                    >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-                    >>> house.export_pho("sample.pho")
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house.export_pho("sample.pho")
 
         :meta public:
         """
