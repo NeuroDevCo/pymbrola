@@ -32,10 +32,6 @@ class PlatformException(Exception):
         super().__init__(self.message)
 
 
-class VoiceMissingException(Exception):
-    """Fatal installer error; message is printed to stderr."""
-
-
 class VoiceInstallError(RuntimeError):
     """Unrecoverable error; mirrors `exit 1` in the original bash script."""
 
@@ -89,6 +85,8 @@ def install_voices(path: Path | None = None) -> bool:
     """
     Download and install every voice from the numediart/MBROLA-voices repository.
 
+    path (Path | None, optional): Destination folder for MBROLA voices. Defaults to `Path("~/.mbrola/voices")`.
+
     Returns:
         True if voices were installed, False if the user declined to replace an existing destination directory.
     """
@@ -96,7 +94,7 @@ def install_voices(path: Path | None = None) -> bool:
     temp.mkdir(parents=True, exist_ok=True)
 
     if path is None:
-        path = Path.home()
+        path = Path.home() / ".mbrola" / "voices"
 
     Path(path).mkdir(exist_ok=True, parents=True)
 
@@ -157,9 +155,6 @@ def install_voices(path: Path | None = None) -> bool:
 
     dir = Path(voices_src, "data/")
 
-    if path.exists():
-        shutil.rmtree(path)
-
     try:
         shutil.copytree(dir, path, dirs_exist_ok=True)
     except OSError as exc:
@@ -170,4 +165,4 @@ def install_voices(path: Path | None = None) -> bool:
 
 
 if __name__ == "__main__":
-    install_voices(path=Path("voices"))
+    install_voices()
