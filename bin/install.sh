@@ -9,7 +9,7 @@ set -euo pipefail
 readonly REPO="numediart/MBROLA"
 readonly VOICES_REPO="numediart/MBROLA-voices"
 readonly DEST="/usr/bin/mbrola"
-readonly VOICES_DEST="/usr/share/mbrola"
+readonly VOICES_DEST="/home/.mbrola/voices"
 TEMP_DIR="$(mktemp -d)"
 readonly TEMP_DIR
 
