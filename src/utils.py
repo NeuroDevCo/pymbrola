@@ -135,7 +135,7 @@ def _validate_outer_silences(
 
 
 @cache
-def _mbrola_cmd():
+def _mbrola_cmd() -> str:
     """
     Get MBROLA command for system command line.
     """
