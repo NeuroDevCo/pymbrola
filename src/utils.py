@@ -4,18 +4,15 @@ import os
 import platform
 import shutil
 import subprocess as sp
-import tarfile
-import tempfile
 from functools import cache, partial
 from pathlib import Path
 
 import requests
 from tqdm import tqdm
 
-GITHUB_API = "https://api.github.com"
-CODELOAD = "https://codeload.github.com"
-RAW_BASE = "https://raw.githubusercontent.com"
 REPO = "numediart/MBROLA-voices"
+API = "https://api.github.com"
+RAW = "https://raw.githubusercontent.com"
 
 TIMEOUT = (10, 120)  # (connect, read) seconds
 
@@ -81,88 +78,85 @@ def _wsl_available() -> bool | int:
         return False
 
 
-def install_voices(path: Path | None = None) -> bool:
+def install_voices(voices: list[str] | None = None, path: Path | None = None) -> bool:
     """
-    Download and install every voice from the numediart/MBROLA-voices repository.
+    Download and install MBROLA voices from numediart/MBROLA-voices.
 
-    path (Path | None, optional): Destination folder for MBROLA voices. Defaults to `Path("~/.mbrola/voices")`.
+    voices (list[str] | None, optional): Voice names to install, e.g. ["es1", "de1"]. If None (default) or empty, installs every voice.
+    path (Path | None, optional): Destination folder for MBROLA voices. Defaults to ~/.mbrola/voices.
 
     Returns:
-        True if voices were installed, False if the user declined to replace an existing destination directory.
-    """
-    temp = Path(tempfile.mkdtemp(prefix="mbrola-voices-"))
-    temp.mkdir(parents=True, exist_ok=True)
+        bool: True if voices were installed, False if the user declined to
+        replace an existing destination directory.
 
+    Examples:
+        >>> install_voices(["it4", "us1"]) # installs selected voices
+        >>> install_voices() # installs all available voices
+        >>> install_voices(path = Path("sounds")) # installs voices in folder "sounds"
+
+    """
     if path is None:
         path = Path.home() / ".mbrola" / "voices"
 
     Path(path).mkdir(exist_ok=True, parents=True)
-
-    archive = temp / "voices-master.tar.gz"
-
-    url = f"{CODELOAD}/{REPO}/tar.gz/master"
     try:
-        with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-            r.raise_for_status()
-
-            total = int(r.headers.get("Content-Length", 0))
-            with (
-                tqdm(
-                    total=total,
-                    unit="B",
-                    unit_scale=True,
-                    unit_divisor=1_024,
-                    desc="Downloading MBROLA voices",
-                ) as bar,
-                open(archive, "wb") as fh,
-            ):
-                for chunk in r.iter_content(chunk_size=1 << 16):
-                    fh.write(chunk)
-                    bar.update(len(chunk))
+        r = requests.get(
+            f"{API}/repos/{REPO}/git/trees/master",
+            params={"recursive": "1"},
+            timeout=TIMEOUT,
+        )
+        r.raise_for_status()
+        tree = r.json()
+        if tree.get("truncated"):
+            raise VoiceInstallError("Error: repository tree too large to list.")
+        files = {e["path"]: e["size"] for e in tree["tree"] if e["type"] == "blob"}
     except requests.RequestException as exc:
-        raise VoiceInstallError("Error: Failed to download MBROLA voices.") from exc
+        raise VoiceInstallError("Error: Failed to list MBROLA voices.") from exc
 
-    # verify it is a valid gzip archive
-    if not tarfile.is_tarfile(archive):
-        archive.unlink(missing_ok=True)
+    if not voices:
+        voices = sorted({f.split("/")[1] for f in files if "/" in f})
 
-        raise VoiceInstallError("Error: Downloaded file is not a valid gzip archive.")
+    for v in voices:  # guard against path traversal in user input
+        if not v or "/" in v or v in (".", ".."):
+            raise VoiceInstallError(f"Error: invalid voice name {v!r}.")
 
-    try:
-        with tarfile.open(archive, "r:gz") as tar:
-            try:
-                # filter="data" blocks path-traversal attacks (Python >= 3.12).
-                tar.extractall(temp, filter="data")
-            except TypeError:  # Python < 3.12
-                tar.extractall(temp)
-    except tarfile.TarError as exc:
-        raise VoiceInstallError(
-            "Error: Failed to extract MBROLA voices archive."
-        ) from exc
+    wanted: dict[str, int] = {}
+    for name in voices:
+        prefix = f"data/{name}/"
+        matches = {p: s for p, s in files.items() if p.startswith(prefix)}
 
-    # codeload tarballs have a single root folder
-    repo_name = REPO.rsplit("/", 1)[-1]
-    voices_src = temp / f"{repo_name.removesuffix('.git')}-master"
+        if not matches:
+            raise VoiceInstallError(f"Error: unknown voice {name!r}.")
 
-    if not voices_src.is_dir():
-        # Fallback: use the archive's single top-level directory.
-        top = [p for p in temp.iterdir() if p.is_dir() and p != temp]
+        wanted.update(matches)
 
-        if len(top) != 1:
-            raise VoiceInstallError("Error: Unexpected archive layout")
+    pb_settings = {
+        "desc": "Downloading",
+        "smoothing": True,
+        "leave": False,
+    }
+    pb = tqdm(range(len(wanted)), **pb_settings)
+    for rel_path in wanted:
+        # strips the leading "data/" so voices land directly in `path`
+        dest = path / Path(*rel_path.split("/")[1:])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        url = f"{RAW}/{REPO}/master/{rel_path}"
 
-        voices_src = top[0]
+        try:
+            with requests.get(url, stream=True, timeout=TIMEOUT) as r:
+                r.raise_for_status()
+                with open(dest, "wb") as fh:
+                    fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
+        except requests.RequestException as exc:
+            raise VoiceInstallError(f"Error: failed to download {rel_path}.") from exc
+        except OSError as exc:
+            raise VoiceInstallError("Error: Failed to install voices.") from exc
 
-    dir = Path(voices_src, "data/")
+        pb.update(1)
+        pb.set_description(f"Downloading {rel_path.split('/')[1]}")
 
-    try:
-        shutil.copytree(dir, path, dirs_exist_ok=True)
-    except OSError as exc:
-        raise VoiceInstallError("Error: Failed to install voices.") from exc
-
-    shutil.rmtree(temp, ignore_errors=True)
     return True
 
 
 if __name__ == "__main__":
-    install_voices()
+    install_voices(voices=["en1", "fr4", "es3", "us1"], path=Path("voices"))
