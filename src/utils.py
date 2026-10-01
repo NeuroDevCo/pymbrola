@@ -4,13 +4,19 @@ import os
 import platform
 import shutil
 import subprocess as sp
-from functools import cache, partial, singledispatch
-from typing import TypeAlias
+import tarfile
+import tempfile
+from functools import cache, partial
+from pathlib import Path
 
-Number: TypeAlias = float | int
-PitchElement: TypeAlias = Number | list[tuple[Number, Number]]
-PitchInput: TypeAlias = Number | list[PitchElement] | list[tuple[Number, Number]]
-PitchOutput: TypeAlias = list[list[tuple[float, float]]]
+import requests
+
+GITHUB_API = "https://api.github.com"
+CODELOAD = "https://codeload.github.com"
+RAW_BASE = "https://raw.githubusercontent.com"
+REPO = "numediart/MBROLA-voices"
+
+TIMEOUT = (10, 120)  # (connect, read) seconds
 
 
 class PlatformException(Exception):
@@ -25,117 +31,16 @@ class PlatformException(Exception):
         super().__init__(self.message)
 
 
-@singledispatch
-def _validate_durations(
-    durations: Number | list[Number], phon: list[str]
-) -> list[float]:
-    """Validate argument `durations`.
-
-    Args:
-        durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100.
-        phon (list[str]): string or list of phonemes.
-
-    Raises:
-        ValueError: if length of durations is different than length of phon.
-        TypeError: if durations is not a float or a list of floats.
-
-    Returns:
-        list[float]: Phoneme durations.
-
-    """
-    raise TypeError(
-        f"`durations` must be a float or list of floats with length {len(phon)}, but {type(durations)} was provided"
-    )
+class VoiceMissingException(Exception):
+    """Fatal installer error; message is printed to stderr."""
 
 
-@_validate_durations.register
-def _(durations: Number, phon: str | list[str]) -> list[float]:
-    return [durations] * len(phon)
-
-
-@_validate_durations.register
-def _(durations: list, phon: str | list[str]) -> list[float]:
-    if len(durations) != len(phon):
-        raise ValueError(f"`{durations}` must be the same length as {phon}")
-
-    return list(map(float, durations))
-
-
-@singledispatch
-def _validate_pitch(pitch: PitchInput, phon: str | list[str]) -> PitchOutput:
-    """Validate argument `pitch`.
-
-    Args:
-        pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
-        phon (str | list[str]): string or list of phonemes.
-
-    Raises:
-        ValueError: if `pitch` is a list of different length as `phon`.
-        TypeError: `pitch` is not an float or a list[tuple[float, float]]"
-
-    Returns:
-        float | list[float] | list[float | list[float | tuple[float, float]]]: validated pitch.
-
-    """
-    raise TypeError(
-        f"`pitch` must be a float or list of floats, but {type(pitch)} was provided"
-    )
-
-
-@_validate_pitch.register
-def _(pitch: Number, phon: list[str]) -> PitchOutput:
-    return [[(0, pitch)]] * len(phon)
-
-
-@_validate_pitch.register
-def _(pitch: list, phon: list[str]) -> PitchOutput:
-    error = TypeError("All elements in `pitch` must be list[tuple[float, float]]")
-    if len(pitch) != len(phon):
-        raise ValueError("`pitch` must be of same length as `phon`")
-
-    for i, pit in enumerate(pitch):
-        if isinstance(pit, Number):
-            pit = [(0, pit)]
-            pitch[i] = pit
-
-        is_correct = (
-            isinstance(pit, list)
-            and all(isinstance(p, tuple) for p in pit if p)
-            and all(len(p) == 2 for p in pit if p)
-            and all(isinstance(p, Number) for pi in pit for p in pi)
-        )
-        if not is_correct:
-            raise error
-
-    return pitch
-
-
-def _validate_outer_silences(
-    outer_silences: tuple[Number, Number],
-) -> tuple[Number, Number]:
-    """Validate argument `outer_silences`.
-
-    Args:
-        outer_silences (tuple[float, float]): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
-
-    Raises:
-        TypeError: if `outer_silences` is not a tuple of float of length 2.
-
-    Returns:
-        tuple[float, float]: validated outer silences.
-    """
-
-    if (
-        not isinstance(outer_silences, tuple)
-        or len(outer_silences) != 2
-        or not all(isinstance(o, Number) for o in outer_silences)
-    ):
-        raise TypeError("`outer_silences` must be a tuple of float of length 2")
-    return outer_silences
+class VoiceInstallError(RuntimeError):
+    """Unrecoverable error; mirrors `exit 1` in the original bash script."""
 
 
 @cache
-def _mbrola_cmd() -> str:
+def _mbrola_cmd():
     """
     Get MBROLA command for system command line.
     """
@@ -166,7 +71,7 @@ def _wsl_available() -> bool | int:
     Returns:
         bool | int: ``True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
 
-    :meta private
+    :meta private:
     """
     if os.name != "nt" or not shutil.which("wsl"):
         return False
@@ -177,3 +82,133 @@ def _wsl_available() -> bool | int:
         return _is_wsl(cmd(["wsl", "uname", "-r"]).strip())
     except sp.SubprocessError:
         return False
+
+
+def get_default_branch(repo: str) -> str:
+    """Return the default branch of a GitHub repository."""
+    headers = {"Accept": "application/vnd.github+json"}
+    response = requests.get(
+        f"{GITHUB_API}/repos/{repo}", headers=headers, timeout=TIMEOUT
+    )
+    if response.status_code == 404:
+        raise VoiceInstallError(f"Repository '{repo}' not found.")
+
+    response.raise_for_status()
+
+    branch = response.json().get("default_branch")
+    if not branch:
+        raise VoiceInstallError(f"Error: Failed to fetch default branch for {repo}.")
+    return branch
+
+
+def fetch_repo_tree(repo: str, ref: str) -> dict:
+    """
+    Fetch the repository's full recursive tree with a single API request.
+
+    Call this once per run and pass the result to download_single_voice()
+    so that downloading N voices costs 2 API requests total (default
+    branch + tree), not N + 1. api.github.com allows only 60
+    unauthenticated requests per hour; raw.githubusercontent.com and
+    codeload.github.com are served separately and are not subject to
+    that quota.
+    """
+    headers = {"Accept": "application/vnd.github+json"}
+
+    response = requests.get(
+        f"{GITHUB_API}/repos/{repo}/git/trees/{ref}",
+        params={"recursive": "true"},
+        headers=headers,
+        timeout=TIMEOUT,
+    )
+    response.raise_for_status()
+    tree = response.json()
+    if tree.get("truncated"):
+        raise VoiceInstallError(
+            "Repository tree is too large for one API call; clone it with git instead."
+        )
+    return tree
+
+
+def get_data_dir(voices_src: Path, path: Path) -> bool:
+    dir = Path(voices_src, "data/")
+
+    if path.exists():
+        shutil.rmtree(path)
+
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(dir, path, dirs_exist_ok=True)
+    except OSError as exc:
+        raise VoiceInstallError("Error: Failed to install voices.") from exc
+
+    return True
+
+
+def install_voices(path: Path | None = None) -> bool:
+    """
+    Download and install every voice from the repository.
+
+    Returns True if voices were installed, False if the user declined
+    to replace an existing destination directory.
+    """
+    temp = Path(tempfile.mkdtemp(prefix="mbrola-voices-"))
+    temp.mkdir(parents=True, exist_ok=True)
+
+    if path is None:
+        path = Path.home()
+
+    path.mkdir(exist_ok=True, parents=True)
+
+    branch = get_default_branch(REPO)
+
+    print("Downloading all MBROLA voices...")
+    archive = temp / f"voices-{branch}.tar.gz"
+
+    url = f"{CODELOAD}/{REPO}/tar.gz/{branch}"
+    try:
+        with requests.get(url, stream=True, timeout=TIMEOUT) as r:
+            r.raise_for_status()
+
+            with open(archive, "wb") as fh:
+                fh.writelines(r.iter_content(chunk_size=1 << 16))
+    except requests.RequestException as exc:
+        raise VoiceInstallError("Error: Failed to download MBROLA voices.") from exc
+
+    # verify it is a valid gzip archive
+    if not tarfile.is_tarfile(archive):
+        archive.unlink(missing_ok=True)
+
+        raise VoiceInstallError("Error: Downloaded file is not a valid gzip archive.")
+
+    try:
+        with tarfile.open(archive, "r:gz") as tar:
+            try:
+                # filter="data" blocks path-traversal attacks (Python >= 3.12).
+                tar.extractall(temp, filter="data")
+            except TypeError:  # Python < 3.12
+                tar.extractall(temp)
+    except tarfile.TarError as exc:
+        raise VoiceInstallError(
+            "Error: Failed to extract MBROLA voices archive."
+        ) from exc
+
+    # codeload tarballs have a single root folder
+    repo_name = REPO.rsplit("/", 1)[-1]
+    voices_src = temp / f"{repo_name.removesuffix('.git')}-{branch}"
+
+    if not voices_src.is_dir():
+        # Fallback: use the archive's single top-level directory.
+        top = [p for p in temp.iterdir() if p.is_dir() and p != temp]
+
+        if len(top) != 1:
+            raise VoiceInstallError("Error: Unexpected archive layout")
+
+        voices_src = top[0]
+
+    get_data_dir(voices_src, path)
+    shutil.rmtree(temp, ignore_errors=True)
+    return True
+
+
+if __name__ == "__main__":
+    install_voices(path=Path("voices"))
