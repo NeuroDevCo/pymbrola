@@ -225,3 +225,4 @@ assets/
 *.pho
 tests/*.wav
 !/docs/**/*.wav
+/voices/

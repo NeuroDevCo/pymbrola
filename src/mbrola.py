@@ -9,10 +9,20 @@ References:
 
 import subprocess as sp
 from copy import deepcopy
+from functools import singledispatch
 from pathlib import Path
+from typing import TypeAlias
 
 from src import utils
-from src.utils import Number, PitchInput
+
+Number: TypeAlias = float | int
+PitchElement: TypeAlias = Number | list[tuple[Number, Number]]
+PitchInput: TypeAlias = Number | list[PitchElement] | list[tuple[Number, Number]]
+PitchOutput: TypeAlias = list[list[tuple[float, float]]]
+
+
+class VoiceMissingException(Exception):
+    """Voice not found in voices folder."""
 
 
 class MBROLA:
@@ -58,9 +68,9 @@ class MBROLA:
             phon = list(phon) if len(phon) > 1 else [phon]
 
         self.phon = list(map(str, phon))
-        self.durations = utils._validate_durations(durations, phon)
-        self.pitch = utils._validate_pitch(pitch, self.phon)
-        self.outer_silences = utils._validate_outer_silences(outer_silences)
+        self.durations = _validate_durations(durations, phon)
+        self.pitch = _validate_pitch(pitch, self.phon)
+        self.outer_silences = _validate_outer_silences(outer_silences)
         self.pho = _make_pho(self)
 
     def __len__(self) -> int:
@@ -170,6 +180,7 @@ class MBROLA:
         f0_ratio: float = 1.0,
         dur_ratio: float = 1.0,
         remove_pho: bool = True,
+        voices_path: Path | None = None,
     ) -> None:
         """Generate MBROLA sound WAV file.
 
@@ -179,6 +190,7 @@ class MBROLA:
             f0_ratio (float, optional): Constant to multiply the fundamental frequency of the whole sound by. Defaults to 1.0 (same fundamental frequency).
             dur_ratio (float, optional): Constant to multiply the duration of the whole sound by. Defaults to 1.0 (same duration).
             remove_pho (bool, optional): Should the intermediate PHO file be deleted after the sound is created? Defaults to True.
+            voices_path (Path, optional): Path to MBROLA voices folder. Defaults to `Path(~/.mbrola/voices/`).
 
         Examples:
             >>> house = MBROLA(phon = ["h", "a", "U", "s"])
@@ -192,11 +204,19 @@ class MBROLA:
         file = Path(file)
         pho = file.with_suffix(".pho")
 
+        if voices_path is None:
+            voices_path = Path.home() / ".mbrola" / "voices"
+
+        available_voices = [p.name for p in voices_path.glob("*")]
+        if voice not in available_voices:
+            msg = f"Voice '{voice}' not found in `voices_path` '{voices_path}'. Please, install MBROLA voices using `utils.install_voices()` or use the `voices_path` argument to point to the folder that contains installed MBROLA voices."
+            raise VoiceMissingException(msg)
+
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
         file_str = str(file)
-        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} /usr/share/mbrola/{voice}/{voice} {pho} {file_str}"
+        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} {voices_path}/{voice}/{voice} {pho} {file_str}"
 
         try:
             sp.check_output(cmd_str, shell=True)
@@ -230,6 +250,115 @@ def _make_pho(x: MBROLA) -> list[str]:
     return pho
 
 
+@singledispatch
+def _validate_durations(
+    durations: Number | list[Number], phon: list[str]
+) -> list[float]:
+    """Validate argument `durations`.
+
+    Args:
+        durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100.
+        phon (list[str]): string or list of phonemes.
+
+    Raises:
+        ValueError: if length of durations is different than length of phon.
+        TypeError: if durations is not a float or a list of floats.
+
+    Returns:
+        list[float]: Phoneme durations.
+
+    """
+    raise TypeError(
+        f"`durations` must be a float or list of floats with length {len(phon)}, but {type(durations)} was provided"
+    )
+
+
+@_validate_durations.register
+def _(durations: Number, phon: str | list[str]) -> list[float]:
+    return [durations] * len(phon)
+
+
+@_validate_durations.register
+def _(durations: list, phon: str | list[str]) -> list[float]:
+    if len(durations) != len(phon):
+        raise ValueError(f"`{durations}` must be the same length as {phon}")
+
+    return list(map(float, durations))
+
+
+@singledispatch
+def _validate_pitch(pitch: PitchInput, phon: str | list[str]) -> PitchOutput:
+    """Validate argument `pitch`.
+
+    Args:
+        pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+        phon (str | list[str]): string or list of phonemes.
+
+    Raises:
+        ValueError: if `pitch` is a list of different length as `phon`.
+        TypeError: `pitch` is not an float or a list[tuple[float, float]]"
+
+    Returns:
+        float | list[float] | list[float | list[float | tuple[float, float]]]: validated pitch.
+
+    """
+    raise TypeError(
+        f"`pitch` must be a float or list of floats, but {type(pitch)} was provided"
+    )
+
+
+@_validate_pitch.register
+def _(pitch: Number, phon: list[str]) -> PitchOutput:
+    return [[(0, pitch)]] * len(phon)
+
+
+@_validate_pitch.register
+def _(pitch: list, phon: list[str]) -> PitchOutput:
+    error = TypeError("All elements in `pitch` must be list[tuple[float, float]]")
+    if len(pitch) != len(phon):
+        raise ValueError("`pitch` must be of same length as `phon`")
+
+    for i, pit in enumerate(pitch):
+        if isinstance(pit, Number):
+            pit = [(0, pit)]
+            pitch[i] = pit
+
+        is_correct = (
+            isinstance(pit, list)
+            and all(isinstance(p, tuple) for p in pit if p)
+            and all(len(p) == 2 for p in pit if p)
+            and all(isinstance(p, Number) for pi in pit for p in pi)
+        )
+        if not is_correct:
+            raise error
+
+    return pitch
+
+
+def _validate_outer_silences(
+    outer_silences: tuple[Number, Number],
+) -> tuple[Number, Number]:
+    """Validate argument `outer_silences`.
+
+    Args:
+        outer_silences (tuple[float, float]): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
+
+    Raises:
+        TypeError: if `outer_silences` is not a tuple of float of length 2.
+
+    Returns:
+        tuple[float, float]: validated outer silences.
+    """
+
+    if (
+        not isinstance(outer_silences, tuple)
+        or len(outer_silences) != 2
+        or not all(isinstance(o, Number) for o in outer_silences)
+    ):
+        raise TypeError("`outer_silences` must be a tuple of float of length 2")
+    return outer_silences
+
+
 if __name__ == "__main__":
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],
@@ -239,4 +368,5 @@ if __name__ == "__main__":
     )
 
     cafe.export_pho("test.pho")
+    cafe.make_sound("test.wav")
     print(cafe)

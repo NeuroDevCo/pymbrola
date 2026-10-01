@@ -8,8 +8,9 @@ set -euo pipefail
 # --- Configuration ---
 readonly REPO="numediart/MBROLA"
 readonly VOICES_REPO="numediart/MBROLA-voices"
+USER_HOME="$(eval echo ~"${SUDO_USER}")"
 readonly DEST="/usr/bin/mbrola"
-readonly VOICES_DEST="/usr/share/mbrola"
+readonly VOICES_DEST="$USER_HOME/.mbrola/voices"
 TEMP_DIR="$(mktemp -d)"
 readonly TEMP_DIR
 

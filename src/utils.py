@@ -4,13 +4,17 @@ import os
 import platform
 import shutil
 import subprocess as sp
-from functools import cache, partial, singledispatch
-from typing import TypeAlias
+from functools import cache, partial
+from pathlib import Path
 
-Number: TypeAlias = float | int
-PitchElement: TypeAlias = Number | list[tuple[Number, Number]]
-PitchInput: TypeAlias = Number | list[PitchElement] | list[tuple[Number, Number]]
-PitchOutput: TypeAlias = list[list[tuple[float, float]]]
+import requests
+from tqdm import tqdm
+
+REPO = "numediart/MBROLA-voices"
+API = "https://api.github.com"
+RAW = "https://raw.githubusercontent.com"
+
+TIMEOUT = (10, 120)  # (connect, read) seconds
 
 
 class PlatformException(Exception):
@@ -25,117 +29,12 @@ class PlatformException(Exception):
         super().__init__(self.message)
 
 
-@singledispatch
-def _validate_durations(
-    durations: Number | list[Number], phon: list[str]
-) -> list[float]:
-    """Validate argument `durations`.
-
-    Args:
-        durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100.
-        phon (list[str]): string or list of phonemes.
-
-    Raises:
-        ValueError: if length of durations is different than length of phon.
-        TypeError: if durations is not a float or a list of floats.
-
-    Returns:
-        list[float]: Phoneme durations.
-
-    """
-    raise TypeError(
-        f"`durations` must be a float or list of floats with length {len(phon)}, but {type(durations)} was provided"
-    )
-
-
-@_validate_durations.register
-def _(durations: Number, phon: str | list[str]) -> list[float]:
-    return [durations] * len(phon)
-
-
-@_validate_durations.register
-def _(durations: list, phon: str | list[str]) -> list[float]:
-    if len(durations) != len(phon):
-        raise ValueError(f"`{durations}` must be the same length as {phon}")
-
-    return list(map(float, durations))
-
-
-@singledispatch
-def _validate_pitch(pitch: PitchInput, phon: str | list[str]) -> PitchOutput:
-    """Validate argument `pitch`.
-
-    Args:
-        pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
-        phon (str | list[str]): string or list of phonemes.
-
-    Raises:
-        ValueError: if `pitch` is a list of different length as `phon`.
-        TypeError: `pitch` is not an float or a list[tuple[float, float]]"
-
-    Returns:
-        float | list[float] | list[float | list[float | tuple[float, float]]]: validated pitch.
-
-    """
-    raise TypeError(
-        f"`pitch` must be a float or list of floats, but {type(pitch)} was provided"
-    )
-
-
-@_validate_pitch.register
-def _(pitch: Number, phon: list[str]) -> PitchOutput:
-    return [[(0, pitch)]] * len(phon)
-
-
-@_validate_pitch.register
-def _(pitch: list, phon: list[str]) -> PitchOutput:
-    error = TypeError("All elements in `pitch` must be list[tuple[float, float]]")
-    if len(pitch) != len(phon):
-        raise ValueError("`pitch` must be of same length as `phon`")
-
-    for i, pit in enumerate(pitch):
-        if isinstance(pit, Number):
-            pit = [(0, pit)]
-            pitch[i] = pit
-
-        is_correct = (
-            isinstance(pit, list)
-            and all(isinstance(p, tuple) for p in pit if p)
-            and all(len(p) == 2 for p in pit if p)
-            and all(isinstance(p, Number) for pi in pit for p in pi)
-        )
-        if not is_correct:
-            raise error
-
-    return pitch
-
-
-def _validate_outer_silences(
-    outer_silences: tuple[Number, Number],
-) -> tuple[Number, Number]:
-    """Validate argument `outer_silences`.
-
-    Args:
-        outer_silences (tuple[float, float]): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
-
-    Raises:
-        TypeError: if `outer_silences` is not a tuple of float of length 2.
-
-    Returns:
-        tuple[float, float]: validated outer silences.
-    """
-
-    if (
-        not isinstance(outer_silences, tuple)
-        or len(outer_silences) != 2
-        or not all(isinstance(o, Number) for o in outer_silences)
-    ):
-        raise TypeError("`outer_silences` must be a tuple of float of length 2")
-    return outer_silences
+class VoiceInstallError(RuntimeError):
+    """Unrecoverable error; mirrors `exit 1` in the original bash script."""
 
 
 @cache
-def _mbrola_cmd() -> str:
+def _mbrola_cmd():
     """
     Get MBROLA command for system command line.
     """
@@ -166,7 +65,7 @@ def _wsl_available() -> bool | int:
     Returns:
         bool | int: ``True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
 
-    :meta private
+    :meta private:
     """
     if os.name != "nt" or not shutil.which("wsl"):
         return False
@@ -177,3 +76,87 @@ def _wsl_available() -> bool | int:
         return _is_wsl(cmd(["wsl", "uname", "-r"]).strip())
     except sp.SubprocessError:
         return False
+
+
+def install_voices(voices: list[str] | None = None, path: Path | None = None) -> bool:
+    """
+    Download and install MBROLA voices from numediart/MBROLA-voices.
+
+    voices (list[str] | None, optional): Voice names to install, e.g. ["es1", "de1"]. If None (default) or empty, installs every voice.
+    path (Path | None, optional): Destination folder for MBROLA voices. Defaults to ~/.mbrola/voices.
+
+    Returns:
+        bool: True if voices were installed, False if the user declined to
+        replace an existing destination directory.
+
+    Examples:
+        >>> install_voices(["it4", "us1"]) # installs selected voices
+        >>> install_voices() # installs all available voices
+        >>> install_voices(path = Path("sounds")) # installs voices in folder "sounds"
+
+    """
+    if path is None:
+        path = Path.home() / ".mbrola" / "voices"
+
+    Path(path).mkdir(exist_ok=True, parents=True)
+    try:
+        r = requests.get(
+            f"{API}/repos/{REPO}/git/trees/master",
+            params={"recursive": "1"},
+            timeout=TIMEOUT,
+        )
+        r.raise_for_status()
+        tree = r.json()
+        if tree.get("truncated"):
+            raise VoiceInstallError("Error: repository tree too large to list.")
+        files = {e["path"]: e["size"] for e in tree["tree"] if e["type"] == "blob"}
+    except requests.RequestException as exc:
+        raise VoiceInstallError("Error: Failed to list MBROLA voices.") from exc
+
+    if not voices:
+        voices = sorted({f.split("/")[1] for f in files if "/" in f})
+
+    for v in voices:  # guard against path traversal in user input
+        if not v or "/" in v or v in (".", ".."):
+            raise VoiceInstallError(f"Error: invalid voice name {v!r}.")
+
+    wanted: dict[str, int] = {}
+    for name in voices:
+        prefix = f"data/{name}/"
+        matches = {p: s for p, s in files.items() if p.startswith(prefix)}
+
+        if not matches:
+            raise VoiceInstallError(f"Error: unknown voice {name!r}.")
+
+        wanted.update(matches)
+
+    pb_settings = {
+        "desc": "Downloading",
+        "smoothing": True,
+        "leave": False,
+    }
+    pb = tqdm(range(len(wanted)), **pb_settings)
+    for rel_path in wanted:
+        # strips the leading "data/" so voices land directly in `path`
+        dest = path / Path(*rel_path.split("/")[1:])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        url = f"{RAW}/{REPO}/master/{rel_path}"
+
+        try:
+            with requests.get(url, stream=True, timeout=TIMEOUT) as r:
+                r.raise_for_status()
+                with open(dest, "wb") as fh:
+                    fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
+        except requests.RequestException as exc:
+            raise VoiceInstallError(f"Error: failed to download {rel_path}.") from exc
+        except OSError as exc:
+            raise VoiceInstallError("Error: Failed to install voices.") from exc
+
+        pb.update(1)
+        pb.set_description(f"Downloading {rel_path.split('/')[1]}")
+
+    return True
+
+
+if __name__ == "__main__":
+    install_voices(voices=["en1", "fr4", "es3", "us1"], path=Path("voices"))

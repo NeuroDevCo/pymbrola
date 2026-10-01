@@ -143,6 +143,12 @@ class TestSound:
 
         os.unlink(file)
 
+    def test_make_sound_wrong_voice(self, mb_fix):
+        """Test MBROLA.make_sound with wrong voice."""
+        with pytest.raises(mb.VoiceMissingException):
+            file = Path("tests", "mb_fix.wav")
+            mb_fix.make_sound(file=file, voice="bad_voice")
+
     def test_sp_error(self, mb_fix):
         """Test that subprocess errors are raised."""
         with pytest.raises(FileNotFoundError):
