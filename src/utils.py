@@ -10,6 +10,7 @@ from functools import cache, partial
 from pathlib import Path
 
 import requests
+from tqdm import tqdm
 
 GITHUB_API = "https://api.github.com"
 CODELOAD = "https://codeload.github.com"
@@ -84,72 +85,12 @@ def _wsl_available() -> bool | int:
         return False
 
 
-def get_default_branch(repo: str) -> str:
-    """Return the default branch of a GitHub repository."""
-    headers = {"Accept": "application/vnd.github+json"}
-    response = requests.get(
-        f"{GITHUB_API}/repos/{repo}", headers=headers, timeout=TIMEOUT
-    )
-    if response.status_code == 404:
-        raise VoiceInstallError(f"Repository '{repo}' not found.")
-
-    response.raise_for_status()
-
-    branch = response.json().get("default_branch")
-    if not branch:
-        raise VoiceInstallError(f"Error: Failed to fetch default branch for {repo}.")
-    return branch
-
-
-def fetch_repo_tree(repo: str, ref: str) -> dict:
-    """
-    Fetch the repository's full recursive tree with a single API request.
-
-    Call this once per run and pass the result to download_single_voice()
-    so that downloading N voices costs 2 API requests total (default
-    branch + tree), not N + 1. api.github.com allows only 60
-    unauthenticated requests per hour; raw.githubusercontent.com and
-    codeload.github.com are served separately and are not subject to
-    that quota.
-    """
-    headers = {"Accept": "application/vnd.github+json"}
-
-    response = requests.get(
-        f"{GITHUB_API}/repos/{repo}/git/trees/{ref}",
-        params={"recursive": "true"},
-        headers=headers,
-        timeout=TIMEOUT,
-    )
-    response.raise_for_status()
-    tree = response.json()
-    if tree.get("truncated"):
-        raise VoiceInstallError(
-            "Repository tree is too large for one API call; clone it with git instead."
-        )
-    return tree
-
-
-def get_data_dir(voices_src: Path, path: Path) -> bool:
-    dir = Path(voices_src, "data/")
-
-    if path.exists():
-        shutil.rmtree(path)
-
-    try:
-        path.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(dir, path, dirs_exist_ok=True)
-    except OSError as exc:
-        raise VoiceInstallError("Error: Failed to install voices.") from exc
-
-    return True
-
-
 def install_voices(path: Path | None = None) -> bool:
     """
-    Download and install every voice from the repository.
+    Download and install every voice from the numediart/MBROLA-voices repository.
 
-    Returns True if voices were installed, False if the user declined
-    to replace an existing destination directory.
+    Returns:
+        True if voices were installed, False if the user declined to replace an existing destination directory.
     """
     temp = Path(tempfile.mkdtemp(prefix="mbrola-voices-"))
     temp.mkdir(parents=True, exist_ok=True)
@@ -157,20 +98,29 @@ def install_voices(path: Path | None = None) -> bool:
     if path is None:
         path = Path.home()
 
-    path.mkdir(exist_ok=True, parents=True)
+    Path(path).mkdir(exist_ok=True, parents=True)
 
-    branch = get_default_branch(REPO)
+    archive = temp / "voices-master.tar.gz"
 
-    print("Downloading all MBROLA voices...")
-    archive = temp / f"voices-{branch}.tar.gz"
-
-    url = f"{CODELOAD}/{REPO}/tar.gz/{branch}"
+    url = f"{CODELOAD}/{REPO}/tar.gz/master"
     try:
         with requests.get(url, stream=True, timeout=TIMEOUT) as r:
             r.raise_for_status()
 
-            with open(archive, "wb") as fh:
-                fh.writelines(r.iter_content(chunk_size=1 << 16))
+            total = int(r.headers.get("Content-Length", 0))
+            with (
+                tqdm(
+                    total=total,
+                    unit="B",
+                    unit_scale=True,
+                    unit_divisor=1_024,
+                    desc="Downloading MBROLA voices",
+                ) as bar,
+                open(archive, "wb") as fh,
+            ):
+                for chunk in r.iter_content(chunk_size=1 << 16):
+                    fh.write(chunk)
+                    bar.update(len(chunk))
     except requests.RequestException as exc:
         raise VoiceInstallError("Error: Failed to download MBROLA voices.") from exc
 
@@ -194,7 +144,7 @@ def install_voices(path: Path | None = None) -> bool:
 
     # codeload tarballs have a single root folder
     repo_name = REPO.rsplit("/", 1)[-1]
-    voices_src = temp / f"{repo_name.removesuffix('.git')}-{branch}"
+    voices_src = temp / f"{repo_name.removesuffix('.git')}-master"
 
     if not voices_src.is_dir():
         # Fallback: use the archive's single top-level directory.
@@ -205,7 +155,16 @@ def install_voices(path: Path | None = None) -> bool:
 
         voices_src = top[0]
 
-    get_data_dir(voices_src, path)
+    dir = Path(voices_src, "data/")
+
+    if path.exists():
+        shutil.rmtree(path)
+
+    try:
+        shutil.copytree(dir, path, dirs_exist_ok=True)
+    except OSError as exc:
+        raise VoiceInstallError("Error: Failed to install voices.") from exc
+
     shutil.rmtree(temp, ignore_errors=True)
     return True
 
