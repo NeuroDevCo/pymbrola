@@ -10,3 +10,9 @@
    
       MBROLA
    
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      VoiceMissingException
+   
