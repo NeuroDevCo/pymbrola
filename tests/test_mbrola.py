@@ -108,10 +108,10 @@ class TestPho:
 
         assert mb_fix.pho[-1].startswith("_ ")
 
-    def test_make(self):
+    def test_make_pho(self):
         """Test make_pho function."""
         x = mb.MBROLA(phon=["b", "a", "k", "a"])
-        assert mb._make_pho(x)
+        assert mb.make_pho(x)
 
     def test_export(self, mb_fix):
         """Test MBROLA.export_pho method."""
@@ -145,7 +145,7 @@ class TestSound:
 
     def test_make_sound_wrong_voice(self, mb_fix):
         """Test MBROLA.make_sound with wrong voice."""
-        with pytest.raises(mb.VoiceMissingException):
+        with pytest.raises(mb.MissingVoiceException):
             file = Path("tests", "mb_fix.wav")
             mb_fix.make_sound(file=file, voice="bad_voice")
 

@@ -226,3 +226,4 @@ assets/
 tests/*.wav
 !/docs/**/*.wav
 /voices/
+.mbrola
