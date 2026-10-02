@@ -21,10 +21,6 @@ PitchInput: TypeAlias = Number | list[PitchElement] | list[tuple[Number, Number]
 PitchOutput: TypeAlias = list[list[tuple[float, float]]]
 
 
-class VoiceMissingException(Exception):
-    """Voice not found in voices folder."""
-
-
 class MBROLA:
     """A class for generating MBROLA sounds.
 
@@ -180,7 +176,6 @@ class MBROLA:
         f0_ratio: float = 1.0,
         dur_ratio: float = 1.0,
         remove_pho: bool = True,
-        voices_path: Path | None = None,
     ) -> None:
         """Generate MBROLA sound WAV file.
 
@@ -201,22 +196,17 @@ class MBROLA:
 
         :meta public:
         """
+        utils.mbrola_path()
         file = Path(file)
+        file_str = str(file)
+
         pho = file.with_suffix(".pho")
-
-        if voices_path is None:
-            voices_path = Path.home() / ".mbrola" / "voices"
-
-        available_voices = [p.name for p in voices_path.glob("*")]
-        if voice not in available_voices:
-            msg = f"Voice '{voice}' not found in `voices_path` '{voices_path}'. Please, install MBROLA voices using `utils.install_voices()` or use the `voices_path` argument to point to the folder that contains installed MBROLA voices."
-            raise VoiceMissingException(msg)
+        voice_str = utils.check_voices(voice)
 
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))
 
-        file_str = str(file)
-        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} {voices_path}/{voice}/{voice} {pho} {file_str}"
+        cmd_str = f"{utils._mbrola_cmd()} -f {f0_ratio} -t {dur_ratio} {voice_str} {pho} {file_str}"
 
         try:
             sp.check_output(cmd_str, shell=True)
