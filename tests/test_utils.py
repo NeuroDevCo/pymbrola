@@ -4,12 +4,12 @@ from unittest.mock import patch
 
 import pytest
 
-from src import mbrola, utils
+from src import mbrola as mb
 
 
 @pytest.fixture
 def mb_fix():
-    return mbrola.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
+    return mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
 
 
 @pytest.fixture(scope="session")
@@ -21,7 +21,7 @@ class TestPlatformValidation:
     def test_wsl_available_on_linux(self):
         """Mock os.name as 'posix' (Linux)."""
         with patch("os.name", "posix"):
-            assert utils._wsl_available() is False
+            assert mb.wsl_available() is False
 
     def test_wsl_available_wsl_not_in_path(self):
         """Mock os.name as 'nt' (Windows) and wsl not in PATH."""
@@ -29,7 +29,7 @@ class TestPlatformValidation:
             patch("os.name", "nt"),
             patch("shutil.which", return_value=None),
         ):
-            assert utils._wsl_available() is False
+            assert mb.wsl_available() is False
 
     def test_wsl_available_subprocess_error(self):
         """Mock os.name as 'nt', wsl in PATH, but subprocess raises an error."""
@@ -41,15 +41,15 @@ class TestPlatformValidation:
                 side_effect=sp.SubprocessError("WSL command failed"),
             ),
         ):
-            assert utils._wsl_available() is False
+            assert mb.wsl_available() is False
 
 
 class TestDownloadVoices:
     def test_install_voices(self, mb_fix):
         test_langs = ["it4", "es3", "fr4"]
 
-        assert utils.install_voice(voice=test_langs)
-        path = utils.mbrola_path() / "Voices"
+        assert mb.install_voice(voice=test_langs)
+        path = mb.mbrola_path() / "Voices"
         voices = [p.name for p in path.glob("*")]
 
         assert path.exists()

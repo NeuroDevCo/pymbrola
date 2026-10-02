@@ -993,10 +993,11 @@ wheels = [
 
 [[package]]
 name = "mbrola"
-version = "0.5.2"
+version = "0.5.3"
 source = { editable = "." }
 dependencies = [
     { name = "fsspec", extra = ["http"] },
+    { name = "requests" },
     { name = "tqdm" },
 ]
 
@@ -1042,6 +1043,7 @@ requires-dist = [
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=4.0.1" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.5" },
     { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.1.0" },
+    { name = "requests", specifier = ">=2.34.2" },
     { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.12.9" },
     { name = "sphinx-gallery", marker = "extra == 'docs'", specifier = ">=0.21.0" },
     { name = "tqdm", specifier = ">=4.70.1" },

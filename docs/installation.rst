@@ -2,28 +2,33 @@
 Installation
 =====================
 
-Requirements
-=============
-
-- Python 3.10+
-- MBROLA binary installed and available in your system path (https://github.com/numediart/MBROLA).
-- MBROLA voices (e.g., ``it4``) installed at ``/usr/share/mbrola/<voice>/<voice>``
-
-Installing MBROLA
-===================
-
-MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the `Windows Subsystem for Linux (WSL) <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
-
-Using the install script:
+You can install **pymbrola** from the [PyPi](https://pypi.org/project/mbrola/) repository using `pip <https://pypi.org/project/mbrola/>`__ or `uv <https://docs.astral.sh/uv/getting-started/installation/>`__:
 
 .. code-block:: bash
 
-   sudo bin/install.sh --voice fr2 it4  # install voices fr2 and it4
-   sudo bin/install.sh --voice all      # install all voices
-   sudo bin/install.sh                  # install no voices
+   pip install mbrola # pip installation
+   uv add mbrola      # uv installation
 
+In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this. This will download MBROLa from https://github.com/numediart/MBROLA to you home folder `~/.mbrola` and compile it.
 
-You may mind `this blog post <https://gongcastro.github.io/blog/pymbrola-installation/pymbrola-installation.html>`__ I made useful.
+.. code-block:: python
+   import mbrola
+
+   mbrola.install_mbrola()
+
+.. admonition:: Platform compatibility
+   :class: attention
+
+   MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the `Windows Subsystem for Linux (WSL) <https://learn.microsoft.com/en-us/windows/wsl/install>`_. Native Windows and macOS are not yet compatible with the **pymbrola** package.
+
+Finally, you will need to download some MBROLA voices from https://github.com/numediart/MBROLA-voices. These voices will be automatically downloaded and found by **pymbrola** at `~/.mbrola/Voices`:
+
+.. code-block:: python
+
+   mbrola.install_voice("it4")          # install it4 voice
+   mbrola.install_voice(["it4", "fr4"]) # install several voices
+   mbrola.install_voice()               # install all voices (~534M)
+
 
 Using Docker
 =============
@@ -33,22 +38,3 @@ A `Docker image <https://hub.docker.com/repository/docker/gongcastro/pymbrola/ge
 .. code-block:: bash
 
    docker run -it gongcastro/pymbrola:latest
-
-Installing pymbrola
-====================
-
-Install the Python package via pip:
-
-.. code-block:: bash
-
-   pip install mbrola
-
-Verifying Installation
-========================
-
-To verify that pymbrola is correctly installed:
-
-.. code-block:: python
-
-   import mbrola
-   print(mbrola.__version__)
