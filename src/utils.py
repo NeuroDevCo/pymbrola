@@ -327,5 +327,5 @@ def install_mbrola(path: Path | str | None = None) -> None:
 
 
 if __name__ == "__main__":
-    # install_mbrola()
+    install_mbrola()
     install_voice(voice=["it4", "fr4"])
