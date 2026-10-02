@@ -18,26 +18,30 @@ A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech 
 > The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes.
 > In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE.
 > [https://doi.org/10.1109/ICSLP.1996.607874](https://doi.org/10.1109/ICSLP.1996.607874)
+You can install **pymbrola** from the [PyPi](https://pypi.org/project/mbrola/) repository using `pip <https://pypi.org/project/mbrola/>`__ or `uv <https://docs.astral.sh/uv/getting-started/installation/>`__:
 
-## Features
+.. code-block:: bash
 
-- **Front-end to MBROLA:** Easily create `.pho` files and synthesize audio with Python.
-- **Input validation:** Prevents invalid file and phoneme sequence errors.
-- **Customizable:** Easily set phonemes, durations, pitch contours, and leading/trailing silences.
+   pip install mbrola # pip installation
+   uv add mbrola      # uv installation
 
-## Requirements
+In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this. This will download MBROLa from https://github.com/numediart/MBROLA to you home folder `~/.mbrola` and compile it.
 
-- Python 3.10+
-- [MBROLA binary](https://github.com/numediart/MBROLA) installed and available in your system path, or via WSL for Windows users.
-- MBROLA voices (e.g., `it4`) must be installed at `/usr/share/mbrola/<voice>/<voice>`.
+```python
+import mbrola
 
+mbrola.install_mbrola()
+```
 
-To install MBROLA in your Ubuntu or WSL instance, run the [mbrola/install.sh] script:
+> [!IMPORTANT]
+>MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the `Windows Subsystem for Linux (WSL) <https://learn.microsoft.com/en-us/windows/wsl/install>`_. Native Windows and macOS are not yet compatible with the **pymbrola** package.
 
-```bash
-sudo bin/install.sh --voice fr2 it4 # install voices fr2 and it4
-sudo bin/install.sh --voice all     # install all voices
-sudo bin/install.sh                 # install no voices
+Finally, you will need to download some MBROLA voices from https://github.com/numediart/MBROLA-voices. These voices will be automatically downloaded and found by **pymbrola** at `~/.mbrola/Voices`:
+
+```python
+mbrola.install_voice("it4")  # install it4 voice
+mbrola.install_voice(["it4", "fr4"])  # install several voices
+mbrola.install_voice()  # install all voices (~534M)
 ```
 
 > [!TIP]
@@ -75,11 +79,6 @@ caffe.make_sound("caffe.wav", voice="it4")
 
 The module uses the MBROLA command line tool under the hood. Ensure MBROLA is installed and available in your system path, or WSL if on Windows.
 
-## Troubleshooting
-
-- Ensure MBROLA and the required voices are installed and available at `/usr/share/mbrola/<voice>/<voice>`.
-- If you encounter an error about platform support, make sure you are running on Linux or WSL.
-- Write an [issue](https://github.com/NeuroDevCo/pymbrola/issues), I'll look into it ASAP.
 
 ## License
 
