@@ -2,7 +2,7 @@
 Installation
 =====================
 
-You can install **pymbrola** from the [PyPi](https://pypi.org/project/mbrola/) repository using `pip <https://pypi.org/project/mbrola/>`__ or `uv <https://docs.astral.sh/uv/getting-started/installation/>`__:
+You can install **pymbrola** from the `PyPi <https://pypi.org/project/mbrola/>__` repository using `pip <https://pypi.org/project/mbrola/>`__ or `uv <https://docs.astral.sh/uv/getting-started/installation/>`__:
 
 .. code-block:: bash
 
