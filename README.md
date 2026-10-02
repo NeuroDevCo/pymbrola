@@ -89,4 +89,4 @@ The module uses the MBROLA command line tool under the hood. Ensure MBROLA is in
 
 Funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Council Executive Agency (ERCEA). Neither the European Union nor the granting authority can be held responsible for them. This work is supported by the ERC StG 101115991 (GALA) awarded to Chiara Santolin
 
-![https://erc.europa.eu/homepage](/docs/_static/EN_FundedbytheEU_RGB_POS.png)
+![https://erc.europa.eu/homepage](docs/_static/EN_FundedbytheEU_RGB_POS.png)
