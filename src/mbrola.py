@@ -185,7 +185,6 @@ class MBROLA:
             f0_ratio (float, optional): Constant to multiply the fundamental frequency of the whole sound by. Defaults to 1.0 (same fundamental frequency).
             dur_ratio (float, optional): Constant to multiply the duration of the whole sound by. Defaults to 1.0 (same duration).
             remove_pho (bool, optional): Should the intermediate PHO file be deleted after the sound is created? Defaults to True.
-            voices_path (Path, optional): Path to MBROLA voices folder. Defaults to `Path(~/.mbrola/voices/`).
 
         Examples:
             >>> house = MBROLA(phon = ["h", "a", "U", "s"])

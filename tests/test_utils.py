@@ -45,11 +45,11 @@ class TestPlatformValidation:
 
 
 class TestDownloadVoices:
-    def test_install_voices(self, voices_path, mb_fix):
+    def test_install_voices(self, mb_fix):
         test_langs = ["it4", "es3", "fr4"]
 
-        assert utils.install_voice(voice=test_langs, path=Path(voices_path))
-        path = Path(voices_path)
+        assert utils.install_voice(voice=test_langs)
+        path = utils.mbrola_path() / "Voices"
         voices = [p.name for p in path.glob("*")]
 
         assert path.exists()
@@ -62,7 +62,5 @@ class TestDownloadVoices:
             assert p.is_dir()
             assert len(list(p.glob("*")))
 
-        mb_fix.make_sound(
-            Path("tests/test.wav"), voice="it4", voices_path=Path(voices_path)
-        )
+        mb_fix.make_sound(Path("tests/test.wav"), voice="it4")
         assert Path("tests/test.wav").exists()
