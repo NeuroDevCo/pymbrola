@@ -12,6 +12,7 @@
       install_voice
       is_wsl
       make_pho
+      mbrola_cmd
       mbrola_path
       set_mbrola_path
       validate_durations
