@@ -104,7 +104,7 @@ def set_mbrola_path(path: Path | str) -> None:
     os.environ["MBROLA"] = str(path)
 
 
-def check_voices(voice: str) -> str:
+def check_voice(voice: str) -> str:
     """Checks that provided voice is available in MBROLA folder.
 
     Check available voices here https://github.com/numediart/MBROLA-voices, and isntall them using `install_voices()`.
