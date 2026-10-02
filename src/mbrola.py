@@ -201,7 +201,7 @@ class MBROLA:
         file_str = str(file)
 
         pho = file.with_suffix(".pho")
-        voice_str = utils.check_voices(voice)
+        voice_str = utils.check_voice(voice)
 
         with Path(pho).open(mode="w", encoding="utf-8") as f:
             f.write("\n".join(self.pho))

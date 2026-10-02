@@ -48,19 +48,34 @@ class MissingVoiceException(Exception):
 
 def mbrola_path() -> Path:
     """
-    Validate, then return MBROLA directory path.
+    Retrieve (or get default '~/.mbrola') path to MBROLA installation folder, validate, and save in Python environment.
+
+    Returns:
+        Path: PAth to MBROLA installation folder.
     """
     if "MBROLA" in os.environ and len(os.environ["MBROLA"]) > 0:
         mbrola = Path(os.environ["MBROLA"])
     else:
         mbrola = Path(Path.home() / _DOT_MBROLA).expanduser()
 
-        os.environ["MBROLA"] = str(mbrola)
+    mbrola = validate_mbrola_path(mbrola)
+    os.environ["MBROLA"] = str(mbrola)
 
-    return validate_mbrola_path(mbrola)
+    return mbrola
 
 
 def validate_mbrola_path(path: Path) -> Path:
+    """Validate MBROLA path.
+
+    Args:
+        path (Path): Path to MBROLA installation.
+
+    Raises:
+        MissingMBROLAException: If path does not exists, if path is not a directory, or if path does not contain a MBROLA file in 'Bin/'.
+
+    Returns:
+        Path: Validated path.
+    """
 
     if not path.exists() or not path.is_dir():
         msg = f"Could not locate MBROLA directory in '{path}'. Please, set the appropriate path to your MBROLA installation using `set_mbrola_path()` or install MBROLA using `install_mbrola()` in your desired location."
@@ -79,7 +94,10 @@ def validate_mbrola_path(path: Path) -> Path:
 
 def set_mbrola_path(path: Path | str) -> None:
     """
-    Validate, then set MBROLA directory path.
+    Validate, then set MBROLA directory path in Python environment.
+
+    Args:
+        path: Path to MBROLA installation.
     """
     path = Path(path)
     validate_mbrola_path(path)
@@ -87,6 +105,19 @@ def set_mbrola_path(path: Path | str) -> None:
 
 
 def check_voices(voice: str) -> str:
+    """Checks that provided voice is available in MBROLA folder.
+
+    Check available voices here https://github.com/numediart/MBROLA-voices, and isntall them using `install_voices()`.
+
+    Args:
+        voice (str): Voice to check.
+
+    Raises:
+        MissingVoiceException: If provided voice is not available.
+
+    Returns:
+        str: Path to validated voice.
+    """
     voices_path = mbrola_path() / "Voices"
 
     available_voices = [p.name for p in voices_path.glob("*")]
@@ -102,6 +133,9 @@ def check_voices(voice: str) -> str:
 def _mbrola_cmd() -> str:
     """
     Get MBROLA command for system command line.
+
+    Returns:
+        str: Validated path to MBROLA file.
     """
     mbrola_file = mbrola_path() / "Bin/mbrola"
     if _is_wsl() or os.name == "posix":
@@ -129,7 +163,7 @@ def _wsl_available() -> bool | int:
     Check if Windows Subsystem for Linux (WSL is available).
 
     Returns:
-        bool | int: ``True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
+        bool | int: `True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise `False`
 
     :meta private:
     """
@@ -150,7 +184,7 @@ def install_voice(
     """
     Download and install MBROLA voices from numediart/MBROLA-voices.
 
-    voices (list[str] | None, optional): Voice names to install, e.g. ["es1", "de1"]. If None (default) or empty, installs every voice.
+    voice (str | list[str] | None, optional): Voice names to install, e.g. ["es1", "de1"]. If None (default) or empty, installs every voice.
     path (Path | None, optional): Destination folder for MBROLA voices. Defaults to ~/.mbrola/voices.
 
     Returns:
@@ -231,6 +265,16 @@ def install_voice(
 
 
 def install_mbrola(path: Path | str | None = None) -> None:
+    """Install MBROLA.
+
+    This function downloads and compiles MBROLA from https://github.com/numediart/MBROLA.
+
+    Args:
+        path (Path | str | None, optional): Desintatino path of MBROLA installation folder. Defaults to `~/.mbrola/`.
+
+    Raises:
+        MBROLAInstallException: If MBROLA repository cannot be reached, if download fails, or if compilation fails.
+    """
     if isinstance(path, str):
         path = Path(path)
 
