@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from src import mbrola as mb
+from src import utils
 
 
 @pytest.fixture
@@ -145,7 +146,7 @@ class TestSound:
 
     def test_make_sound_wrong_voice(self, mb_fix):
         """Test MBROLA.make_sound with wrong voice."""
-        with pytest.raises(mb.VoiceMissingException):
+        with pytest.raises(utils.MissingVoiceException):
             file = Path("tests", "mb_fix.wav")
             mb_fix.make_sound(file=file, voice="bad_voice")
 
