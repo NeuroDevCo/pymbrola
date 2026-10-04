@@ -227,3 +227,4 @@ tests/*.wav
 !/docs/**/*.wav
 /voices/
 .mbrola
+/**/*.egg-info
