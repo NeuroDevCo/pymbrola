@@ -48,7 +48,10 @@ mbrola.install_voice()  # install all voices (~534M)
 ```
 
 > [!TIP]
-> A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience.
+> A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience. Once you have instlaled Docker Desktop, you may run pull and run the image as a container from the Docker app, or from your terminal:
+> ```python
+> docker run -it gongcastro/pymbrola
+> ```
 
 ## Usage
 
