@@ -92,6 +92,30 @@ class MBROLA:
         self.outer_silences = validate_outer_silences(outer_silences)
         self.pho = make_pho(self)
 
+    def __repr__(self) -> str:
+        cls = self.__class__.__name__ + "("
+        attrs = self.__dict__.items()
+
+        for i, (k, v) in enumerate(attrs):
+            if k == "pho":
+                continue
+
+            cls += f"{k}={v!r}, " if i != (len(attrs) - 2) else f"{k}={v!r}"
+
+        return cls + ")"
+
+    def __str__(self) -> str:
+        cls = self.__class__.__name__ + "("
+        attrs = self.__dict__.items()
+
+        for i, (k, v) in enumerate(attrs):
+            if k == "pho":
+                continue
+
+            cls += f"{k}={v!r}, " if i != (len(attrs) - 2) else f"{k}={v!r}"
+
+        return cls + ")"
+
     def __len__(self) -> int:
         """Get number of phonemes in MBROLA instance.
 
@@ -678,7 +702,7 @@ class MBROLAInstallException(RuntimeError):
 
 if __name__ == "__main__":
     install_mbrola()
-    install_voice(["it4", "fr4"])
+    install_voice()
 
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],

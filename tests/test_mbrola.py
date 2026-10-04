@@ -55,6 +55,16 @@ class TestAttr:
         assert callable(mb_fix.export_pho)
         assert callable(mb_fix.make_sound)
 
+    def test_str(self, mb_fix):
+        """Test `__str__` method."""
+        mb_str = "MBROLA(phon=['k', 'a', 'f', 'f', 'E1'], durations=[100, 100, 100, 100, 100], pitch=[[(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)]], outer_silences=(1, 1))"
+        assert str(mb_fix) == mb_str
+
+    def test_repr(self, mb_fix):
+        """Test `__repr__` method."""
+        mb_str = "MBROLA(phon=['k', 'a', 'f', 'f', 'E1'], durations=[100, 100, 100, 100, 100], pitch=[[(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)]], outer_silences=(1, 1))"
+        assert repr(mb_fix) == mb_str
+
     def test_eq(self, mb_fix):
         """Test `==` method."""
         mb2 = mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
