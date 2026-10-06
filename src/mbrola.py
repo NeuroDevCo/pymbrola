@@ -7,6 +7,7 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
+import argparse
 import os
 import platform
 import shutil
@@ -690,16 +691,27 @@ def install_mbrola(path: Path | str | None = None) -> None:
 
 
 if __name__ == "__main__":
-    install_mbrola()
-    install_voice(["it4", "fr1"])
+    parser = argparse.ArgumentParser()
 
-    cafe = MBROLA(
-        phon=["k", "a", "f", "f", "E1"],
-        durations=[200, 300, 200, 200, 200],
-        pitch=[200, [(50.0, 400), (75, 500.0)], [(30, 200.1)], 200.0, []],
-        outer_silences=(10, 10),
+    parser.add_argument("-i", "--install", action="store_true")
+    parser.add_argument(
+        "-p",
+        "--path",
+        type=str,
+        help="Path to install MBROLA at",
+        default=mbrola_path(),
     )
+    parser.add_argument(
+        "-v",
+        "--voice",
+        type=lambda x: x.split(","),
+        default=None,
+        help="MBROLA voices to install",
+    )
+    args = parser.parse_args()
 
-    cafe.export_pho("test.pho")
-    cafe.make_sound("test.wav")
-    print(cafe)
+    if args.install:
+        install_mbrola(args.path)
+
+    if args.voice:
+        install_voice(args.voice, path=args.path)
