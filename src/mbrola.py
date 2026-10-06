@@ -634,7 +634,6 @@ def install_voice(
         if not v or "/" in v or v in (".", ".."):
             raise MBROLAInstallException(f"Invalid voice name {v!r}.")
 
-    wanted = []
     for name in voice:
         prefix = f"data/{name}/"
         matches = [f for f in files if f.startswith(prefix)]
@@ -642,14 +641,14 @@ def install_voice(
         if not matches:
             raise MBROLAInstallException(f"Unknown voice {name!r}.")
 
-    pb = tqdm(range(len(wanted)))
+        pb = tqdm(range(len(matches)))
+        pb.set_description(f"Downloading {name}")
 
-    for file in wanted:
-        url = f"{RAW}/{VOICES_REPO}/master/{file}"
-        fn = file.split("/")  # strip leading "data/"
-        download_resource(url, path / Path(*fn[1:]))
-        pb.update(1)
-        pb.set_description(f"Downloading {fn[1]}")
+        for file in matches:
+            url = f"{RAW}/{VOICES_REPO}/master/{file}"
+            fn = file.split("/")  # strip leading "data/"
+            download_resource(url, path / Path(*fn[1:]))
+            pb.update(1)
 
     return True
 
