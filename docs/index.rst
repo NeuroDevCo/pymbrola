@@ -50,6 +50,7 @@ pymbrola
    Installation <installation>
    Usage <usage>
    About MBROLA <mbrola>
+   Docker image and WSL <docker>
    API Reference <api/index>
    License <license>
 
@@ -60,7 +61,7 @@ For convenience, a `Docker image <https://hub.docker.com/repository/docker/gongc
 
 .. code-block:: bash
 
-   docker run -it gongcastro/pymbrola:latest
+    docker run -it --user "$(id -u):$(id -g)" -v "~/.mbrola/output:/pymbrola/output" gongcastro/pymbrola:latest
 
 
 Troubleshooting
