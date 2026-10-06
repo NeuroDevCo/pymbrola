@@ -532,6 +532,19 @@ def wsl_available() -> bool | int:
 
 
 # installation functions
+def download_resource(url: str, path: Path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with requests.get(url, stream=True, timeout=TIMEOUT) as r:
+            r.raise_for_status()
+
+            with open(path, "wb") as fh:
+                fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
+    except (requests.RequestException, OSError) as e:
+        raise MBROLAInstallException(f"Failed to download {path.name}") from e
+
+
 def install_voice(
     voice: str | list[str] | None = None, path: Path | None = None
 ) -> bool:
@@ -593,27 +606,13 @@ def install_voice(
     pb_settings = {"desc": "Downloading", "smoothing": True, "leave": False}
     pb = tqdm(range(len(wanted)), **pb_settings)
 
-    for rel_path in wanted:
-        # strips the leading "data/" so voices land directly in `path`
-        dest = path / Path(*rel_path.split("/")[1:])
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        url = f"{RAW}/{VOICES_REPO}/master/{rel_path}"
-
-        try:
-            with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-                r.raise_for_status()
-
-                with open(dest, "wb") as fh:
-                    fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
-        except requests.RequestException as exc:
-            raise VoiceInstallException(
-                f"Error: failed to download {rel_path}."
-            ) from exc
-        except OSError as exc:
-            raise VoiceInstallException("Error: Failed to install voices.") from exc
+    for file in wanted:
+        url = f"{RAW}/{VOICES_REPO}/master/{file}"
+        fn = file.split("/")  # strip leading "data/"
+        download_resource(url, path / Path(*fn[1:]))
 
         pb.update(1)
-        pb.set_description(f"Downloading {rel_path.split('/')[1]}")
+        pb.set_description(f"Downloading {fn[1]}")
 
     return True
 
@@ -653,22 +652,9 @@ def install_mbrola(path: Path | str | None = None) -> None:
     pb_settings = {"desc": "Downloading MBROLA", "smoothing": True, "leave": False}
     pb = tqdm(range(len(files)), **pb_settings)
 
-    for rel_path in files:
-        # strips the leading "data/" so voices land directly in `path`
-        dest = path / rel_path
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        url = f"{RAW}/{MBROLA_REPO}/master/{rel_path}"
-
-        try:
-            with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-                r.raise_for_status()
-
-                with open(dest, "wb") as fh:
-                    fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
-        except requests.RequestException as e:
-            raise MBROLAInstallException(f"Error: failed to download {rel_path}") from e
-        except OSError as e:
-            raise MBROLAInstallException("Error: Failed to download MBROLA") from e
+    for file in files:
+        url = f"{RAW}/{MBROLA_REPO}/master/{file}"
+        download_resource(url, path / file)
 
         pb.update(1)
 
