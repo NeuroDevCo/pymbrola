@@ -8,6 +8,8 @@
 
    .. autosummary::
    
+      download_resource
+      get_filetree
       install_mbrola
       install_voice
       is_wsl
@@ -36,5 +38,4 @@
       MissingMBROLAException
       MissingVoiceException
       PlatformException
-      VoiceInstallException
    

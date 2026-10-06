@@ -228,3 +228,4 @@ tests/*.wav
 /voices/
 .mbrola
 /**/*.egg-info
+out/
