@@ -43,6 +43,22 @@ class MissingVoiceException(Exception):
     """Voice not found in voices folder."""
 
 
+class PlatformException(Exception):
+    """Raise error platform is not Linux or Windows Subsystem for Linux.
+
+    Args:
+        Exception (Exception): A super class Exception.
+    """
+
+    def __init__(self):
+        self.message = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."
+        super().__init__(self.message)
+
+
+class MBROLAInstallException(RuntimeError):
+    """Unrecoverable error; mirrors `exit 1` in the original bash script."""
+
+
 # main class
 class MBROLA:
     """A class for generating MBROLA sounds.
@@ -532,6 +548,56 @@ def wsl_available() -> bool | int:
 
 
 # installation functions
+def download_resource(url: str, path: Path):
+    """Download resource from URL.
+
+    Args:
+        url (str): URL of file to download.
+        path (Path): Destination path of downloaded file.
+
+    Raises:
+        MBROLAInstallException: If download fails.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with requests.get(url, stream=True, timeout=TIMEOUT) as r:
+            r.raise_for_status()
+
+            with open(path, "wb") as fh:
+                fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
+    except (requests.RequestException, OSError) as e:
+        raise MBROLAInstallException(f"Failed to download {path.name}") from e
+
+
+def get_filetree(url: str) -> list[str]:
+    """Get file tree in URL.
+
+    Args:
+        url (str): URL to get file tree from.
+
+    Raises:
+        MBROLAInstallException: If repository is truncated (too large) or request exception is encountered.
+
+    Returns:
+        list[str]: List of files found in filetree.
+    """
+    try:
+        r = requests.get(url, params={"recursive": "1"}, timeout=TIMEOUT)
+        r.raise_for_status()
+        tree = r.json()
+
+        if tree.get("truncated"):
+            raise MBROLAInstallException("Repository tree too large to list.")
+
+        files = [e["path"] for e in tree["tree"] if e["type"] == "blob"]
+
+    except requests.RequestException as e:
+        raise MBROLAInstallException("Failed to list MBROLA voices.") from e
+
+    return files
+
+
 def install_voice(
     voice: str | list[str] | None = None, path: Path | None = None
 ) -> bool:
@@ -559,61 +625,30 @@ def install_voice(
         voice = [voice]
 
     Path(path).mkdir(exist_ok=True, parents=True)
-    try:
-        r = requests.get(
-            f"{API}/repos/{VOICES_REPO}/git/trees/master",
-            params={"recursive": "1"},
-            timeout=TIMEOUT,
-        )
-        r.raise_for_status()
-        tree = r.json()
-        if tree.get("truncated"):
-            raise VoiceInstallException("Error: repository tree too large to list.")
-        files = {e["path"]: e["size"] for e in tree["tree"] if e["type"] == "blob"}
-    except requests.RequestException as exc:
-        raise VoiceInstallException("Error: Failed to list MBROLA voices.") from exc
+    files = get_filetree(f"{API}/repos/{VOICES_REPO}/git/trees/master")
 
     if not voice:
         voice = sorted({f.split("/")[1] for f in files if "/" in f})
 
     for v in voice:  # guard against path traversal in user input
         if not v or "/" in v or v in (".", ".."):
-            raise VoiceInstallException(f"Error: invalid voice name {v!r}.")
+            raise MBROLAInstallException(f"Invalid voice name {v!r}.")
 
-    wanted: dict[str, int] = {}
     for name in voice:
         prefix = f"data/{name}/"
-        matches = {p: s for p, s in files.items() if p.startswith(prefix)}
+        matches = [f for f in files if f.startswith(prefix)]
 
         if not matches:
-            raise VoiceInstallException(f"Error: unknown voice {name!r}.")
+            raise MBROLAInstallException(f"Unknown voice {name!r}.")
 
-        wanted.update(matches)
+        pb = tqdm(range(len(matches)))
+        pb.set_description(f"Downloading {name}")
 
-    pb_settings = {"desc": "Downloading", "smoothing": True, "leave": False}
-    pb = tqdm(range(len(wanted)), **pb_settings)
-
-    for rel_path in wanted:
-        # strips the leading "data/" so voices land directly in `path`
-        dest = path / Path(*rel_path.split("/")[1:])
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        url = f"{RAW}/{VOICES_REPO}/master/{rel_path}"
-
-        try:
-            with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-                r.raise_for_status()
-
-                with open(dest, "wb") as fh:
-                    fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
-        except requests.RequestException as exc:
-            raise VoiceInstallException(
-                f"Error: failed to download {rel_path}."
-            ) from exc
-        except OSError as exc:
-            raise VoiceInstallException("Error: Failed to install voices.") from exc
-
-        pb.update(1)
-        pb.set_description(f"Downloading {rel_path.split('/')[1]}")
+        for file in matches:
+            url = f"{RAW}/{VOICES_REPO}/master/{file}"
+            fn = file.split("/")  # strip leading "data/"
+            download_resource(url, path / Path(*fn[1:]))
+            pb.update(1)
 
     return True
 
@@ -636,40 +671,14 @@ def install_mbrola(path: Path | str | None = None) -> None:
         path = Path.home() / _DOT_MBROLA
 
     path.mkdir(exist_ok=True, parents=True)
+    files = get_filetree(f"{API}/repos/{MBROLA_REPO}/git/trees/master")
 
-    r = requests.get(
-        f"{API}/repos/{MBROLA_REPO}/git/trees/master",
-        params={"recursive": "1"},
-        timeout=TIMEOUT,
-    )
-    r.raise_for_status()
-    tree = r.json()
+    pb = tqdm(range(len(files)))
 
-    if tree.get("truncated"):
-        raise MBROLAInstallException("Error: repository tree too large to list.")
-
-    files = {e["path"]: e["size"] for e in tree["tree"] if e["type"] == "blob"}
-
-    pb_settings = {"desc": "Downloading MBROLA", "smoothing": True, "leave": False}
-    pb = tqdm(range(len(files)), **pb_settings)
-
-    for rel_path in files:
-        # strips the leading "data/" so voices land directly in `path`
-        dest = path / rel_path
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        url = f"{RAW}/{MBROLA_REPO}/master/{rel_path}"
-
-        try:
-            with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-                r.raise_for_status()
-
-                with open(dest, "wb") as fh:
-                    fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
-        except requests.RequestException as e:
-            raise MBROLAInstallException(f"Error: failed to download {rel_path}") from e
-        except OSError as e:
-            raise MBROLAInstallException("Error: Failed to download MBROLA") from e
-
+    for file in files:
+        pb.set_description("Downloading MBROLA")
+        url = f"{RAW}/{MBROLA_REPO}/master/{file}"
+        download_resource(url, path / file)
         pb.update(1)
 
     pb.set_description("Compiling MBROLA")
@@ -677,32 +686,12 @@ def install_mbrola(path: Path | str | None = None) -> None:
     try:
         sp.run(["make"], cwd=path, capture_output=True, text=True, check=True)
     except OSError as e:
-        raise MBROLAInstallException("Error: Failed to compile MBROLA") from e
-
-
-class PlatformException(Exception):
-    """Raise error platform is not Linux or Windows Subsystem for Linux.
-
-    Args:
-        Exception (Exception): A super class Exception.
-    """
-
-    def __init__(self):
-        self.message = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."
-        super().__init__(self.message)
-
-
-class VoiceInstallException(RuntimeError):
-    """Unrecoverable error; mirrors `exit 1` in the original bash script."""
-
-
-class MBROLAInstallException(RuntimeError):
-    """Unrecoverable error; mirrors `exit 1` in the original bash script."""
+        raise MBROLAInstallException("Failed to compile MBROLA") from e
 
 
 if __name__ == "__main__":
     install_mbrola()
-    install_voice()
+    install_voice(["it4", "fr1"])
 
     cafe = MBROLA(
         phon=["k", "a", "f", "f", "E1"],
