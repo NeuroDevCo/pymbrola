@@ -693,12 +693,7 @@ if __name__ == "__main__":
     install_mbrola()
     install_voice(["it4", "fr1"])
 
-    cafe = MBROLA(
-        phon=["k", "a", "f", "f", "E1"],
-        durations=[200, 300, 200, 200, 200],
-        pitch=[200, [(50.0, 400), (75, 500.0)], [(30, 200.1)], 200.0, []],
-        outer_silences=(10, 10),
-    )
+    cafe = MBROLA(phon=["kaffE1"])
 
     cafe.export_pho("test.pho")
     cafe.make_sound("test.wav")

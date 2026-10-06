@@ -1,0 +1,5 @@
+services:
+  mbrola:
+    image: gongcastro/pymbrola
+    volumes:
+      - ./mbrola-sounds:/output # user edits ./my-output
