@@ -691,7 +691,7 @@ def install_mbrola(path: Path | str | None = None) -> None:
 
 
 if __name__ == "__main__":
-    set_mbrola_path(Path.home() / ".mbrola")
+    set_mbrola_path("./.mbrola")
 
     parser = argparse.ArgumentParser()
 
