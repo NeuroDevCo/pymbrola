@@ -38,7 +38,7 @@ pymbrola
 .. code-block:: python
   :linenos:
 
-   import mbrola
+   from pymbrola import mbrola
 
    # Create an MBROLA object
    word = mbrola.MBROLA(
@@ -51,7 +51,7 @@ pymbrola
    word.export_pho("hello.pho")
 
    # Synthesize and save audio in WAV file
-   word.make_sound("hello.wav", voice="en1")
+   word.to_sound("hello.wav", voice="en1")
 
 .. audio:: _static/sounds/hello.wav
 

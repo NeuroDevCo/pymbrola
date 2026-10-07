@@ -7,7 +7,7 @@ This is a quick walkthrough to get you up and running with **pymbrola**. Here is
 .. code-block:: python
   :linenos:
 
-   import mbrola
+   from pymbrola import mbrola
 
    # Create an MBROLA object
    word = mbrola.MBROLA(
@@ -33,7 +33,7 @@ Phonemes are specified as a list of strings. Each phoneme in the specified list 
 .. code-block:: python
   :linenos:
 
-   import mbrola
+   from pymbrola import mbrola
 
    phons = ["k", "a", "f", "f", "E1"]
 

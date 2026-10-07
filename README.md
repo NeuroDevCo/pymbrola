@@ -24,14 +24,14 @@ A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech 
 You can install **pymbrola** from the [PyPi](https://pypi.org/project/mbrola/) repository using [pip](https://pypi.org/project/mbrola/) or [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
 ```sh
-pip install mbrola # pip installation
-uv add mbrola      # uv installation
+pip install pymbrola # pip installation
+uv add pymbrola      # uv installation
 ```
 
 In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this. This will download MBROLa from [numediat/MBROLA](https://github.com/numediart/MBROLA) to you home folder `~/.mbrola` and compile it.
 
 ```python
-from mbrola import mbrola
+from pymbrola import mbrola
 
 mbrola.install_mbrola()
 ```
@@ -42,7 +42,7 @@ mbrola.install_mbrola()
 Finally, you will need to download some MBROLA voices from [numediart/MBROLA-voices](https://github.com/numediart/MBROLA-voices). These voices will be automatically downloaded and found by **pymbrola** at `~/.mbrola/Voices`:
 
 ```python
-from mbrola import install
+from pymbrola import install
 
 install.install_voice("it4")  # install it4 voice
 install.install_voice(["it4", "fr4"])  # install several voices
@@ -58,7 +58,7 @@ install.install_voice()  # install all voices (~534M)
 ## Usage
 
 ```python
-from mbrola import mbrola
+from pymbrola import mbrola
 
 # Create an MBROLA object
 caffe = MBROLA(
