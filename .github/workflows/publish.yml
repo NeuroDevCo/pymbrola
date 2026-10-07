@@ -32,7 +32,7 @@ jobs:
           uv run ruff check
 
       - name: Installing MBROLA
-        run: uv run src/mbrola/install.py -i -v it4
+        run: uv run src/pymbrola/install.py -i -v it4
         
       - name: Testing with Pytest
         run: |
