@@ -7,10 +7,11 @@ from pathlib import Path
 import requests
 from tqdm import tqdm
 
+from mbrola import _DOT_MBROLA
+
 from .mbrola import mbrola_path
 
 # global variables
-_DOT_MBROLA = ".mbrola"
 MBROLA_REPO = "numediart/MBROLA"
 VOICES_REPO = "numediart/MBROLA-voices"
 API = "https://api.github.com"
