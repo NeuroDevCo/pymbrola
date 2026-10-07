@@ -14,15 +14,10 @@ import subprocess as sp
 from copy import deepcopy
 from functools import cache, partial, singledispatch
 from pathlib import Path
-from typing import TypeAlias
+
+from ._types import Number, PitchInput, PitchOutput
 
 _DOT_MBROLA = ".mbrola"
-
-# custom types
-Number: TypeAlias = float | int
-PitchElement: TypeAlias = Number | list[tuple[Number, Number]]
-PitchInput: TypeAlias = Number | list[PitchElement] | list[tuple[Number, Number]]
-PitchOutput: TypeAlias = list[list[tuple[float, float]]]
 
 
 # exceptions
