@@ -7,14 +7,8 @@ from pathlib import Path
 import requests
 from tqdm import tqdm
 
-from mbrola.mbrola import _DOT_MBROLA, mbrola_path
-
-# global variables
-MBROLA_REPO = "numediart/MBROLA"
-VOICES_REPO = "numediart/MBROLA-voices"
-API = "https://api.github.com"
-RAW = "https://raw.githubusercontent.com"
-TIMEOUT = (10, 120)  # (connect, read) seconds
+from pymbrola import _DOT_MBROLA, API, MBROLA_REPO, RAW, TIMEOUT, VOICES_REPO
+from pymbrola.mbrola import mbrola_path
 
 
 # exceptions

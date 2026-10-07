@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from src.mbrola import install
-from src.mbrola import mbrola as mb
+from src.pymbrola import install
+from src.pymbrola import mbrola as mb
 
 
 class TestDownloadVoices:

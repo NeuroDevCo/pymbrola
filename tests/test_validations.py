@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.mbrola import mbrola as mb
+from src.pymbrola import mbrola as mb
 
 
 @pytest.fixture
