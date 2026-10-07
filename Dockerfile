@@ -16,6 +16,4 @@ RUN useradd -m user && chown -R user:user /pymbrola
 RUN mkdir -p ${OUTPUT_DIR} && chmod 777 ${OUTPUT_DIR} 
 RUN pip install .
 
-RUN python3 -m src.mbrola
-
 CMD ["python3"]

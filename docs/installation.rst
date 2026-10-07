@@ -12,7 +12,7 @@ You can install **pymbrola** from the `PyPi <https://pypi.org/project/mbrola/>`_
 In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this, which will download MBROLA from https://github.com/numediart/MBROLA to you home folder `~/.mbrola` and compile it.
 
 .. code-block:: python
-   import mbrola
+  from mbrola import mbrola
 
    mbrola.install_mbrola()
 
@@ -54,10 +54,10 @@ This command will download the **gongcastro/pymbrola** Docker image from `Docker
 .. code-block:: python
   :linenos:
 
-  import mbrola
+  from mbrola import install, mbrola
 
-  mbrola.install_mbrola()
-  mbrola.install_voice(["it4", "fr4"])
+  install.install_mbrola()
+  install.install_voice(["it4", "fr4"])
 
   mbrola.MBROLA("kaffE").make_sound("output/kaffE.wav", voice="it4")
     
@@ -106,10 +106,10 @@ You are now set up! Now open a Python session and installing MBROLA and any desi
 .. code-block:: python
   :linenos:
 
-  import mbrola
+  from mbrola import install, mbrola
 
-  mbrola.install_mbrola()
-  mbrola.install_voice(["it4", "fr4"])
+  install.install_mbrola()
+  install.install_voice(["it4", "fr4"])
 
   mbrola.MBROLA("kaffE").make_sound("kaffE.wav", voice="it4")
     

@@ -31,7 +31,7 @@ uv add mbrola      # uv installation
 In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this. This will download MBROLa from [numediat/MBROLA](https://github.com/numediart/MBROLA) to you home folder `~/.mbrola` and compile it.
 
 ```python
-import mbrola
+from mbrola import mbrola
 
 mbrola.install_mbrola()
 ```
@@ -42,9 +42,11 @@ mbrola.install_mbrola()
 Finally, you will need to download some MBROLA voices from [numediart/MBROLA-voices](https://github.com/numediart/MBROLA-voices). These voices will be automatically downloaded and found by **pymbrola** at `~/.mbrola/Voices`:
 
 ```python
-mbrola.install_voice("it4")  # install it4 voice
-mbrola.install_voice(["it4", "fr4"])  # install several voices
-mbrola.install_voice()  # install all voices (~534M)
+from mbrola import install
+
+install.install_voice("it4")  # install it4 voice
+install.install_voice(["it4", "fr4"])  # install several voices
+install.install_voice()  # install all voices (~534M)
 ```
 
 > [!TIP]
@@ -56,7 +58,7 @@ mbrola.install_voice()  # install all voices (~534M)
 ## Usage
 
 ```python
-import mbrola
+from mbrola import mbrola
 
 # Create an MBROLA object
 caffe = MBROLA(

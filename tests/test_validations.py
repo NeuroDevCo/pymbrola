@@ -1,8 +1,8 @@
-"""Test MBROLA module."""
+"""Test MBROLA validations module."""
 
 import pytest
 
-from src import mbrola as mb
+from src.pymbrola import mbrola as mb
 
 
 @pytest.fixture

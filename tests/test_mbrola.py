@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from src import mbrola as mb
+from src.pymbrola import mbrola as mb
 
 
 @pytest.fixture
