@@ -7,7 +7,7 @@ from pathlib import Path
 import requests
 from tqdm import tqdm
 
-from src.mbrola.mbrola import _DOT_MBROLA, mbrola_path
+from mbrola.mbrola import _DOT_MBROLA, mbrola_path
 
 # global variables
 MBROLA_REPO = "numediart/MBROLA"
