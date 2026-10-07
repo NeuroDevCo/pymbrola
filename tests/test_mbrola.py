@@ -8,12 +8,6 @@ import pytest
 from src.pymbrola import mbrola as mb
 
 
-@pytest.fixture
-def mb_fix():
-    """MBROLA fixture instance."""
-    return mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
-
-
 class TestAttr:
     def test_mbrola(self):
         """Test MBROLA initialization."""
