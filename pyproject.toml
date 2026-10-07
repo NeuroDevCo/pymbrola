@@ -4,7 +4,7 @@ version = "0.6.2"
 description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license-files = ["LICENSE"]
 keywords = ["mbbrola", "speech synthesis", "python"]
 authors = [
   { name = "Gonzalo García-Castro", email = "gongarciacastro@gmail.com" },
@@ -31,6 +31,12 @@ dependencies = [
     "tqdm>=4.70.1",
 ]
 
+[project.urls]
+Documentation = "https://neurodevco.github.io/pymbrola/"
+Issues = "https://github.com/gongcastro/pymbrola/issues"
+Source = "https://github.com/gongcastro/pymbrola"
+Homepage = "https://github.com/gongcastro/pymbrola"
+Releases = "https://github.com/gongcastro/pymbrola/releases"
 
 [project.optional-dependencies]
 test = ["pytest>=8.3.5", "pytest-cov>=7.1.0"]
@@ -55,17 +61,12 @@ dev = [
   "ty>=0.0.37",
 ]
 
-[project.urls]
-Documentation = "https://neurodevco.github.io/pymbrola/"
-Issues = "https://github.com/gongcastro/pymbrola/issues"
-Source = "https://github.com/gongcastro/pymbrola"
-
 [build-system]
 requires = ["setuptools>=78.1.0", "wheel>=0.45.1"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["mbrola"]
+py-modules = ["src"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -80,3 +81,4 @@ package = true
 [tool.pytest]
 addopts = ["--maxfail=1", "--cov-report=term-missing"]
 testpaths = ["tests"]
+pythonpath = ["src"]
