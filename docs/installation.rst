@@ -12,17 +12,17 @@ You can install **pymbrola** from the `PyPi <https://pypi.org/project/mbrola/>`_
 In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this, which will download MBROLA from https://github.com/numediart/MBROLA to you home folder `~/.mbrola` and compile it.
 
 .. code-block:: python
-  from mbrola import mbrola
+  from pymbrola import install
 
-   mbrola.install_mbrola()
+   install.install_mbrola()
 
 You will also need to download some MBROLA voices from https://github.com/numediart/MBROLA-voices. These voices will be automatically downloaded and found by **pymbrola** at `~/.mbrola/Voices`:
 
 .. code-block:: python
 
-   mbrola.install_voice("it4")          # install it4 voice
-   mbrola.install_voice(["it4", "fr4"]) # install several voices
-   mbrola.install_voice()               # install all voices (~534M)
+   install.install_voice("it4")          # install it4 voice
+   install.install_voice(["it4", "fr4"]) # install several voices
+   install.install_voice()               # install all voices (~534M)
 
 
 .. admonition:: Platform compatibility
@@ -54,12 +54,12 @@ This command will download the **gongcastro/pymbrola** Docker image from `Docker
 .. code-block:: python
   :linenos:
 
-  from mbrola import install, mbrola
+  from pymbrola import install, mbrola
 
   install.install_mbrola()
   install.install_voice(["it4", "fr4"])
 
-  mbrola.MBROLA("kaffE").make_sound("output/kaffE.wav", voice="it4")
+  mbrola.MBROLA("kaffE").to_sound("output/kaffE.wav", voice="it4")
     
 In order to be able to reach the generated files after you are done with the Docker container, a volume from your local host machine is attached to the container(``-v "./.mbrola/output:/pymbrola/output"``), so that any files generated inside it under the folder ``./output`` will be persistently saved in the host machine wherever the path ``./.mbrola/output`` (the dot ``"."`` usually in the same folder in which you opened in your temrinal before running Docker). To change the destination folder in your host machine, change ``./.mbrola/output`` for any other path of your preference. This is where you will find your synthesised files after closing your Docker container.
 
@@ -106,11 +106,11 @@ You are now set up! Now open a Python session and installing MBROLA and any desi
 .. code-block:: python
   :linenos:
 
-  from mbrola import install, mbrola
+  from pymbrola import install, mbrola
 
   install.install_mbrola()
   install.install_voice(["it4", "fr4"])
 
-  mbrola.MBROLA("kaffE").make_sound("kaffE.wav", voice="it4")
+  mbrola.MBROLA("kaffE").to_sound("kaffE.wav", voice="it4")
     
 

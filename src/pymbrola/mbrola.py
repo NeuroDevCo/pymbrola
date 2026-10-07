@@ -45,7 +45,7 @@ class PlatformException(Exception):
 class MBROLA:
     """A class for generating MBROLA sounds.
 
-        An MBROLA class contains the necessary elements to synthesise an audio using MBROLA.
+        An MBROLA class contains the necessary elements to synthesize an audio using MBROLA.
 
         Args:
             phon (str | list[str]): list of phonemes.
