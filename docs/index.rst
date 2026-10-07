@@ -2,6 +2,17 @@
 pymbrola
 ========
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Contents
+
+   Installation <installation>
+   Usage <usage>
+   About MBROLA <mbrola>
+   API Reference <api/index>
+   License <license>
+
 .. |gh-actions| image:: https://img.shields.io/github/actions/workflow/status/NeuroDevCo/pymbrola/testing.yml
    :alt: GitHub Actions Workflow Status
    :class: display
@@ -43,33 +54,6 @@ pymbrola
    word.make_sound("hello.wav", voice="en1")
 
 .. audio:: _static/sounds/hello.wav
-
-.. toctree::
-   :hidden:
-
-   Installation <installation>
-   Usage <usage>
-   About MBROLA <mbrola>
-   Docker image and WSL <docker>
-   API Reference <api/index>
-   License <license>
-
-Docker image
-------------
-For convenience, a `Docker image <https://hub.docker.com/repository/docker/gongcastro/pymbrola/general>`__ is available at Dockerhub:
-
-
-.. code-block:: bash
-
-    docker run -it --user "$(id -u):$(id -g)" -v "~/.mbrola/output:/pymbrola/output" gongcastro/pymbrola:latest
-
-
-Troubleshooting
----------------
-- Ensure MBROLA and the required voices are installed and available at `/usr/share/mbrola/<voice>/<voice>`.
-- If you encounter an error about platform support, make sure you are running on Linux or WSL.
-- Write an `issue <https://github.com/NeuroDevCo/pymbrola/issues>`__, I'll look into it ASAP.
-
 
 Supported by
 ------------
