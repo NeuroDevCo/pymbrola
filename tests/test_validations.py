@@ -5,12 +5,6 @@ import pytest
 from src.pymbrola import mbrola as mb
 
 
-@pytest.fixture
-def mb_fix():
-    """MBROLA fixture instance."""
-    return mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
-
-
 class TestDurationValidation:
     def test_validate_durations(self, mb_fix):
         """Test validate_durations."""
