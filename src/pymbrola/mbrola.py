@@ -7,6 +7,7 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
+import argparse
 import os
 import platform
 import shutil
@@ -16,8 +17,7 @@ from functools import cache, partial, singledispatch
 from pathlib import Path
 
 from pymbrola import _DOT_MBROLA
-
-from .types import Number, PitchInput, PitchOutput
+from pymbrola.types import Number, PitchInput, PitchOutput
 
 
 # exceptions
@@ -530,3 +530,45 @@ def wsl_available() -> bool | int:
         return is_wsl(cmd(["wsl", "uname", "-r"]).strip())
     except sp.SubprocessError:
         return False
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "phon",
+        type=lambda x: x.split(","),
+        help="List of phonemes to synthesize",
+    )
+    parser.add_argument(
+        "voice",
+        type=str,
+        help="MBROLA voices to use",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--durations",
+        type=lambda x: x.split(","),
+        help="Phoneme durations. Defaults to 100 ms for all phonemes.",
+        default=100,
+    )
+    parser.add_argument(
+        "-p",
+        "--pitch",
+        type=lambda x: x.split(","),
+        help="Pitch to apply. Defaults to a constant 200 Hz for all phonemes.",
+        default=200,
+    )
+
+    parser.add_argument(
+        "-f",
+        "--file",
+        type=str,
+        help="Destination of synthesized file. Defaults to ./sound.wav",
+        default=Path("./sound.wav"),
+    )
+    args = parser.parse_args()
+
+    phons = "".join(args.phon) if isinstance(args.phon, list) else args.phon
+    MBROLA(phons, args.durations, args.pitch).to_sound(args.file, voice=args.voice)
