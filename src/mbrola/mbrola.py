@@ -16,7 +16,7 @@ from functools import cache, partial, singledispatch
 from pathlib import Path
 from typing import TypeAlias
 
-from mbrola import _DOT_MBROLA
+from src.mbrola import _DOT_MBROLA
 
 # custom types
 Number: TypeAlias = float | int

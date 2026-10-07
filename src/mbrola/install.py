@@ -1,3 +1,5 @@
+"""Functions to install MBROLA and MBROLA voices."""
+
 import argparse
 import subprocess as sp
 from pathlib import Path
@@ -5,9 +7,15 @@ from pathlib import Path
 import requests
 from tqdm import tqdm
 
-from mbrola import _DOT_MBROLA, API, MBROLA_REPO, RAW, TIMEOUT, VOICES_REPO
-
 from .mbrola import mbrola_path
+
+# global variables
+_DOT_MBROLA = ".mbrola"
+MBROLA_REPO = "numediart/MBROLA"
+VOICES_REPO = "numediart/MBROLA-voices"
+API = "https://api.github.com"
+RAW = "https://raw.githubusercontent.com"
+TIMEOUT = (10, 120)  # (connect, read) seconds
 
 
 # exceptions
