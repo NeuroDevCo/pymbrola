@@ -15,7 +15,7 @@ from copy import deepcopy
 from functools import cache, partial, singledispatch
 from pathlib import Path
 
-from src.mbrola._types import Number, PitchInput, PitchOutput
+from mbrola._types import Number, PitchInput, PitchOutput
 
 _DOT_MBROLA = ".mbrola"
 
