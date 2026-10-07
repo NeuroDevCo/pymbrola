@@ -42,7 +42,7 @@ jobs:
         run: sleep $((random % 5))
 
       - name: Installing MBROLA
-        run: uv run src/install.py -i -v it4
+        run: uv run src/mbrola/install.py -i -v it4
 
       - name: Testing with Pytest
         run: |
