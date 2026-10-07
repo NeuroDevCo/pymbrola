@@ -81,4 +81,3 @@ package = true
 [tool.pytest]
 addopts = ["--maxfail=1", "--cov-report=term-missing"]
 testpaths = ["tests"]
-pythonpath = ["src"]
