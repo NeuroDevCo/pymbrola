@@ -40,7 +40,7 @@ class TestAttr:
         assert hasattr(mb_fix, "outer_silences")
         assert hasattr(mb_fix, "pho")
         assert hasattr(mb_fix, "export_pho")
-        assert hasattr(mb_fix, "make_sound")
+        assert hasattr(mb_fix, "to_sound")
 
     def test_attr_type(self, mb_fix):
         """Test MBROLA class attribute types."""
@@ -53,7 +53,7 @@ class TestAttr:
         assert isinstance(mb_fix.pho, list)
         assert all(isinstance(p, str) for p in mb_fix.pho)
         assert callable(mb_fix.export_pho)
-        assert callable(mb_fix.make_sound)
+        assert callable(mb_fix.to_sound)
 
     def test_str(self, mb_fix):
         """Test `__str__` method."""
@@ -137,30 +137,30 @@ class TestPho:
 
 
 class TestSound:
-    def test_make_sound(self, mb_fix):
-        """Test MBROLA.make_sound method."""
+    def test_to_sound(self, mb_fix):
+        """Test MBROLA.to_sound method."""
         file = Path("tests", "mb_fix.wav")
-        mb_fix.make_sound(file=file)
+        mb_fix.to_sound(file=file)
         assert file.exists()
         os.unlink(file)
 
-    def test_make_sound_remove_pho(self, mb_fix):
-        """Test MBROLA.make_sound method."""
+    def test_to_sound_remove_pho(self, mb_fix):
+        """Test MBROLA.to_sound method."""
         file = Path("tests", "mb_fix.wav")
-        mb_fix.make_sound(file=file, remove_pho=False)
+        mb_fix.to_sound(file=file, remove_pho=False)
         assert file.exists()
         assert file.with_suffix(".pho").exists()
 
         os.unlink(file)
 
-    def test_make_sound_wrong_voice(self, mb_fix):
-        """Test MBROLA.make_sound with wrong voice."""
+    def test_to_sound_wrong_voice(self, mb_fix):
+        """Test MBROLA.to_sound with wrong voice."""
         with pytest.raises(mb.MissingVoiceException):
             file = Path("tests", "mb_fix.wav")
-            mb_fix.make_sound(file=file, voice="bad_voice")
+            mb_fix.to_sound(file=file, voice="bad_voice")
 
     def test_sp_error(self, mb_fix):
         """Test that subprocess errors are raised."""
         with pytest.raises(FileNotFoundError):
             file = Path("bad_path", "mb_fix.wav")
-            mb_fix.make_sound(file=file)
+            mb_fix.to_sound(file=file)
