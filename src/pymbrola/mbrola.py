@@ -181,7 +181,7 @@ class MBROLA:
 
         return new
 
-    def make_sound(
+    def to_sound(
         self,
         file: str | Path,
         voice: str = "it4",
@@ -201,10 +201,10 @@ class MBROLA:
         Examples:
             >>> house = MBROLA(phon = ["h", "a", "U", "s"])
 
-            >>> house.make_sound("sound.wav", voice="en1")
-            >>> house.make_sound("sound.wav", f0_ratio=0.5, voice="en1")     # reduce F0 to half the original Hz.
-            >>> house.make_sound("sound.wav", dur_ratio=2.0, voice="en1")    # make audio double as fast
-            >>> house.make_sound("sound.wav", remove_pho=False, voice="en1") # keep pho file in same directory
+            >>> house.to_sound("sound.wav", voice="en1")
+            >>> house.to_sound("sound.wav", f0_ratio=0.5, voice="en1")     # reduce F0 to half the original Hz.
+            >>> house.to_sound("sound.wav", dur_ratio=2.0, voice="en1")    # make audio double as fast
+            >>> house.to_sound("sound.wav", remove_pho=False, voice="en1") # keep pho file in same directory
 
         :meta public:
         """

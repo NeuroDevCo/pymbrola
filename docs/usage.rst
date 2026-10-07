@@ -20,7 +20,7 @@ This is a quick walkthrough to get you up and running with **pymbrola**. Here is
    word.export_pho("hello.pho")
 
    # Synthesize and save audio in WAV file
-   word.make_sound("hello.wav", voice="en1")
+   word.to_sound("hello.wav", voice="en1")
 
 .. audio:: _static/sounds/hello.wav
 
@@ -152,14 +152,14 @@ Under the hood, **pymbrola** transforms the provided inputs into a string format
 Synthesising the sound
 ----------------------
 
-Finally, you can create the audio file in WAV format by using the `make_sound` method:
+Finally, you can create the audio file in WAV format by using the `to_sound` method:
 
 .. code-block:: python
   :linenos:
 
    caffe = mbrola.MBROLA(phon=phons)
 
-   caffe.make_sound("caffe.wav")
+   caffe.to_sound("caffe.wav")
 
 Which results in this audio:
 

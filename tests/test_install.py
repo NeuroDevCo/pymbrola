@@ -24,5 +24,5 @@ class TestDownloadVoices:
             assert p.is_dir()
             assert len(list(p.glob("*")))
 
-        mb_fix.make_sound(Path("tests/test.wav"), voice="it4")
+        mb_fix.to_sound(Path("tests/test.wav"), voice="it4")
         assert Path("tests/test.wav").exists()
