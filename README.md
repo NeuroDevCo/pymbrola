@@ -8,7 +8,7 @@
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/gongcastro/pymbrola/latest)
 ![GitHub Release](https://img.shields.io/github/v/release/NeuroDevCo/pymbrola)
 ![Codecov](https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola)
-
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/NeuroDevCo/pymbrola/main.svg)](https://results.pre-commit.ci/latest/github/NeuroDevCo/pymbrola/main)
 -----
 
 A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech synthesizer, enabling programmatic creation of MBROLA-compatible phoneme files and automated audio synthesis. This module validates phoneme, duration, and pitch sequences, generates `.pho` files, and can call the MBROLA executable to synthesize speech audio from text-like inputs.

@@ -31,7 +31,11 @@ pymbrola
 .. |codecov| image:: https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola
    :alt: Codecov
 
-|gh-actions| |pypi-version| |pypi-pyversions| |license| |codecov|
+.. |pre-commit.ci| image:: https://results.pre-commit.ci/badge/github/NeuroDevCo/pymbrola/main.svg
+   :target: https://results.pre-commit.ci/latest/github/NeuroDevCo/pymbrola/main
+   :alt: pre-commit.ci status
+
+|gh-actions| |pypi-version| |pypi-pyversions| |license| |codecov| |pre-commit.ci|
 
 | A **Python** front-end for the `MBROLA <https://github.com/numediart/MBROLA>`__ speech synthesizer. **pymbrola** enables programmatic creation of MBROLA-compatible **.pho files** and automated **audio synthesis** with Python, supporting customizable phonemes, durations, and pitch contours.
 
