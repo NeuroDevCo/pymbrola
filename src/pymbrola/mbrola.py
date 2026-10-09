@@ -36,10 +36,6 @@ class PlatformException(Exception):
         Exception (Exception): A super class Exception.
     """
 
-    def __init__(self):
-        self.message = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."
-        super().__init__(self.message)
-
 
 # main class
 class MBROLA:
@@ -498,7 +494,8 @@ def mbrola_cmd() -> str:
     if os.name == "nt" and wsl_available():
         return "wsl " + str(mbrola_path / mbrola_file)
 
-    raise PlatformException()
+    msg = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."
+    raise PlatformException(msg)
 
 
 @cache
