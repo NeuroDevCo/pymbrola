@@ -83,7 +83,7 @@ class TestAttr:
         assert len(mb_fix) == 5
         assert len(mb_fix) == len(mb_fix.phon)
 
-    def test_float(self, mb_fix):
+    def test_float(self):
         """Test MBROLA initialization with floats."""
         x = mb.MBROLA(["k", "a", "f", "f", "E1"], 100.1, 200.5, (1, 1))
         assert x.durations == [100.1] * 5
@@ -158,3 +158,8 @@ class TestSound:
         with pytest.raises(FileNotFoundError):
             file = Path("bad_path", "mb_fix.wav")
             mb_fix.to_sound(file=file)
+
+        with pytest.raises(RuntimeError):
+            x = mb.MBROLA(phon=[">", "a", "k", "a"])  # bad phoneme ">"
+            file = Path("tests", "mb_fix.wav")
+            x.to_sound(file=file)
