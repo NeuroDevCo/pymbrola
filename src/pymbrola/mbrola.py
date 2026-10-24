@@ -15,9 +15,14 @@ import subprocess as sp
 from copy import deepcopy
 from functools import cache, partial, singledispatch
 from pathlib import Path
+from typing import TypeAlias
 
 from pymbrola import _DOT_MBROLA
-from pymbrola.typing import Number, PitchInput, PitchOutput
+
+Number: TypeAlias = float | int
+PitchElement: TypeAlias = Number | list[tuple[Number, Number]]
+PitchInput: TypeAlias = Number | list[PitchElement] | list[tuple[Number, Number]]
+PitchOutput: TypeAlias = list[list[tuple[float, float]]]
 
 
 # exceptions
