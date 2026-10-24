@@ -17,7 +17,7 @@ from functools import cache, partial, singledispatch
 from pathlib import Path
 
 from pymbrola import _DOT_MBROLA
-from pymbrola.types import Number, PitchInput, PitchOutput
+from pymbrola.typing import Number, PitchInput, PitchOutput
 
 
 # exceptions
