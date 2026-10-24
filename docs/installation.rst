@@ -2,21 +2,21 @@
 Installation
 =====================
 
-You can install **pymbrola** from the `PyPi <https://pypi.org/project/mbrola/>`__ repository using `pip <https://pypi.org/project/mbrola/>`__ or `uv <https://docs.astral.sh/uv/getting-started/installation/>`__:
+You can install **Pymbrola** from the `PyPi <https://pypi.org/project/mbrola/>`__ repository using `pip <https://pypi.org/project/mbrola/>`__ or `uv <https://docs.astral.sh/uv/getting-started/installation/>`__:
 
 .. code-block:: bash
 
    pip install mbrola # pip installation
    uv add mbrola      # uv installation
 
-In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this, which will download MBROLA from https://github.com/numediart/MBROLA to you home folder `~/.mbrola` and compile it.
+In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **Pymbrola** package has functions for this, which will download MBROLA from https://github.com/numediart/MBROLA to you home folder `~/.mbrola` and compile it.
 
 .. code-block:: python
   from pymbrola import install
 
    install.install_mbrola()
 
-You will also need to download some MBROLA voices from https://github.com/numediart/MBROLA-voices. These voices will be automatically downloaded and found by **pymbrola** at `~/.mbrola/Voices`:
+You will also need to download some MBROLA voices from https://github.com/numediart/MBROLA-voices. These voices will be automatically downloaded and found by **Pymbrola** at `~/.mbrola/Voices`:
 
 .. code-block:: python
 
@@ -28,14 +28,14 @@ You will also need to download some MBROLA voices from https://github.com/numedi
 .. admonition:: Platform compatibility
    :class: attention
 
-   MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the `Windows Subsystem for Linux (WSL) <https://learn.microsoft.com/en-us/windows/wsl/install>`_. Native Windows and macOS are not yet compatible with the **pymbrola** package. If your are a Windows user, please see :ref:`windows-section` section.
+   MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the `Windows Subsystem for Linux (WSL) <https://learn.microsoft.com/en-us/windows/wsl/install>`_. Native Windows and macOS are not yet compatible with the **Pymbrola** package. If your are a Windows user, please see :ref:`windows-section` section.
 
 .. _windows-section:
 
 Windows users
 =============
 
-Because compiling MBROLA in a Windows machine is somewhat complicated, **pymbrola** only supports Linux-based operative systems. If you are a Windows user there are two ways in which you could use **pymbrola**: :ref:`docker-section` and :ref:`wsl-section`.
+Because compiling MBROLA in a Windows machine is somewhat complicated, **Pymbrola** only supports Linux-based operative systems. If you are a Windows user there are two ways in which you could use **Pymbrola**: :ref:`docker-section` and :ref:`wsl-section`.
 
 .. _docker-section:
 
@@ -78,7 +78,7 @@ In order to be able to reach the generated files after you are done with the Doc
 Windows Subsystem for Linux (WSL)
 ---------------------------------
 
-If you want to use `Windows Subsystem for Linux (WSL) <https://learn.microsoft.com/en-us/windows/wsl/about>`__ to run **pymbrola** inside Windows, make sure first that your WSL installation is up and working:
+If you want to use `Windows Subsystem for Linux (WSL) <https://learn.microsoft.com/en-us/windows/wsl/about>`__ to run **Pymbrola** inside Windows, make sure first that your WSL installation is up and working:
 
 .. code-block:: bash
    :linenos:
@@ -86,7 +86,7 @@ If you want to use `Windows Subsystem for Linux (WSL) <https://learn.microsoft.c
    wsl --install
    wsl --version
 
-MBROLA needs a few system dependencies. These allow to download the necessary code and compile MBROLA from source. We are also installing Python for using pymbrola later. Open the terminal and run the following lines (if using WSL enter the terminal by running wsl on your command prompt):
+MBROLA needs a few system dependencies. These allow to download the necessary code and compile MBROLA from source. We are also installing Python for using Pymbrola later. Open the terminal and run the following lines (if using WSL enter the terminal by running wsl on your command prompt):
 
 .. code-block:: bash
   :linenos:
@@ -94,7 +94,7 @@ MBROLA needs a few system dependencies. These allow to download the necessary co
   apt-get update
   apt-get install build-essential curl git gcc python3
 
-Next, install **pymbrola** as you normally would:
+Next, install **Pymbrola** as you normally would:
 
 .. code-block:: bash
   :linenos:

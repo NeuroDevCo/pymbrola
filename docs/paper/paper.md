@@ -1,5 +1,5 @@
 ---
-title: 'pymbrola: A Python front-end for the MBROLA speech synthesizer'
+title: 'Pymbrola: A Python front-end for the MBROLA speech synthesizer'
 tags:
   - Python
   - MBROLA
@@ -29,12 +29,12 @@ This paper introduces Pymbrola, a Python interface to the MBROLA speech synthesi
 
 MBROLA [@dutoit1996mbrola] is an open source software project aimed at supporting multi-language Text-To-Speech (TTS) synthesis. It is based on the Multi-Band Resynthesis OverLap Add (MBROLA) algorithm, which concatenates pre-recorded diphones (i.e., combinations of two speech sounds, like /ke/ or /li/). This concatenation algorithm minimizes mismatches between audios and leads to higher-quality speech synthesis than most TTS software available at the time [@dutoit1993mbr]. Since its first release, MBROLA has served as one of the most relied upon backends for TTS, and its diphone database has been extended to at least 75 languages and dialects (referred to as *voices* by MBROLA) [@tits2019mbrola].
 
-MBROLA provides a user interface to specify the phonological features present in the synthesized speech sample with fine detail. The user can choose which specific phonemes will be uttered from a list of available phonemes in the database of a given language (e.g., `e` for /e/ or `E1` for /ɛ/), instead of relying in grapheme-to-phoneme conversion rules that characterize classical end-to-end TTS. Phoneme-level durations be specified, and pitch can also be modulated across the time course of the speech sample. Such a direct manipulation of phonological features has made MBROLA of high interest for speech science, particularly for experimental work in language processing research. One notable use of MBROLA in language research is the generation of auditory stimuli that participants of experiments are presented with: by manipulating phoneme quality, duration, or pitch contour, research are able to generate and test predictions about cognitive and neural underpinnings of speech processing [e.g., @ferry2016edge; @assaneo2019spontaneous; @onnis2008learn; @hochmann2011consonants; @marchetto2013words; @lopez2013word; @buiatti2009investigating; @peter2022language].
+MBROLA provides a user interface to specify the phonological features present in the synthesized speech sample with fine detail. The user can choose which specific phonemes will be uttered from a list of available phonemes in the database of a given language (e.g., `e` for /e/ or `E1` for /ɛ/), instead of relying in grapheme-to-phoneme conversion rules that characterize classical end-to-end TTS. Phoneme-level durations be specified, and pitch can also be modulated across the time course of the speech sample. Such a direct manipulation of phonological features has made MBROLA of high interest for speech science, particularly for experimental work in language processing research. One notable use of MBROLA in language research is the generation of auditory stimuli that participants of experiments are presented with: by manipulating phoneme quality, duration, or pitch contour, research are able to generate and test predictions about cognitive and neural underpinnings of speech processing [@ferry2016edge; e.g., @assaneo2019spontaneous; @onnis2008learn; @hochmann2011consonants; @marchetto2013words; @lopez2013word; @buiatti2009investigating; @peter2022language].
 
-MBROLA provides a terminal-based interface to users. The sequence of phonemes to synthesize, their duration, and their pitch contour is specified by the user in a PHO file, like this:
+MBROLA provides a terminal-based interface to users. To synthesize the Italian word *caffè* \[coffee\], with pronunciation /kafˈfɛ/, the user would define the sequence of phonemes, their duration, and their pitch contour in a PHO file like this:
 
 ```         
-; PHO file kaffE.pho
+; PHO file kaffE1.pho
 _ 1
 k 100 (0, 200)
 a 100 (0, 200)
@@ -44,10 +44,10 @@ E 100 (0, 200)
 _ 1
 ```
 
-The first line starts with ";", which marks the start of a comment line. The second and last lines pad a one-millisecond silence at the start and the end of the synthesis. Every line in between specifies the phoneme to be played (e.g., `k`, which must be part of the phoneme repertoire of the language being used), its duration in milliseconds (e.g., `100 ms`), and the pitch to apply at a given millisecond inside the phoneme in Hertz (e.g., `(0, 200)`, which specifies a 200 Hz pitch at phoneme onset, which will remain constant until phoneme offset). MBROLA can then be pointed to this file, and together with some extra parameters---mainly the voice to use (e.g., `it4`) and the path to the output file (e.g., `kaffE.wav`)---a sound will be saved as a file.
+The first line starts with `;`, which marks the start of a comment line. The second and last lines pad a one-millisecond silence at the start and the end of the synthesis. Every line in between specifies the phoneme to be played (e.g., `k`, which must be part of the phoneme repertoire of the language being used), its duration in milliseconds (e.g., `100 ms`), and the pitch to apply at a given millisecond inside the phoneme in Hertz (e.g., `(0, 200)`, which specifies a 200 Hz pitch at phoneme onset, which will remain constant until phoneme offset). MBROLA can then be pointed to this file, and together with some extra parameters---mainly the voice to use (e.g., `it4`) and the path to the output file (e.g., `kaffE1.wav`)---a sound will be saved as a file:
 
 ``` bash
-mbrola it4/it4 kaffE.pho kaffE.wav
+mbrola it4/it4 kaffE1.pho kaffE1.wav
 ```
 
 While this interface is relatively intuitive to generate files on a one-to-one basis, users may sometimes need to synthesize a large number of files, each specified in a different PHO file. In these cases, the user may want to first write the corresponding PHO files, then call the `mbrola` command iteratively in a shell language (e.g., Bash, PowerShell). While implementing this solution is possible, language researchers are rarely familiar with such programming languages, limiting the extent to which MBROLA can be used efficiently across many research contexts.
@@ -184,13 +184,11 @@ kaffE1.to_sound("kaffE1.wav", voice="it4")
 
 # Research impact statement
 
-# Citations
-
 # AI usage disclosure
 
-AI was used to generate boilerpolate code for unit tests of the Python functions. In all instances, the authors have reviewed the suggestions and edited them if necessary.
+Generative AI tools (Mistral, mistral.ai) was used to generate boilerpolate code for unit tests of the Python functions. In all instances, the authors have reviewed the suggestions and edited them if necessary.
 
-# Acknowledgements
+# Funding Information
 
 Funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Council Executive Agency (ERCEA). Neither the European Union nor the granting authority can be held responsible for them. This work is supported by the ERC StG 101115991 (GALA) awarded to Chiara Santolin.
 
