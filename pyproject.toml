@@ -1,9 +1,9 @@
 [project]
 name = "mbrola"
-version = "0.7.0"
+version = "0.7.1"
 description = "A Python front-end for the MBROLA speech synthesizer"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license-files = ["LICENSE"]
 keywords = ["mbbrola", "speech synthesis", "python"]
 authors = [
