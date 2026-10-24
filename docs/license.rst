@@ -7,7 +7,7 @@ pymbrola is distributed under the terms of the `MIT License <https://spdx.org/li
 MIT License
 ===========
 
-Copyright (c) 2024 NeuroDevCo
+Copyright (c) 2024 gongcastro <gongarciacastro@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
