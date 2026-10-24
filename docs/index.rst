@@ -2,6 +2,17 @@
 pymbrola
 ========
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Contents
+
+   Installation <installation>
+   Usage <usage>
+   About MBROLA <mbrola>
+   API Reference <api/index>
+   License <license>
+
 .. |gh-actions| image:: https://img.shields.io/github/actions/workflow/status/NeuroDevCo/pymbrola/testing.yml
    :alt: GitHub Actions Workflow Status
    :class: display
@@ -20,14 +31,18 @@ pymbrola
 .. |codecov| image:: https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola
    :alt: Codecov
 
-|gh-actions| |pypi-version| |pypi-pyversions| |license| |codecov|
+.. |pre-commit.ci| image:: https://results.pre-commit.ci/badge/github/NeuroDevCo/pymbrola/main.svg
+   :target: https://results.pre-commit.ci/latest/github/NeuroDevCo/pymbrola/main
+   :alt: pre-commit.ci status
+
+|gh-actions| |pypi-version| |pypi-pyversions| |license| |codecov| |pre-commit.ci|
 
 | A **Python** front-end for the `MBROLA <https://github.com/numediart/MBROLA>`__ speech synthesizer. **pymbrola** enables programmatic creation of MBROLA-compatible **.pho files** and automated **audio synthesis** with Python, supporting customizable phonemes, durations, and pitch contours.
 
 .. code-block:: python
   :linenos:
 
-   import mbrola
+   from pymbrola import mbrola
 
    # Create an MBROLA object
    word = mbrola.MBROLA(
@@ -40,35 +55,9 @@ pymbrola
    word.export_pho("hello.pho")
 
    # Synthesize and save audio in WAV file
-   word.make_sound("hello.wav", voice="en1")
+   word.to_sound("hello.wav", voice="en1")
 
 .. audio:: _static/sounds/hello.wav
-
-.. toctree::
-   :hidden:
-
-   Installation <installation>
-   Usage <usage>
-   About MBROLA <mbrola>
-   API Reference <api/index>
-   License <license>
-
-Docker image
-------------
-For convenience, a `Docker image <https://hub.docker.com/repository/docker/gongcastro/pymbrola/general>`__ is available at Dockerhub:
-
-
-.. code-block:: bash
-
-   docker run -it gongcastro/pymbrola:latest
-
-
-Troubleshooting
----------------
-- Ensure MBROLA and the required voices are installed and available at `/usr/share/mbrola/<voice>/<voice>`.
-- If you encounter an error about platform support, make sure you are running on Linux or WSL.
-- Write an `issue <https://github.com/NeuroDevCo/pymbrola/issues>`__, I'll look into it ASAP.
-
 
 Supported by
 ------------

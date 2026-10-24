@@ -8,7 +8,7 @@
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/gongcastro/pymbrola/latest)
 ![GitHub Release](https://img.shields.io/github/v/release/NeuroDevCo/pymbrola)
 ![Codecov](https://img.shields.io/codecov/c/github/NeuroDevCo/pymbrola)
-
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/NeuroDevCo/pymbrola/main.svg)](https://results.pre-commit.ci/latest/github/NeuroDevCo/pymbrola/main)
 -----
 
 A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech synthesizer, enabling programmatic creation of MBROLA-compatible phoneme files and automated audio synthesis. This module validates phoneme, duration, and pitch sequences, generates `.pho` files, and can call the MBROLA executable to synthesize speech audio from text-like inputs.
@@ -24,14 +24,14 @@ A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech 
 You can install **pymbrola** from the [PyPi](https://pypi.org/project/mbrola/) repository using [pip](https://pypi.org/project/mbrola/) or [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
 ```sh
-pip install mbrola # pip installation
-uv add mbrola      # uv installation
+pip install pymbrola # pip installation
+uv add pymbrola      # uv installation
 ```
 
 In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this. This will download MBROLa from [numediat/MBROLA](https://github.com/numediart/MBROLA) to you home folder `~/.mbrola` and compile it.
 
 ```python
-import mbrola
+from pymbrola import mbrola
 
 mbrola.install_mbrola()
 ```
@@ -42,18 +42,23 @@ mbrola.install_mbrola()
 Finally, you will need to download some MBROLA voices from [numediart/MBROLA-voices](https://github.com/numediart/MBROLA-voices). These voices will be automatically downloaded and found by **pymbrola** at `~/.mbrola/Voices`:
 
 ```python
-mbrola.install_voice("it4")  # install it4 voice
-mbrola.install_voice(["it4", "fr4"])  # install several voices
-mbrola.install_voice()  # install all voices (~534M)
+from pymbrola import install
+
+install.install_voice("it4")  # install it4 voice
+install.install_voice(["it4", "fr4"])  # install several voices
+install.install_voice()  # install all voices (~534M)
 ```
 
 > [!TIP]
-> A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience.
+> A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience. Once you have instlaled Docker Desktop, you may run pull and run the image as a container from the Docker app, or from your terminal:
+> ```python
+> docker run -it gongcastro/pymbrola
+> ```
 
 ## Usage
 
 ```python
-import mbrola
+from pymbrola import mbrola
 
 # Create an MBROLA object
 caffe = MBROLA(

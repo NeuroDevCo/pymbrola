@@ -7,6 +7,7 @@ References:
     Dutoit, T., Pagel, V., Pierret, N., Bataille, F., & Van der Vrecken, O. (1996, October). The MBROLA project: Towards a set of high quality speech synthesizers free of use for non commercial purposes. In Proceeding of Fourth International Conference on Spoken Language Processing. ICSLP'96 (Vol. 3, pp. 1393-1396). IEEE. https://doi.org/10.1109/ICSLP.1996.607874
 """
 
+import argparse
 import os
 import platform
 import shutil
@@ -14,24 +15,9 @@ import subprocess as sp
 from copy import deepcopy
 from functools import cache, partial, singledispatch
 from pathlib import Path
-from typing import TypeAlias
 
-import requests
-from tqdm import tqdm
-
-# global variables
-_DOT_MBROLA = ".mbrola"
-MBROLA_REPO = "numediart/MBROLA"
-VOICES_REPO = "numediart/MBROLA-voices"
-API = "https://api.github.com"
-RAW = "https://raw.githubusercontent.com"
-TIMEOUT = (10, 120)  # (connect, read) seconds
-
-# custom types
-Number: TypeAlias = float | int
-PitchElement: TypeAlias = Number | list[tuple[Number, Number]]
-PitchInput: TypeAlias = Number | list[PitchElement] | list[tuple[Number, Number]]
-PitchOutput: TypeAlias = list[list[tuple[float, float]]]
+from pymbrola import _DOT_MBROLA
+from pymbrola.types import Number, PitchInput, PitchOutput
 
 
 # exceptions
@@ -43,22 +29,30 @@ class MissingVoiceException(Exception):
     """Voice not found in voices folder."""
 
 
+class PlatformException(Exception):
+    """Raise error platform is not Linux or Windows Subsystem for Linux.
+
+    Args:
+        Exception (Exception): A super class Exception.
+    """
+
+
 # main class
 class MBROLA:
     """A class for generating MBROLA sounds.
 
-        An MBROLA class contains the necessary elements to synthesise an audio using MBROLA.
+        An MBROLA class contains the necessary elements to synthesize an audio using MBROLA.
 
         Args:
             phon (str | list[str]): list of phonemes.
-            durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in `phon` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
-            pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+            durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
+            pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as ``phon``. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
             outer_silences (tuple[float, float], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1, 1).
 
         Attributes:
             phon (list[str]): list of phonemes.
-            durations (list[float] | float, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in `phon` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
-            pitch (float | list[float] | list[tuple[float, float]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+            durations (list[float] | float, optional): phoneme duration in milliseconds. Defaults to 100. If an integer is provided, all phonemes in ``phon`` are assumed to be the same length. If a list is provided, each element in the list indicates the duration of each phoneme.
+            pitch (float | list[float] | list[tuple[float, float]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as ``phon``. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
             outer_silences (tuple[float, float], optional): duration in milliseconds of the silence interval to be inserted at onset and offset. Defaults to (1.0, 1.0).
 
         Examples:
@@ -91,6 +85,30 @@ class MBROLA:
         self.pitch = validate_pitch(pitch, self.phon)
         self.outer_silences = validate_outer_silences(outer_silences)
         self.pho = make_pho(self)
+
+    def __repr__(self) -> str:
+        cls = self.__class__.__name__ + "("
+        attrs = self.__dict__.items()
+
+        for i, (k, v) in enumerate(attrs):
+            if k == "pho":
+                continue
+
+            cls += f"{k}={v!r}, " if i != (len(attrs) - 2) else f"{k}={v!r}"
+
+        return cls + ")"
+
+    def __str__(self) -> str:
+        cls = self.__class__.__name__ + "("
+        attrs = self.__dict__.items()
+
+        for i, (k, v) in enumerate(attrs):
+            if k == "pho":
+                continue
+
+            cls += f"{k}={v!r}, " if i != (len(attrs) - 2) else f"{k}={v!r}"
+
+        return cls + ")"
 
     def __len__(self) -> int:
         """Get number of phonemes in MBROLA instance.
@@ -159,40 +177,7 @@ class MBROLA:
 
         return new
 
-    def copy(self):
-        """Make deep copy of MBROLA instance.
-
-        Returns:
-            MBROLA: Deep copy of original MBROLA instance.
-
-        Examples:
-            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> house_1 = house.copy()
-            >>> house == house_1
-            True
-            >>> house is house_1
-            False
-
-        :meta public:
-        """
-        return deepcopy(self)
-
-    def export_pho(self, file: str | Path) -> None:
-        """Save PHO file.
-
-        Args:
-            file (str): Path of the output PHO file.
-
-        Examples:
-            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> house.export_pho("sample.pho")
-
-        :meta public:
-        """
-        with Path(file).open("w", encoding="utf-8") as f:
-            f.write("\n".join(self.pho))
-
-    def make_sound(
+    def to_sound(
         self,
         file: str | Path,
         voice: str = "it4",
@@ -211,10 +196,11 @@ class MBROLA:
 
         Examples:
             >>> house = MBROLA(phon = ["h", "a", "U", "s"])
-            >>> house.make_sound("sound.wav", voice="en1")
-            >>> house.make_sound("sound.wav", f0_ratio=0.5, voice="en1") # reduce F0 to half the original Hz.
-            >>> house.make_sound("sound.wav", dur_ratio=2.0, voice="en1") # make audio double as fast
-            >>> house.make_sound("sound.wav", remove_pho=False, voice="en1") # keep pho file in same directory
+
+            >>> house.to_sound("sound.wav", voice="en1")
+            >>> house.to_sound("sound.wav", f0_ratio=0.5, voice="en1")     # reduce F0 to half the original Hz.
+            >>> house.to_sound("sound.wav", dur_ratio=2.0, voice="en1")    # make audio double as fast
+            >>> house.to_sound("sound.wav", remove_pho=False, voice="en1") # keep pho file in same directory
 
         :meta public:
         """
@@ -241,6 +227,39 @@ class MBROLA:
         if remove_pho:
             pho.unlink()
 
+    def export_pho(self, file: str | Path) -> None:
+        """Save PHO file.
+
+        Args:
+            file (str): Path of the output PHO file.
+
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house.export_pho("sample.pho")
+
+        :meta public:
+        """
+        with Path(file).open("w", encoding="utf-8") as f:
+            f.write("\n".join(self.pho))
+
+    def copy(self):
+        """Make deep copy of MBROLA instance.
+
+        Returns:
+            MBROLA: Deep copy of original MBROLA instance.
+
+        Examples:
+            >>> house = MBROLA(phon = ["h", "a", "U", "s"])
+            >>> house_1 = house.copy()
+            >>> house == house_1
+            True
+            >>> house is house_1
+            False
+
+        :meta public:
+        """
+        return deepcopy(self)
+
 
 def make_pho(x: MBROLA) -> list[str]:
     """Generate PHO file.
@@ -266,9 +285,7 @@ def make_pho(x: MBROLA) -> list[str]:
 
 # validation functions
 def validate_voice(voice: str) -> str:
-    """Checks that provided voice is available in MBROLA folder.
-
-    Check available voices here https://github.com/numediart/MBROLA-voices, and isntall them using `install_voices()`.
+    """Checks that provided voice is available in MBROLA folder. Consult available voices here https://github.com/numediart/MBROLA-voices, and install them using ``install_voices()``.
 
     Args:
         voice (str): Voice to check.
@@ -278,13 +295,17 @@ def validate_voice(voice: str) -> str:
 
     Returns:
         str: Path to validated voice.
+
+    Examples:
+        >>> validate_voice("it4")       # returns valid "it4"
+        >>> validate_voice("bad-voice") # raises ``MissingVoiceException``.
     """
     voices_path = mbrola_path() / "Voices"
 
     available_voices = [p.name for p in voices_path.glob("*")]
 
     if voice not in available_voices:
-        msg = f"Voice '{voice}' not found in `voices_path` '{voices_path}'. Please, install MBROLA voices using `install_voices({voice})` or use the `voices_path` argument to point to the folder that contains installed MBROLA voices."
+        msg = f"Voice '{voice}' not found in ``voices_path`` '{voices_path}'. Please, install MBROLA voices using ``install_voices({voice})`` or use the ``voices_path`` argument to point to the folder that contains installed MBROLA voices."
         raise MissingVoiceException(msg)
 
     return str(voices_path / voice / voice)
@@ -294,7 +315,7 @@ def validate_voice(voice: str) -> str:
 def validate_durations(
     durations: Number | list[Number], phon: list[str]
 ) -> list[float]:
-    """Validate argument `durations`.
+    """Validate argument ``durations``.
 
     Args:
         durations (float | list[float], optional): phoneme duration in milliseconds. Defaults to 100.
@@ -328,15 +349,15 @@ def _(durations: list, phon: str | list[str]) -> list[float]:
 
 @singledispatch
 def validate_pitch(pitch: PitchInput, phon: str | list[str]) -> PitchOutput:
-    """Validate argument `pitch`.
+    """Validate argument ``pitch``.
 
     Args:
-        pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as `phon`. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
+        pitch (float | list[float] | list[float | list[float | tuple[float, float]]]): pitch in Hertz (Hz). If an integer is provided, the pitch contour of each phoneme is assumed to be constant within and across phonemes (e.g., all phonemes will have a pitch of 200 Hz). If a list is provided, each element provides the pitch specification of the piecewise linear pitch curve of each phoneme. This list should have same length as ``phon``. Each element in this list should be a list of an arbitrary number of tuples. Each tuple indicates the time (in percentage of the audio) at which the pitch should be modified, and the pitch value (in Hertz) that should be set.
         phon (str | list[str]): string or list of phonemes.
 
     Raises:
-        ValueError: if `pitch` is a list of different length as `phon`.
-        TypeError: `pitch` is not an float or a list[tuple[float, float]]"
+        ValueError: if ``pitch`` is a list of different length as ``phon``.
+        TypeError: ``pitch`` is not an float or a list[tuple[float, float]]"
 
     Returns:
         float | list[float] | list[float | list[float | tuple[float, float]]]: validated pitch.
@@ -378,13 +399,13 @@ def _(pitch: list, phon: list[str]) -> PitchOutput:
 def validate_outer_silences(
     outer_silences: tuple[Number, Number],
 ) -> tuple[Number, Number]:
-    """Validate argument `outer_silences`.
+    """Validate argument ``outer_silences``.
 
     Args:
         outer_silences (tuple[float, float]): duration in milliseconds of the silence intervals to be inserted at onset and offset. Defaults to (1, 1).
 
     Raises:
-        TypeError: if `outer_silences` is not a tuple of float of length 2.
+        TypeError: if ``outer_silences`` is not a tuple of float of length 2.
 
     Returns:
         tuple[float, float]: validated outer silences.
@@ -395,7 +416,7 @@ def validate_outer_silences(
         or len(outer_silences) != 2
         or not all(isinstance(o, Number) for o in outer_silences)
     ):
-        raise TypeError("`outer_silences` must be a tuple of float of length 2")
+        raise TypeError("``outer_silences`` must be a tuple of float of length 2")
     return outer_silences
 
 
@@ -432,7 +453,7 @@ def validate_mbrola_path(path: Path) -> Path:
     """
 
     if not path.exists() or not path.is_dir():
-        msg = f"Could not locate MBROLA directory in '{path}'. Please, set the appropriate path to your MBROLA installation using `set_mbrola_path()` or install MBROLA using `install_mbrola()` in your desired location."
+        msg = f"Could not locate MBROLA directory in '{path}'. Please, set the appropriate path to your MBROLA installation using ``set_mbrola_path()`` or install MBROLA using ``install_mbrola()`` in your desired location."
 
         raise MissingMBROLAException(msg)
 
@@ -473,7 +494,8 @@ def mbrola_cmd() -> str:
     if os.name == "nt" and wsl_available():
         return "wsl " + str(mbrola_path / mbrola_file)
 
-    raise PlatformException()
+    msg = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."
+    raise PlatformException(msg)
 
 
 @cache
@@ -481,7 +503,7 @@ def is_wsl(version: str = platform.uname().release) -> bool:
     """Evaluate if function is running on Windows Subsystem for Linux (WSL).
 
     Returns:
-        bool: returns `True` if Python is running in WSL, otherwise `False`.
+        bool: returns ``True`` if Python is running in WSL, otherwise ``False``.
     """
     return version.endswith("microsoft-standard-WSL2")
 
@@ -492,7 +514,7 @@ def wsl_available() -> bool | int:
     Check if Windows Subsystem for Linux (WSL is available).
 
     Returns:
-        bool | int: `True` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise `False`
+        bool | int: ``True`` if Windows Subsystem for Linux (WLS) is available from Windows, otherwise ``False``
 
     :meta private:
     """
@@ -507,186 +529,43 @@ def wsl_available() -> bool | int:
         return False
 
 
-# installation functions
-def install_voice(
-    voice: str | list[str] | None = None, path: Path | None = None
-) -> bool:
-    """
-    Download and install MBROLA voices from numediart/MBROLA-voices.
-
-    voice (str | list[str] | None, optional): Voice names to install, e.g. ["es1", "de1"]. If None (default) or empty, installs every voice.
-    path (Path | None, optional): Destination folder for MBROLA voices. Defaults to ~/.mbrola/voices.
-
-    Returns:
-        bool: True if voices were installed, False if the user declined to
-        replace an existing destination directory.
-
-    Examples:
-        >>> install_voices("it4") # installs single voice
-        >>> install_voices(["it4", "us1"]) # installs selected voices
-        >>> install_voices() # installs all available voices
-        >>> install_voices(path = Path("sounds")) # installs voices in folder "sounds"
-
-    """
-    if path is None:
-        path = mbrola_path() / "Voices"
-
-    if isinstance(voice, str):
-        voice = [voice]
-
-    Path(path).mkdir(exist_ok=True, parents=True)
-    try:
-        r = requests.get(
-            f"{API}/repos/{VOICES_REPO}/git/trees/master",
-            params={"recursive": "1"},
-            timeout=TIMEOUT,
-        )
-        r.raise_for_status()
-        tree = r.json()
-        if tree.get("truncated"):
-            raise VoiceInstallException("Error: repository tree too large to list.")
-        files = {e["path"]: e["size"] for e in tree["tree"] if e["type"] == "blob"}
-    except requests.RequestException as exc:
-        raise VoiceInstallException("Error: Failed to list MBROLA voices.") from exc
-
-    if not voice:
-        voice = sorted({f.split("/")[1] for f in files if "/" in f})
-
-    for v in voice:  # guard against path traversal in user input
-        if not v or "/" in v or v in (".", ".."):
-            raise VoiceInstallException(f"Error: invalid voice name {v!r}.")
-
-    wanted: dict[str, int] = {}
-    for name in voice:
-        prefix = f"data/{name}/"
-        matches = {p: s for p, s in files.items() if p.startswith(prefix)}
-
-        if not matches:
-            raise VoiceInstallException(f"Error: unknown voice {name!r}.")
-
-        wanted.update(matches)
-
-    pb_settings = {"desc": "Downloading", "smoothing": True, "leave": False}
-    pb = tqdm(range(len(wanted)), **pb_settings)
-
-    for rel_path in wanted:
-        # strips the leading "data/" so voices land directly in `path`
-        dest = path / Path(*rel_path.split("/")[1:])
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        url = f"{RAW}/{VOICES_REPO}/master/{rel_path}"
-
-        try:
-            with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-                r.raise_for_status()
-
-                with open(dest, "wb") as fh:
-                    fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
-        except requests.RequestException as exc:
-            raise VoiceInstallException(
-                f"Error: failed to download {rel_path}."
-            ) from exc
-        except OSError as exc:
-            raise VoiceInstallException("Error: Failed to install voices.") from exc
-
-        pb.update(1)
-        pb.set_description(f"Downloading {rel_path.split('/')[1]}")
-
-    return True
-
-
-def install_mbrola(path: Path | str | None = None) -> None:
-    """Install MBROLA.
-
-    This function downloads and compiles MBROLA from https://github.com/numediart/MBROLA.
-
-    Args:
-        path (Path | str | None, optional): Desintatino path of MBROLA installation folder. Defaults to `~/.mbrola/`.
-
-    Raises:
-        MBROLAInstallException: If MBROLA repository cannot be reached, if download fails, or if compilation fails.
-    """
-    if isinstance(path, str):
-        path = Path(path)
-
-    if path is None:
-        path = Path.home() / _DOT_MBROLA
-
-    path.mkdir(exist_ok=True, parents=True)
-
-    r = requests.get(
-        f"{API}/repos/{MBROLA_REPO}/git/trees/master",
-        params={"recursive": "1"},
-        timeout=TIMEOUT,
-    )
-    r.raise_for_status()
-    tree = r.json()
-
-    if tree.get("truncated"):
-        raise MBROLAInstallException("Error: repository tree too large to list.")
-
-    files = {e["path"]: e["size"] for e in tree["tree"] if e["type"] == "blob"}
-
-    pb_settings = {"desc": "Downloading MBROLA", "smoothing": True, "leave": False}
-    pb = tqdm(range(len(files)), **pb_settings)
-
-    for rel_path in files:
-        # strips the leading "data/" so voices land directly in `path`
-        dest = path / rel_path
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        url = f"{RAW}/{MBROLA_REPO}/master/{rel_path}"
-
-        try:
-            with requests.get(url, stream=True, timeout=TIMEOUT) as r:
-                r.raise_for_status()
-
-                with open(dest, "wb") as fh:
-                    fh.writelines(c for c in r.iter_content(chunk_size=1 << 16))
-        except requests.RequestException as e:
-            raise MBROLAInstallException(f"Error: failed to download {rel_path}") from e
-        except OSError as e:
-            raise MBROLAInstallException("Error: Failed to download MBROLA") from e
-
-        pb.update(1)
-
-    pb.set_description("Compiling MBROLA")
-
-    try:
-        sp.run(["make"], cwd=path, capture_output=True, text=True, check=True)
-    except OSError as e:
-        raise MBROLAInstallException("Error: Failed to compile MBROLA") from e
-
-
-class PlatformException(Exception):
-    """Raise error platform is not Linux or Windows Subsystem for Linux.
-
-    Args:
-        Exception (Exception): A super class Exception.
-    """
-
-    def __init__(self):
-        self.message = f"MBROLA is only available on {platform.system()} using the Windows Subsystem for Linux (WSL).\nPlease, follow the instructions in the WSL site: https://learn.microsoft.com/en-us/windows/wsl/install."
-        super().__init__(self.message)
-
-
-class VoiceInstallException(RuntimeError):
-    """Unrecoverable error; mirrors `exit 1` in the original bash script."""
-
-
-class MBROLAInstallException(RuntimeError):
-    """Unrecoverable error; mirrors `exit 1` in the original bash script."""
-
-
 if __name__ == "__main__":
-    install_mbrola()
-    install_voice(["it4", "fr4"])
+    parser = argparse.ArgumentParser()
 
-    cafe = MBROLA(
-        phon=["k", "a", "f", "f", "E1"],
-        durations=[200, 300, 200, 200, 200],
-        pitch=[200, [(50.0, 400), (75, 500.0)], [(30, 200.1)], 200.0, []],
-        outer_silences=(10, 10),
+    parser.add_argument(
+        "phon",
+        type=lambda x: x.split(","),
+        help="List of phonemes to synthesize",
+    )
+    parser.add_argument(
+        "voice",
+        type=str,
+        help="MBROLA voices to use",
     )
 
-    cafe.export_pho("test.pho")
-    cafe.make_sound("test.wav")
-    print(cafe)
+    parser.add_argument(
+        "-d",
+        "--durations",
+        type=lambda x: x.split(","),
+        help="Phoneme durations. Defaults to 100 ms for all phonemes.",
+        default=100,
+    )
+    parser.add_argument(
+        "-p",
+        "--pitch",
+        type=lambda x: x.split(","),
+        help="Pitch to apply. Defaults to a constant 200 Hz for all phonemes.",
+        default=200,
+    )
+
+    parser.add_argument(
+        "-f",
+        "--file",
+        type=str,
+        help="Destination of synthesized file. Defaults to ./sound.wav",
+        default=Path("./sound.wav"),
+    )
+    args = parser.parse_args()
+
+    phons = "".join(args.phon) if isinstance(args.phon, list) else args.phon
+    MBROLA(phons, args.durations, args.pitch).to_sound(args.file, voice=args.voice)

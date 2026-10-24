@@ -11,9 +11,10 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version:
-          - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
+          - "3.14"
 
     runs-on: ${{ matrix.os }}
 
@@ -42,7 +43,7 @@ jobs:
         run: sleep $((random % 5))
 
       - name: Installing MBROLA
-        run: uv run src/mbrola.py
+        run: uv run src/pymbrola/install.py -i -v it4
 
       - name: Testing with Pytest
         run: |

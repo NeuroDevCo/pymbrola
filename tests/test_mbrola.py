@@ -5,13 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from src import mbrola as mb
-
-
-@pytest.fixture
-def mb_fix():
-    """MBROLA fixture instance."""
-    return mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
+from src.pymbrola import mbrola as mb
 
 
 class TestAttr:
@@ -40,7 +34,7 @@ class TestAttr:
         assert hasattr(mb_fix, "outer_silences")
         assert hasattr(mb_fix, "pho")
         assert hasattr(mb_fix, "export_pho")
-        assert hasattr(mb_fix, "make_sound")
+        assert hasattr(mb_fix, "to_sound")
 
     def test_attr_type(self, mb_fix):
         """Test MBROLA class attribute types."""
@@ -53,7 +47,17 @@ class TestAttr:
         assert isinstance(mb_fix.pho, list)
         assert all(isinstance(p, str) for p in mb_fix.pho)
         assert callable(mb_fix.export_pho)
-        assert callable(mb_fix.make_sound)
+        assert callable(mb_fix.to_sound)
+
+    def test_str(self, mb_fix):
+        """Test `__str__` method."""
+        mb_str = "MBROLA(phon=['k', 'a', 'f', 'f', 'E1'], durations=[100, 100, 100, 100, 100], pitch=[[(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)]], outer_silences=(1, 1))"
+        assert str(mb_fix) == mb_str
+
+    def test_repr(self, mb_fix):
+        """Test `__repr__` method."""
+        mb_str = "MBROLA(phon=['k', 'a', 'f', 'f', 'E1'], durations=[100, 100, 100, 100, 100], pitch=[[(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)]], outer_silences=(1, 1))"
+        assert repr(mb_fix) == mb_str
 
     def test_eq(self, mb_fix):
         """Test `==` method."""
@@ -79,7 +83,7 @@ class TestAttr:
         assert len(mb_fix) == 5
         assert len(mb_fix) == len(mb_fix.phon)
 
-    def test_float(self, mb_fix):
+    def test_float(self):
         """Test MBROLA initialization with floats."""
         x = mb.MBROLA(["k", "a", "f", "f", "E1"], 100.1, 200.5, (1, 1))
         assert x.durations == [100.1] * 5
@@ -127,30 +131,35 @@ class TestPho:
 
 
 class TestSound:
-    def test_make_sound(self, mb_fix):
-        """Test MBROLA.make_sound method."""
+    def test_to_sound(self, mb_fix):
+        """Test MBROLA.to_sound method."""
         file = Path("tests", "mb_fix.wav")
-        mb_fix.make_sound(file=file)
+        mb_fix.to_sound(file=file)
         assert file.exists()
         os.unlink(file)
 
-    def test_make_sound_remove_pho(self, mb_fix):
-        """Test MBROLA.make_sound method."""
+    def test_to_sound_remove_pho(self, mb_fix):
+        """Test MBROLA.to_sound method."""
         file = Path("tests", "mb_fix.wav")
-        mb_fix.make_sound(file=file, remove_pho=False)
+        mb_fix.to_sound(file=file, remove_pho=False)
         assert file.exists()
         assert file.with_suffix(".pho").exists()
 
         os.unlink(file)
 
-    def test_make_sound_wrong_voice(self, mb_fix):
-        """Test MBROLA.make_sound with wrong voice."""
+    def test_to_sound_wrong_voice(self, mb_fix):
+        """Test MBROLA.to_sound with wrong voice."""
         with pytest.raises(mb.MissingVoiceException):
             file = Path("tests", "mb_fix.wav")
-            mb_fix.make_sound(file=file, voice="bad_voice")
+            mb_fix.to_sound(file=file, voice="bad_voice")
 
     def test_sp_error(self, mb_fix):
         """Test that subprocess errors are raised."""
         with pytest.raises(FileNotFoundError):
             file = Path("bad_path", "mb_fix.wav")
-            mb_fix.make_sound(file=file)
+            mb_fix.to_sound(file=file)
+
+        with pytest.raises(RuntimeError):
+            x = mb.MBROLA(phon=[">", "a", "k", "a"])  # bad phoneme ">"
+            file = Path("tests", "mb_fix.wav")
+            x.to_sound(file=file)

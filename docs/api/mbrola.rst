@@ -2,7 +2,7 @@
 ======
 
 .. automodule:: mbrola
-
+   :members:
 
    .. rubric:: Classes
 

@@ -20,6 +20,7 @@ extensions = [
     "sphinxext.opengraph",
 ]
 
+root_doc = "index"
 templates_path = ["_templates"]
 autosummary_generate = True
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -32,11 +33,15 @@ html_logo = "_static/img/logo.png"
 html_favicon = "_static/img/logo.png"
 html_css_files = ["styles/style.css", "styles/fonts.css"]
 
+
 html_theme_options = {
     "github_url": "https://github.com/NeuroDevCo/pymbrola",
     "navbar_align": "left",
-    "show_nav_level": 2,
+    "show_nav_level": 4,
     "back_to_top_button": True,
+    "navigation_depth": 4,
+    "collapse_navigation": True,
+    "secondary_sidebar_items": ["page-toc", "edit-this-page", "sourcelink"],
 }
 
 # MyST Parser

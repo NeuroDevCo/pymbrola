@@ -1,20 +1,19 @@
+"""Test MBROLA utils."""
+
+import os
 import subprocess as sp
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-from src import mbrola as mb
+from src.pymbrola import mbrola as mb
 
 
-@pytest.fixture
-def mb_fix():
-    return mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
-
-
-@pytest.fixture(scope="session")
-def voices_path(tmpdir_factory):
-    return tmpdir_factory.mktemp("voices")
+@pytest.fixture(autouse=True)
+def clear_cache():
+    mb.wsl_available.cache_clear()
+    yield
+    mb.wsl_available.cache_clear()
 
 
 class TestPlatformValidation:
@@ -31,36 +30,58 @@ class TestPlatformValidation:
         ):
             assert mb.wsl_available() is False
 
-    def test_wsl_available_subprocess_error(self):
-        """Mock os.name as 'nt', wsl in PATH, but subprocess raises an error."""
-        with (
-            patch("os.name", "nt"),
-            patch("shutil.which", return_value="/usr/bin/wsl"),
-            patch(
-                "mbrola.sp.check_output",
-                side_effect=sp.SubprocessError("WSL command failed"),
+    @pytest.mark.parametrize(
+        "os_name, which_result, expected",
+        [
+            pytest.param("posix", "/usr/bin/wsl", False, id="not windows"),
+            pytest.param("nt", None, False, id="windows but wsl not installed"),
+        ],
+    )
+    def test_wsl_unavailable(self, os_name, which_result, expected, monkeypatch):
+        monkeypatch.setattr(os, "name", os_name)
+        monkeypatch.setattr("shutil.which", lambda _: which_result)
+
+        assert mb.wsl_available() is expected
+
+    @pytest.mark.parametrize(
+        "uname_output, is_wsl_result, expected",
+        [
+            pytest.param(
+                "5.15.153.1-microsoft-standard-WSL2", True, True, id="wsl kernel"
             ),
-        ):
-            assert mb.wsl_available() is False
+            pytest.param("6.1.0-18-amd64", False, False, id="non-wsl kernel"),
+        ],
+    )
+    def test_wsl_check_output(self, uname_output, is_wsl_result, expected, monkeypatch):
+        monkeypatch.setattr(os, "name", "nt")
+        monkeypatch.setattr("shutil.which", lambda _: "/usr/bin/wsl")
+        monkeypatch.setattr(mb.is_wsl, "__call__", lambda s: is_wsl_result)
+        monkeypatch.setattr(sp, "check_output", lambda *a, **k: uname_output)
 
+        assert mb.wsl_available() is expected
 
-class TestDownloadVoices:
-    def test_install_voices(self, mb_fix):
-        test_langs = ["it4", "es3", "fr4"]
+    def test_wsl_subprocess_error(self, monkeypatch):
+        monkeypatch.setattr(os, "name", "nt")
+        monkeypatch.setattr("shutil.which", lambda _: "/usr/bin/wsl")
 
-        assert mb.install_voice(voice=test_langs)
-        path = mb.mbrola_path() / "Voices"
-        voices = [p.name for p in path.glob("*")]
+        def raise_error(*args, **kwargs):
+            raise sp.SubprocessError
 
-        assert path.exists()
-        assert path.is_dir()
+        monkeypatch.setattr(sp, "check_output", raise_error)
 
-        for l in test_langs:
-            assert l in voices
-            p = path / l
-            assert p.exists()
-            assert p.is_dir()
-            assert len(list(p.glob("*")))
+        assert mb.wsl_available() is False
 
-        mb_fix.make_sound(Path("tests/test.wav"), voice="it4")
-        assert Path("tests/test.wav").exists()
+    def test_wsl_is_cached(self, monkeypatch):
+        monkeypatch.setattr(os, "name", "nt")
+        monkeypatch.setattr("shutil.which", lambda _: "/usr/bin/wsl")
+
+        calls = []
+        monkeypatch.setattr(
+            "subprocess.check_output",
+            lambda *a, **k: calls.append(a) or "5.15-microsoft-standard-WSL2",
+        )
+
+        mb.wsl_available()
+        mb.wsl_available()
+
+        assert len(calls) == 1  # second call hits the cache

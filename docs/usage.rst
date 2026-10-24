@@ -7,7 +7,7 @@ This is a quick walkthrough to get you up and running with **pymbrola**. Here is
 .. code-block:: python
   :linenos:
 
-   import mbrola
+   from pymbrola import mbrola
 
    # Create an MBROLA object
    word = mbrola.MBROLA(
@@ -20,11 +20,11 @@ This is a quick walkthrough to get you up and running with **pymbrola**. Here is
    word.export_pho("hello.pho")
 
    # Synthesize and save audio in WAV file
-   word.make_sound("hello.wav", voice="en1")
+   word.to_sound("hello.wav", voice="en1")
 
 .. audio:: _static/sounds/hello.wav
 
-Specifying Phonemes
+Phonemes
 ===================
 
 Phonemes are specified as a list of strings. Each phoneme in the specified list must be included in the repertoire of phonemes in the MBROLA voice being used. In the previous example, the phoneme `"E1"` works because it is part of the `en1` voice (see here https://github.com/numediart/MBROLA-voices/blob/master/data/en1/README.txt). Using a phoneme that does not exist in the selected voice will result in an error. You can consult which phonemes are available for each language in the `README.txt` located in the voice's folder.
@@ -33,7 +33,7 @@ Phonemes are specified as a list of strings. Each phoneme in the specified list 
 .. code-block:: python
   :linenos:
 
-   import mbrola
+   from pymbrola import mbrola
 
    phons = ["k", "a", "f", "f", "E1"]
 
@@ -46,7 +46,7 @@ Phonemes are specified as a list of strings. Each phoneme in the specified list 
    print(caffe.phon)
    # ["k", "a", "f", "f", "E1"]
 
-Specifying Durations
+Durations
 ====================
 
 Durations are provided as milliseconds, and can be specified as a single integer or as a list of integers. If a single integer, the specified duration is applied to all phonemes.
@@ -71,7 +71,7 @@ If a list of phonemes, each element in the list is sequentially matched with eac
 
    print(caffe.durations)
 
-Pitch Contours
+Pitch contours
 ==============
 
 Pitch can be specified in several way. If pitch is specified as an **integer**, pitch is assumed constant across phonemes:
@@ -152,14 +152,14 @@ Under the hood, **pymbrola** transforms the provided inputs into a string format
 Synthesising the sound
 ----------------------
 
-Finally, you can create the audio file in WAV format by using the `make_sound` method:
+Finally, you can create the audio file in WAV format by using the `to_sound` method:
 
 .. code-block:: python
   :linenos:
 
    caffe = mbrola.MBROLA(phon=phons)
 
-   caffe.make_sound("caffe.wav")
+   caffe.to_sound("caffe.wav")
 
 Which results in this audio:
 

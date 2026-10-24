@@ -1,14 +1,8 @@
-"""Test MBROLA module."""
+"""Test MBROLA validations module."""
 
 import pytest
 
-from src import mbrola as mb
-
-
-@pytest.fixture
-def mb_fix():
-    """MBROLA fixture instance."""
-    return mb.MBROLA(["k", "a", "f", "f", "E1"], 100, 200, (1, 1))
+from src.pymbrola import mbrola as mb
 
 
 class TestDurationValidation:
