@@ -31,9 +31,9 @@ uv add pymbrola      # uv installation
 In either case, you will need Python>=3.12. To synthesise audios via MBROLA, you will need to download it and compile it. The **Pymbrola** package has functions for this. This will download MBROLa from [numediat/MBROLA](https://github.com/numediart/MBROLA) to you home folder `~/.mbrola` and compile it.
 
 ```python
-from pymbrola import mbrola
+from pymbrola import install
 
-mbrola.install_mbrola()
+install.install_mbrola()
 ```
 
 > [!IMPORTANT]
@@ -50,8 +50,8 @@ install.install_voice()  # install all voices (~534M)
 ```
 
 > [!TIP]
-> A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience. Once you have instlaled Docker Desktop, you may run pull and run the image as a container from the Docker app, or from your terminal:
-> ```python
+> A [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) of Ubuntu 22.04 with a ready-to-go installation of MBROLA is available, for convenience. Once you have installed Docker Desktop, you may run pull and run the image as a container from the Docker app, or from your terminal:
+> ```bash
 > docker run -it gongcastro/pymbrola
 > ```
 
