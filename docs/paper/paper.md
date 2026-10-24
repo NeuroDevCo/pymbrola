@@ -180,7 +180,7 @@ Finally, the audio can be synthesized and written in disk in WAV format by using
 kaffE1.to_sound("kaffE1.wav", voice="it4")
 ```
 
-![Oscillogram and Mel-spectrogram for `k a f f E1`, synthesised with `it4` voice.](kaffE1.png)
+![Oscillogram and Mel-spectrogram for `k a f f E1`, synthesized with `it4` voice.](kaffE1.png)
 
 # Research impact statement
 
