@@ -1,5 +1,5 @@
 ========
-pymbrola
+Pymbrola
 ========
 
 .. toctree::
@@ -37,7 +37,7 @@ pymbrola
 
 |gh-actions| |pypi-version| |pypi-pyversions| |license| |codecov| |pre-commit.ci|
 
-| A **Python** front-end for the `MBROLA <https://github.com/numediart/MBROLA>`__ speech synthesizer. **pymbrola** enables programmatic creation of MBROLA-compatible **.pho files** and automated **audio synthesis** with Python, supporting customizable phonemes, durations, and pitch contours.
+| A **Python** front-end for the `MBROLA <https://github.com/numediart/MBROLA>`__ speech synthesizer. **Pymbrola** enables programmatic creation of MBROLA-compatible **.pho files** and automated **audio synthesis** with Python, supporting customizable phonemes, durations, and pitch contours.
 
 .. code-block:: python
   :linenos:

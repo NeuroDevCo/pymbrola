@@ -21,14 +21,14 @@ A Python interface for the [MBROLA](https://github.com/numediart/MBROLA) speech 
 
 ## Installation
 
-You can install **pymbrola** from the [PyPi](https://pypi.org/project/mbrola/) repository using [pip](https://pypi.org/project/mbrola/) or [uv](https://docs.astral.sh/uv/getting-started/installation/):
+You can install **Pymbrola** from the [PyPi](https://pypi.org/project/mbrola/) repository using [pip](https://pypi.org/project/mbrola/) or [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
 ```sh
 pip install pymbrola # pip installation
 uv add pymbrola      # uv installation
 ```
 
-In either case, you will need Python>=3.10. To synthesise audios via MBROLA, you will need to download it and compile it. The **pymbrola** package has functions for this. This will download MBROLa from [numediat/MBROLA](https://github.com/numediart/MBROLA) to you home folder `~/.mbrola` and compile it.
+In either case, you will need Python>=3.12. To synthesise audios via MBROLA, you will need to download it and compile it. The **Pymbrola** package has functions for this. This will download MBROLa from [numediat/MBROLA](https://github.com/numediart/MBROLA) to you home folder `~/.mbrola` and compile it.
 
 ```python
 from pymbrola import install
@@ -37,9 +37,9 @@ install.install_mbrola()
 ```
 
 > [!IMPORTANT]
->MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). Native Windows and macOS are not yet compatible with the **pymbrola** package.
+>MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). Native Windows and macOS are not yet compatible with the **Pymbrola** package.
 
-Finally, you will need to download some MBROLA voices from [numediart/MBROLA-voices](https://github.com/numediart/MBROLA-voices). These voices will be automatically downloaded and found by **pymbrola** at `~/.mbrola/Voices`:
+Finally, you will need to download some MBROLA voices from [numediart/MBROLA-voices](https://github.com/numediart/MBROLA-voices). These voices will be automatically downloaded and found by **Pymbrola** at `~/.mbrola/Voices`:
 
 ```python
 from pymbrola import install
@@ -61,20 +61,20 @@ install.install_voice()  # install all voices (~534M)
 from pymbrola import mbrola
 
 # Create an MBROLA object
-caffe = MBROLA(
+kaffE1 = MBROLA(
     phon=["k", "a", "f", "f", "E1"],
     durations=100,  # or [100, 120, 100, 110]
     pitch=[100, [200, 50, 200], 100, 100, 200],
 )
 
 # Display phoneme sequence
-print(caffe)
+print(kaffE1)
 
 # Export PHO file
-caffe.export_pho("caffe.pho")
+kaffE1.export_pho("kaffE1.pho")
 
 # Synthesize and save audio (WAV file)
-caffe.make_sound("caffe.wav", voice="it4")
+kaffE1.make_sound("kaffE1.wav", voice="it4")
 ```
 
 The **mbrola** module uses the MBROLA command line tool under the hood. Ensure MBROLA is installed and available in your system path, or WSL if on Windows.

@@ -2,7 +2,7 @@
 Usage
 =====
 
-This is a quick walkthrough to get you up and running with **pymbrola**. Here is a simple synthesis:
+This is a quick walkthrough to get you up and running with **Pymbrola**. Here is a simple synthesis:
 
 .. code-block:: python
   :linenos:
@@ -37,13 +37,13 @@ Phonemes are specified as a list of strings. Each phoneme in the specified list 
 
    phons = ["k", "a", "f", "f", "E1"]
 
-   caffe = mbrola.MBROLA(
+   kaffE1 = mbrola.MBROLA(
        phon=phons,
        durations=[100, 120, 100, 110, 150],
        pitch=100
    )
 
-   print(caffe.phon)
+   print(kaffE1.phon)
    # ["k", "a", "f", "f", "E1"]
 
 Durations
@@ -55,9 +55,9 @@ Durations are provided as milliseconds, and can be specified as a single integer
   :linenos:
 
    # All phonemes have 100 ms duration
-   caffe = mbrola.MBROLA(phon=phons, durations=100)
+   kaffE1 = mbrola.MBROLA(phon=phons, durations=100)
 
-   print(caffe.durations)
+   print(kaffE1.durations)
 
 If a list of phonemes, each element in the list is sequentially matched with each phoneme (the list of durations must have same length as the list of phonemes).
 
@@ -67,9 +67,9 @@ If a list of phonemes, each element in the list is sequentially matched with eac
    durations = [100, 120, 100, 110, 150]
 
    # Each phoneme has its own duration
-   caffe = mbrola.MBROLA(phon=phons, durations=durations)
+   kaffE1 = mbrola.MBROLA(phon=phons, durations=durations)
 
-   print(caffe.durations)
+   print(kaffE1.durations)
 
 Pitch contours
 ==============
@@ -79,7 +79,7 @@ Pitch can be specified in several way. If pitch is specified as an **integer**, 
 .. code-block:: python
   :linenos:
 
-   caffe = mbrola.MBROLA(phon=phons, pitch=200)
+   kaffE1 = mbrola.MBROLA(phon=phons, pitch=200)
 
    print(phon.pitch)
    # [[(0, 200)], [(0, 200)], [(0, 200)], [(0, 200)]]
@@ -91,9 +91,9 @@ If pitch is specified as a **list of integers**, with one value per provided pho
 
    pitch = [200, 50, 50, 75, 100]
 
-   caffe = mbrola.MBROLA(phon=phons, pitch=pitch)
+   kaffE1 = mbrola.MBROLA(phon=phons, pitch=pitch)
 
-   print(caffe.pitch)
+   print(kaffE1.pitch)
    # [[(0, 200)], [(0, 50)], [(0, 50)], [(0, 75)], [(0, 100)]]
 
 
@@ -104,12 +104,12 @@ If any elements in the list of pitch values is `None` or an empty list `[]`, tha
 
    pitch = [300, [], 100, 50, []]
 
-   caffe = mbrola.MBROLA(phon=phons, pitch=pitch)
+   kaffE1 = mbrola.MBROLA(phon=phons, pitch=pitch)
 
-   print(caffe.pitch)
+   print(kaffE1.pitch)
    # [[], [(25, 50), (50, 100), (75, 150), (90, 200)], [], [(0, 100)]]
 
-**pymbrola** supports the **piecewise linear description of pitch** from MBROLA. If pitch is specified as a **list** of tuples, each element will also be mapped to each phoneme. Non-empty lists in the pitch specification must consist of lists of tuples. Each tuple contains two values. The first value is the time (as a percentage of the duration of the phoneme) at which the pitch should be modified inside the phoneme (as a float or integer), and the second value is the pitch that should be set at that time (as an integer).
+**Pymbrola** supports the **piecewise linear description of pitch** from MBROLA. If pitch is specified as a **list** of tuples, each element will also be mapped to each phoneme. Non-empty lists in the pitch specification must consist of lists of tuples. Each tuple contains two values. The first value is the time (as a percentage of the duration of the phoneme) at which the pitch should be modified inside the phoneme (as a float or integer), and the second value is the pitch that should be set at that time (as an integer).
 
 For instance, in the following example pitch is specified so that:
 
@@ -122,22 +122,22 @@ For instance, in the following example pitch is specified so that:
 
    pitch = [300, [(25, 50), (50, 100), (75, 150), (90, 200)], 100, 100]
 
-   caffe = mbrola.MBROLA(phon=phons, pitch=pitch)
+   kaffE1 = mbrola.MBROLA(phon=phons, pitch=pitch)
 
-   print(caffe.pitch)
+   print(kaffE1.pitch)
    # [[], [(25, 50), (50, 100), (75, 150), (90, 200)], [], [(0, 100)]]
 
 Generating a .pho file
 ----------------------
 
-Under the hood, **pymbrola** transforms the provided inputs into a string formatted as a .pho file. These files contain the instructions that MBROLA needs to synthesise the sound. You can check what the .pho file of a `MBROLA` instance looks like using the `pho` attribute, or exporting it as a .pho file to your file system using the `export_pho` method:
+Under the hood, **Pymbrola** transforms the provided inputs into a string formatted as a .pho file. These files contain the instructions that MBROLA needs to synthesise the sound. You can check what the .pho file of a `MBROLA` instance looks like using the `pho` attribute, or exporting it as a .pho file to your file system using the `export_pho` method:
 
 .. code-block:: python
   :linenos:
 
-   caffe = mbrola.MBROLA(phon=phons)
+   kaffE1 = mbrola.MBROLA(phon=phons)
 
-   print(caffe.pho)
+   print(kaffE1.pho)
    #['; k a f f E1',
    #'_ 1',
    #'k 100 (0, 300)',
@@ -147,7 +147,7 @@ Under the hood, **pymbrola** transforms the provided inputs into a string format
    #'E1 100 ',
    #'_ 1']
 
-   caffe.export_pho("caffe.pho")
+   kaffE1.export_pho("kaffE1.pho")
 
 Synthesising the sound
 ----------------------
@@ -157,10 +157,10 @@ Finally, you can create the audio file in WAV format by using the `to_sound` met
 .. code-block:: python
   :linenos:
 
-   caffe = mbrola.MBROLA(phon=phons)
+   kaffE1 = mbrola.MBROLA(phon=phons)
 
-   caffe.to_sound("caffe.wav")
+   kaffE1.to_sound("kaffE1.wav")
 
 Which results in this audio:
 
-.. audio:: _static/sounds/caffe.wav
+.. audio:: _static/sounds/kaffE1.wav
