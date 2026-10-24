@@ -1,11 +1,11 @@
 ---
-title: 'Gala: A Python package for galactic dynamics'
+title: 'pymbrola: A Python front-end for the MBROLA speech synthesizer'
 tags:
   - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - milky way
+  - MBROLA
+  - speech synthesis
+  - speech
+  - TTS
 authors:
   - name: Gonzalo García-Castro
     orcid: 0000-0002-8553-4209
@@ -15,7 +15,7 @@ authors:
     orcid: 0000-0002-8361-5574
     affiliation: 1
 affiliations:
- - name: Institut de Recerca Sant Joan de Déu
+ - name: Institut de Recerca Sant Joan de Déu (IRSJD)
    index: 1
 
 date: 2 October 2026
@@ -24,79 +24,153 @@ bibliography: paper.bib
 
 # Summary
 
-MBROLA [@dutoit1996mbrola] is an open source software project aimed at supporting multi-language Text-To-Speech (TTS) synthesis. MBROLA is based on the Multi-Band Resynthesis OverLap Add (MBROLA) algorithm, which concatenates naturally pre-recorded diphones (i.e., combinations of two speech sounds, like /ke/ or /li/), in a way that minimizes concatenation mismatches between audios, ultimately leading to higher-quality speech synthesis than most TTS software available at the time [@dutoit1993mbr]. Since its first release, MBROLA has served as one of the most relied upon backends for TTS, and its diphone database has been extended to at least 75 languages and dialects (refered to as *voices* by MBROLA) (<https://github.com/numediart/MBROLA-voices>).
+MBROLA [@dutoit1996mbrola] is an open source software project aimed at supporting multi-language Text-To-Speech (TTS) synthesis. It is based on the Multi-Band Resynthesis OverLap Add (MBROLA) algorithm, which concatenates naturally pre-recorded diphones (i.e., combinations of two speech sounds, like /ke/ or /li/), this minimizes concatenation mismatches between audios and leads to higher-quality speech synthesis than most TTS software available at the time [@dutoit1993mbr]. Since its first release, MBROLA has served as one of the most relied upon backends for TTS, and its diphone database has been extended to at least 75 languages and dialects (refered to as *voices* by MBROLA) (<https://github.com/numediart/MBROLA-voices>).
 
-More recent speech synthesisers have been released since MBROLA, most of which produce a much more natural-sounding output. These models work very differently compared to MBROLA: they are being trained on massive amounts of text and speech data, and become very good at finding out how particular combinations of characters are supposed to sound like when read aloud. This is very convenient when one simply wants some text to be "read" aloud by the machine.
+More recent open source speech synthesisers have been released since MBROLA, most of which produce a much more natural-sounding output (e.g., VoiceStudio, GPT-SoVITS, GLM-TTS, Kokoro-82M). Those models are trained on massive amounts of text and speech data, learning how particular combinations of characters are supposed to sound like when read aloud in a particular language. This is very convenient when one simply wants some text to be "read" aloud by the machine. MBROLA works very differently. First, MBROLA takes phonetic symbols as input. It then looks up which diphones are available in the database of a particular language, and puts them together to produce a sound using the aforementioned MBROLA algorithm. The fact that MBROLA needs an extra layer of specification to act like an end-to-end TTS software represents a limitation compared to more recent sotfware, in which text and sounds are mapped directly. While some pieces of software have been developed to fill this gap (for instance eSpeakNG provides a text to phoneme translation step that later feeds to MBROLA to produce sound), it is precisely the direct phonological specification of the input that has made MBROLA of high interest for experimental psycholinguistic research.
 
-MBROLA works in a very different way. First, MBROLA takes phonetic symbols as input. It then looks up which diphones are available in the database of a particular language, and then puts them together to produce a sound using the aforementioned MBROLA algorithm.
-
-
-The fact that MBROLA needs an extra layer of specification to act like an end-to-end TTS software represents a limitation compared to more recent softqware, in which text and sounds are mapped directly. While some later developed pieces of software have been developed to fill this gap...
-
-However, it is precisely this direct manipulation of phonological properties of the output that has made MBROLA of high interest for experimental psycholinguistic research. Desiging an experimental study in psycholinguistics often involves presenting participants with auditory stimuili, some of which belong to a category or another. Participants are asked to perform a task
-
-MBROLA is no longer being mantained and public copies of this software are limited
-
-This is one of the best features of MBROLA: it provides fine-grained control over the phonology of the output. The user can also specify the duration of each phone, and modulate the pitch contour in an almost arbitrary way. Most importantly (IMO), the input consists in phonetic symbols, which provides much more control over the phonological features of the segments present in the output. For these reasons, many psycholinguistics researchers have relied on MBROLA to synthesise their auditory speech stimuli for experiments when fine control is required. For instance, this is the input that MBROLA takes to generate the word “caffè” (/kafˈfɛ/) in Italian:
-
-# Statement of need
-
-
-pymbrola provides certain benefits, compared to calling MBROLA from the terminal. First, while some Python users are familiar with bash (the programming language used to interact with the Linux kernel), many other users are not. Getting MBROLA to work using the terminal can take a while, especially if one wants to fine-tune some parameters like phoneme duration or pitch contours. If one needs to generate many audios, calling MBROLA commands for each one of the audios is quite inefficient, but its alternative—calling MBROLA using for loops—requires some bash programming abilities that some may not have the time to acquire.
-
-I made pymbrola with the intention of providing an intermediate point, in which the Python user can call MBROLA commands from the Python console. This way, manipulating parameters or using for loops can be done within Python. Here, I will illustrate some use cases for pymbrola.
+Desiging an experimental study in psycholinguistics often involves presenting participants with auditory stimuili, some of which belong to a category or another. Different categories of auditory stimuli differ in a single linguistic feature of interest. During the presentation of different types of stimuli participants are asked to perform a task (e.g., responding if two stimuli are the sae or different) or some kind of neurophysiological response is registered (e.g., EEG, fMRI, fNIRS). In both cases, the registered responses or physiological signal informs researchers about participants' ability to distinguish or identify each type of stimuli, based on their differing linguistic feature. Researchers therefore require fine control over the linguistic features present in the auditory stimuli. To this end, MBROLA's phonological specification of the input provides an interface which can be used to 1) select the specific phonemes being presented, and 2) manipulate their duration and 3) modulate the pitch contour of the resulting materials at will. This is an advantage, compared to more rencently available TTS, which rarely allow phoneme-level manipulations of duration or quality, duration, or pitch.
 
 # State of the field
 
-MBROLA is not currently being mantained, and their main website is down. Plus, there aren’t many up-to-date resources out there explaining how to use MBROLA. Getting MBROLA to run in your computer can be a bit daunting, so after having gone through it, I hope this small guide can help other people do it in a less painful way.
+MBROLA provides a terminal-based interface to users. The sequence of phonemes to synthesise, their duration, and their pitch contour is specified by the user in a PHO file, like this:
 
-    
-                                                                                    
+```
+; PHO file kaffE.pho
+_ 1
+k 100 (0, 200)
+a 100 (0, 200)
+f 100 (0, 200)
+f 100 (0, 200)
+E 100 (0, 200)
+_ 1
+```
+
+The first line starts with ";", which marks the start of a comment line. The second and last lines pad a one-millisecond silence at the start and the end of the synthesis. Every line in between specifies the phoneme to be played (e.g., `k`, which must be part of the phoneme reportoure of the language being used), its duration in milliseconds (e.g., `100 ms`), and the pitch to apply at a given millisecond inside the phoneme in Hertz (e.g., `(0, 200)`, which specifies a 200 Hz pitch at phoneme onset, which will remain constaint until phoneme offset). MBROLA can then be pointed to this file, and together with some extra parameters---mainly the voice to use (e.g., `it4`) and the path to the output file (e.g., `kaffE.wav`)---a sound will be saved as a file.
+
+```bash
+mbrola it4/it4 kaffE.pho kaffE.wav
+```
+
+While this interface is relatively intuitive to generate files on a one-to-one basis, users may sometimes need to synthesise a large number of files, each specified in a different PHO file. In these cases, the user may want to first write the corresponding PHO files, the call the `mbrola` iteratively in their terminal (e.g., Bash, PowerShell). Implementing such a solution requires some familiarity with these programming languages. Most linguistics and psycholinguistics researchers, however, use Python and R, which currently lack a direct interface to MBROLA.
+
+We present `pymbrola` a Python interface to MBROLA, which provides a series of wrapper functions that allows 1) generating PHO files from the Python console specifying phonemes, duration and pitch with fine level of detail, and 2) call MBROLA to generate the sound file. It also provides helper functions to installing MBROLA and downloading MBROLA voices from the <https://github.com/numediart/MBROLA> and <https://github.com/numediart/MBROLA-voices> repositories. 
 
 # Software design
 
-The authors note that this set of symbols is aligned with the SAMPA transcription system, which makes it a bit more predictable. They also provide some nice example to illustrate the phoneme that eah symbol refers to. Now we know we transcibe our word caffè as k a f f E11. Let’s now implement this transciption using pymbrola.
+**pymbrola** can be installed from the [PyPi](https://pypi.org/project/mbrola/) repository using [pip](https://pypi.org/project/mbrola/). Alternatively it can be installed using [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
-The main feature of the pymbrola module is the MBROLA class, which we can call specifying the word label (caffè), the list of phonmees to be played (k a f f E1).
+```sh
+pip install pymbrola # pip installation
+uv add pymbrola      # uv installation
+```
 
-This is a printed representation of the PHO file (.pho) which MBROLA will use to synthesise the word under the hood. Normally, one would manually write such a file, but pymbrola generates it automatically using the arguments passed to the instance of MBROLA. We can export this PHO file using the export_pho() method:
+MBROLA is currently available only on Linux-based systems like Ubuntu, or on Windows via the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). Native Windows and macOS are not yet compatible with the **pymbrola** package. Windows users may use the available [Docker image](https://hub.docker.com/repository/docker/gongcastro/mbrola/general) based on Ubuntu 22.04 with a ready-to-go installation of MBROLA, for convenience. Once Docker is installed in a local machine, the image can be pulled and started as a container using Docker Desktop or from the terminal:
 
-Inspecting this file, we can see that line comments are specified with the ; character2. pymbrola prints the word label in this first line, as a comment—it’s easier to read the word label than figuring it out from the phonological symbols that follow.
+```bash
+docker run -it gongcastro/pymbrola
+```
 
-In the next few lines, we define the actual sounds that MBROLA will synthesise, specified sequentially in different rows. We first have a pause symbol (_). This symbol is universal for all MBROLA languages. MBROLA needs a silence before and after the other symbols3. The first character after each symbol corresponds to the duration of its associated sound in milliseconds. We are specifying the duration of this onset silence as a default value of 1 millisecond, which is imperceptible by the human ear, making it equivalent to almost no silence at onset. Same goes for the offset silence at the end of the document.
+In either case, Python>=3.12 is required. **pymbrola** also requires a functinal MBROLA installation. This can be done from the Python console once **pymbrola** has been installed:
+
+```python
+from pymbrola import install
+
+install.install_mbrola()
+```
+
+By default, MBROLA will be downladed and compiled in a newly created folder in the home folder `~/.mbrola`. Finally, the desired MBROLA voices can also be downloaded from the Python console:
+
+```python
+from pymbrola import install
+
+install.install_voice("it4")  # install it4 voice
+install.install_voice(["it4", "fr4"])  # install several voices
+install.install_voice()  # install all voices (~534M)
+```
+
+The workhorse behind **pymbrola** is the `MBROLA` class. An instance of this class is initialised with at least a list of phonemes in the `phon` argument. Phonemes are specified as a list of strings. Each phoneme in the specified list must be included in the repertoire of phonemes in the MBROLA voice being used. In the previous example, the phoneme `"E1"` works because it is part of the `en1` voice (see here <https://github.com/numediart/MBROLA-voices/blob/master/data/en1/README.txt>). Using a phoneme that does not exist in the selected voice will result in an error. Which phonemes are available for each language can be consulted in the `README.txt` located in the voice's folder.
+
+```python
+from pymbrola import mbrola
+
+# Create an MBROLA object
+caffe = MBROLA(phon=["k", "a", "f", "f", "E1"])
+```
+Durations are specified in milliseconds, and can be provided as a single integer or as a list of integers. If a single integer, the specified duration is applied to all phonemes. Duration defaults to 100 ms for each phoneme. If a list of phonemes, each element in the list is sequentially matched with each phoneme (the list of durations must have same length as the list of phonemes).
 
 
-In the middle, we have several symbols corresponding to the phonemes that make up the word caffè in Italian: k, a, f, f, E1. Again, after each symbol we specify its duration. Since we did not specify otherwise, the duration of each phoneme is assigned 100 milliseconds by default. In next examples we will adjust this parameter at will. The two numbers that follow indicate the pitch contour inside the phoneme—how the pitch increases and decreases within each sound. Again, we are leaving the default options: the pitch starts and ends at 200 Hz with no changes in the middle.
+```python
+# All phonemes have 100 ms duration
+caffe = mbrola.MBROLA(phon=phons, durations=100)
 
 
-The resulting MBROLA object we created is all MBROLA needs to synthesise the sounds we want. Let’s do it:
+# Each phoneme has its own duration
+durations = [100, 120, 100, 110, 150]
+caffe = mbrola.MBROLA(phon=phons, durations=durations)
+```
 
-We can shorten or lengthen the whole audio by a constant (all sounds are modified equally) using the dur_ratio argument in the make_sound() method. A value of 1.0 leaves the audio unnmodified. Smaller values shorten the audio duration:
+Pitch can be specified in several way. If pitch is specified as an **integer**, pitch is assumed constant across phonemes:
 
+```python
+caffe = mbrola.MBROLA(phon=phons, pitch=200)
+```
 
-We can shorten or lengthen the whole audio by a constant (all sounds are modified equally) using the dur_ratio argument in the make_sound() method. A value of 1.0 leaves the audio unnmodified. Smaller values shorten the audio duration:
+If pitch is specified as a **list of integers**, with one value per provided phoneme, following MBROLA the resulting pitch contour will be remain constant at each value for the time spanned by its corresponding phoneme.
 
-To manipulate the individual duration of each phoneme, we need to specify it when create the MBROLA instance. We can do this by specifying a single positive integer in the durations argument, or a list of positive integer with same length as number of phonemes. The former option leads to all phonemes being given that same value. The latter, a list, assigns each duration to each phoneme:
+```python
+pitch = [200, 50, 50, 75, 100]
+caffe = mbrola.MBROLA(phon=phons, pitch=pitch)
+```
 
-As you see, we have lengthened the two vowels a and E1, shortened the onset phoneme k and left the rest of the phonemes f and f equal4. Let’s see how it sounds, can you spot the difference?
+If any elements in the list of pitch values is `None` or an empty list `[]`, that value is converted to the default pitch value (200 Hz), and treated as if such valuee had been provided as an integer instead.
 
-We also have several methods to alter the pitch contour of the word-form. As we did before with duration, we can also modify the pitch of the whole word by a constant. Let’s raise the pitch to 400 Hz (double):
+```python
+pitch = [300, [], 100, 50, []]
+caffe = mbrola.MBROLA(phon=phons, pitch=pitch)
+```
 
-We can also pass a list of pitch values in a list of length equal to the number of phonemes:
+**pymbrola** supports the **piecewise linear description of pitch** from MBROLA. If pitch is specified as a **list** of tuples, each element will also be mapped to each phoneme. Non-empty lists in the pitch specification must consist of lists of tuples. Each tuple contains two values. The first value is the time (as a percentage of the duration of the phoneme) at which the pitch should be modified inside the phoneme (as a float or integer), and the second value is the pitch that should be set at that time (as an integer).
 
-Here we have passed a list of pitch values (in Hz) that make the first syllable have a higher pitch, compared to the second one. Can you hear the difference?
+For instance, in the following example pitch is specified so that:
 
-As you can see, I’ve specified a list of values for the pitch of the last phoneme E1: pitch starts at 200 Hz, continues at 250 Hz, 300 Hz, and finally, 44 Hz. The rest of the phonemes have the same values as in the previous example. I’ve also modified the duration of the last phoneme /e/ to 500 milliseconds to make the pith modulation easier to perceive. Under the hood, MBROLA will divide the time span of the last phoneme (500 ms) into equal intervals (where equals the number of values passed for the pitch contour of such phoneme), and change the pitch linear at each point by the corresponding value:
+1) First phoneme (`k`): Pitch remains constant at 300 Hz.
+2) Second phoneme (`a`): Pitch starts at 200 Hz, then changes to 50 Hz at 25 ms after phoneme onset, then changes to 100 Hz after 50 ms, then changes to 90 Hz after 90 ms.
+3) Rest of the phonemes (`f`, `f`, `E1`): Pitch changes to 300 Hz after 50 ms.
+
+```python
+pitch = [300, [(25, 50), (50, 100), (75, 150), (90, 200)], 100, 100]
+caffe = mbrola.MBROLA(phon=phons, pitch=pitch)
+```
+
+Under the hood, **pymbrola** transforms the provided inputs into a string formatted as a .pho file. These files contain the instructions that MBROLA needs to synthesise the sound. You can check what the .pho file of a `MBROLA` instance looks like using the `pho` attribute, or exporting it as a .pho file to your file system using the `export_pho` method:
+
+```python
+caffe = mbrola.MBROLA(phon=phons)
+
+print(caffe.pho)
+# ['; k a f f E1',
+#'_ 1',
+#'k 100 (0, 300)',
+#'a 100 ',
+#'f 100 (0, 100)',
+#'f 100 (0, 50)',
+#'E1 100 ',
+#'_ 1']
+
+caffe.export_pho("caffe.pho")
+```
+
+Finally, the audio can be synthesised and written in disk in WAV format by using the `to_sound` method:
+
+```python
+caffe.to_sound("caffe.wav", voice="it4")
+```
 
 # Research impact statement
-
-pymbrola provides a convenient Python interface to MBROLA, which allows modifying the duration and pitch contour of particular phonemes by simplify specifying the arguments provided in during the creation of a MBROLA instance, or during the synthesis of the audio when calling the make_sound() method. This makes it easier for the average Python user to generate multiple MBROLA sounds in a programmatic, faster, and more reproducible way.
-
 
 # Citations
 
 # Figures
-
 
 # AI usage disclosure
 
