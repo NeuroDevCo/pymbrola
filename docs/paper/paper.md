@@ -139,9 +139,7 @@ pitch = [300, [], 100, 50, []]
 kaffE1 = mbrola.MBROLA(phon=phons, pitch=pitch)
 ```
 
-Pymbrola supports the piecewise linear description of pitch from MBROLA. If pitch is specified as a list of tuples (pairs of values), each element in the list will be mapped to each phoneme. Non-empty lists in the pitch specification must consist of lists of tuples. Each tuple contains two values. The first value is the time (as a percentage of the duration of the phoneme) at which the pitch should be modified inside the phoneme (as a float or integer), and the second value is the pitch that should be set at that time (as an integer).
-
-For instance, in the following example pitch is specified so that:
+Pymbrola supports the piecewise linear description of pitch from MBROLA. If pitch is specified as a list of tuples (pairs of values), each element in the list will be mapped to each phoneme. Non-empty lists in the pitch specification must consist of lists of tuples. Each tuple contains two values. The first value is the time (as a percentage of the duration of the phoneme) at which the pitch should be modified inside the phoneme (as a float or integer), and the second value is the pitch that should be set at that time (as an integer). For instance, in the following example pitch is specified so that:
 
 1)  First phoneme (`k`): Pitch remains constant at 300 Hz.
 2)  Second phoneme (`a`): Pitch starts at 200 Hz, then changes to 50 Hz at 25 ms after phoneme onset, then changes to 100 Hz after 50 ms, then changes to 90 Hz after 90 ms.
